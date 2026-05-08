@@ -15,6 +15,16 @@ import { Registros } from '@/views/admin/Registros'
 import { Incidentes } from '@/views/admin/Incidentes'
 import { MapaEquipos } from '@/views/admin/MapaEquipos'
 import { EstadisticasHSE } from '@/views/admin/EstadisticasHSE'
+import { GestionEquipos } from '@/views/admin/GestionEquipos'
+import { GestionLocaciones } from '@/views/admin/GestionLocaciones'
+import { GestionUsuarios as AdminGestionUsuarios } from '@/views/admin/GestionUsuarios'
+import { Auditores } from '@/views/admin/Auditores'
+
+// Auditor
+import { AuditorDashboard } from '@/views/auditor/AuditorDashboard'
+import { MapaAuditor } from '@/views/auditor/MapaAuditor'
+import { IncidentesAuditor } from '@/views/auditor/IncidentesAuditor'
+import { ReportesAuditor } from '@/views/auditor/ReportesAuditor'
 
 // Superadmin
 import { SuperadminDashboard } from '@/views/superadmin/SuperadminDashboard'
@@ -70,9 +80,11 @@ export const router = createBrowserRouter([
       { path: 'mapa', element: <MapaEquipos /> },
       { path: 'estadisticas', element: <EstadisticasHSE /> },
       { path: 'hse', element: <EstadisticasHSE /> },
-      { path: 'equipos', element: <PagePlaceholder title="Gestión de Equipos" /> },
-      { path: 'usuarios', element: <PagePlaceholder title="Gestión de Usuarios" /> },
-      { path: 'empresas', element: <PagePlaceholder title="Gestión de Empresas" /> },
+      { path: 'equipos', element: <GestionEquipos /> },
+      { path: 'locaciones', element: <GestionLocaciones /> },
+      { path: 'usuarios', element: <AdminGestionUsuarios /> },
+      { path: 'auditores', element: <Auditores /> },
+      { path: 'empresas', element: <PagePlaceholder title="Gestión de Empresas Visitantes" /> },
       { path: 'documentos', element: <PagePlaceholder title="Documentos de Seguridad" /> },
       { path: 'logs', element: <PagePlaceholder title="Logs de Auditoría" /> },
     ],
@@ -83,10 +95,10 @@ export const router = createBrowserRouter([
     path: '/auditor',
     element: <AuditorGuard />,
     children: [
-      { path: '', element: <PagePlaceholder title="Dashboard Auditor" /> },
-      { path: 'mapa', element: <MapaEquipos /> },
-      { path: 'incidentes', element: <Incidentes /> },
-      { path: 'reportes', element: <EstadisticasHSE /> },
+      { path: '', element: <AuditorDashboard /> },
+      { path: 'mapa', element: <MapaAuditor /> },
+      { path: 'incidentes', element: <IncidentesAuditor /> },
+      { path: 'reportes', element: <ReportesAuditor /> },
     ],
   },
 

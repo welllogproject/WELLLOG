@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
-import type { Equipo } from '@/types/models'
+import type { Equipo, EstadoEquipo, TipoEquipo } from '@/types/models'
 
 const QUERY_KEY = 'equipos'
 
@@ -117,5 +117,73 @@ export function useActualizarUbicacion() {
     onError: (error) => {
       toast.error(`Error: ${error.message}`)
     },
+  })
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+
+export interface EquipoForm {
+  nombre_equipo: string
+  tipo_equipo?: TipoEquipo
+  descripcion?: string
+  estado: EstadoEquipo
+  locacion_actual_id?: string
+  operador_asignado_id?: string
+  empresa_operadora_id?: string
+}
+
+export function useCrearEquipo() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (form: EquipoForm) => {
+      const { data, error } = await supabase
+        .from('equipos')
+        .insert(form)
+        .select()
+        .single()
+      if (error) throw error
+      return data as Equipo
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Equipo creado')
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
+}
+
+export function useActualizarEquipo() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, ...form }: EquipoForm & { id: string }) => {
+      const { error } = await supabase
+        .from('equipos')
+        .update(form)
+        .eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Equipo actualizado')
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
+}
+
+export function useEliminarEquipo() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('equipos')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [QUERY_KEY] })
+      toast.success('Equipo eliminado')
+    },
+    onError: (e: Error) => toast.error(e.message),
   })
 }
