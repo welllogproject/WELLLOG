@@ -5,11 +5,11 @@
 
 -- Empresa contratista (Venver)
 INSERT INTO empresas (id, nombre, tipo, razon_social, cuit, email_contacto, plan) VALUES
-  ('11111111-0000-0000-0000-000000000001', 'Venver', 'contratista', 'Venver S.A.', '30-12345678-9', 'admin@venver.com.ar', 'pro');
+  ('11111111-0000-0000-0000-000000000001', 'Venver', 'contratista', 'Venver S.A.', '30123456789', 'admin@venver.com.ar', 'pro');
 
 -- Empresa operadora (YPF)
 INSERT INTO empresas (id, nombre, tipo, razon_social, cuit, email_contacto, plan) VALUES
-  ('11111111-0000-0000-0000-000000000002', 'YPF', 'operadora', 'YPF S.A.', '30-54668997-9', 'operaciones@ypf.com', 'enterprise');
+  ('11111111-0000-0000-0000-000000000002', 'YPF', 'operadora', 'YPF S.A.', '30546689979', 'operaciones@ypf.com', 'enterprise');
 
 -- Locaciones (pozos)
 INSERT INTO locaciones (id, empresa_id, codigo, nombre, descripcion) VALUES
