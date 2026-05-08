@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── VARIABLES CSS GLOBALES (ClayUI) ───────────────────── */
+:root {
+  /* Gradientes de botones */
+  --btn-ingreso: linear-gradient(135deg, #7F77DD 0%, #534AB7 100%);
+  --btn-salida: linear-gradient(135deg, #1D9E75 0%, #0F6E56 100%);
+  --btn-peligro: linear-gradient(135deg, #E24B4A 0%, #b93332 100%);
+
+  /* Estados de equipo */
+  --estado-operativo: #1D9E75;
+  --estado-mant: #BA7517;
+  --estado-inactivo: #888780;
+  --estado-incidente: #E24B4A;
+
+  /* UI base */
+  --card-bg: #FFFFFF;
+  --page-bg: #F8F8F6;
+  --border: rgba(0, 0, 0, 0.08);
+  --text-primary: #2C2C2A;
+  --text-muted: #5F5E5A;
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+
+  /* Transiciones */
+  --transition: all 150ms ease;
+}
+
+/* ── RESET Y BASE ───────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  color: var(--text-primary);
+  background-color: var(--page-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* ── SCROLLBARS (webkit) ────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 2px;
+}
+
+/* ── TIPOGRAFÍA ─────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+/* ── FOCUS ──────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #7F77DD;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── UTILIDADES CUSTOM ──────────────────────────────────── */
+@layer utilities {
+  .btn-ingreso {
+    background: var(--btn-ingreso);
+    color: white;
+    transition: var(--transition);
+  }
+  .btn-ingreso:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+  .btn-ingreso:active {
+    transform: translateY(0);
+  }
+
+  .btn-salida {
+    background: var(--btn-salida);
+    color: white;
+    transition: var(--transition);
+  }
+  .btn-salida:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+
+  .btn-peligro {
+    background: var(--btn-peligro);
+    color: white;
+    transition: var(--transition);
+  }
+
+  .card-clay {
+    background: var(--card-bg);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .page-bg {
+    background-color: var(--page-bg);
+  }
+
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+}
+
+/* ── ANIMACIONES ────────────────────────────────────────── */
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(29, 158, 117, 0.4); }
+  50%       { box-shadow: 0 0 0 8px rgba(29, 158, 117, 0); }
+}
+
+.animate-slide-up  { animation: slideUp 0.2s ease-out; }
+.animate-fade-in   { animation: fadeIn 0.15s ease-out; }
+.animate-scale-in  { animation: scaleIn 0.15s ease-out; }
+.animate-pulse-green { animation: pulse-green 2s ease-in-out infinite; }
+
+/* ── LEAFLET OVERRIDES ──────────────────────────────────── */
+.leaflet-container {
+  font-family: 'Inter', system-ui, sans-serif;
+  border-radius: 16px;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ── FIRMA CANVAS ───────────────────────────────────────── */
+.firma-canvas {
+  border: 2px dashed rgba(0,0,0,0.12);
+  border-radius: 12px;
+  background: #FAFAFA;
+  touch-action: none;
+  cursor: crosshair;
+  display: block;
+}
+.firma-canvas:hover {
+  border-color: #7F77DD;
+}
+
+/* ── TABLET OPTIMIZATIONS ───────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px; /* Previene zoom automático en iOS */
+  }
+}
+
+/* Evitar doble-tap zoom en tablet */
+button, a, input, select {
+  touch-action: manipulation;
+}
