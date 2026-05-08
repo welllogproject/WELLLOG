@@ -14,19 +14,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-  ingreso:   'btn-ingreso font-medium rounded-clay shadow-clay-sm',
-  salida:    'btn-salida font-medium rounded-clay shadow-clay-sm',
-  primary:   'btn-ingreso font-medium rounded-clay shadow-clay-sm',
+  ingreso: 'btn-ingreso font-medium rounded-clay shadow-clay-sm',
+  salida: 'btn-salida font-medium rounded-clay shadow-clay-sm',
+  primary: 'btn-ingreso font-medium rounded-clay shadow-clay-sm',
   secondary: 'bg-white border border-[rgba(0,0,0,0.12)] text-[#2C2C2A] font-medium rounded-clay hover:bg-gray-50 transition-all duration-150',
-  ghost:     'bg-transparent text-[#5F5E5A] font-medium rounded-clay hover:bg-black/5 transition-all duration-150',
-  danger:    'btn-peligro font-medium rounded-clay shadow-clay-sm',
+  ghost: 'bg-transparent text-[#5F5E5A] font-medium rounded-clay hover:bg-black/5 transition-all duration-150',
+  danger: 'btn-peligro font-medium rounded-clay shadow-clay-sm',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm:  'px-4 py-2 text-sm',
-  md:  'px-5 py-2.5 text-sm',
-  lg:  'px-6 py-3 text-base',
-  xl:  'px-8 py-5 text-lg',
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-6 py-3 text-base',
+  xl: 'px-8 py-5 text-lg',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
