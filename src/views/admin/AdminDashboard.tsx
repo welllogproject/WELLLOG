@@ -11,6 +11,7 @@ import { StatusDot } from '@/components/ui/StatusDot'
 import { Users, AlertTriangle, Activity, Building2, TrendingUp, Clock } from 'lucide-react'
 import { useIncidentes } from '@/hooks/useIncidentes'
 import { useEquipos } from '@/hooks/useEquipos'
+import { useRealtimeDashboard } from '@/hooks/useRealtime'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 
@@ -42,6 +43,7 @@ function KPICard({
 }
 
 export function AdminDashboard() {
+  useRealtimeDashboard()
   const { data: equipos, isLoading: loadingEquipos } = useEquipos()
   const { data: incidentes, isLoading: loadingIncidentes } = useIncidentes(undefined, 'pendiente')
 

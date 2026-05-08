@@ -8,6 +8,7 @@ import { LoginView } from '@/views/auth/LoginView'
 import { OperadorHome } from '@/views/operador/OperadorHome'
 import { NuevoIngreso } from '@/views/operador/NuevoIngreso'
 import { MarcarSalida } from '@/views/operador/MarcarSalida'
+import { ConfigEquipo } from '@/views/operador/ConfigEquipo'
 
 // Admin
 import { AdminDashboard } from '@/views/admin/AdminDashboard'
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: '', element: <OperadorHome /> },
       { path: 'ingreso', element: <NuevoIngreso /> },
       { path: 'salida', element: <MarcarSalida /> },
+      { path: 'config', element: <ConfigEquipo /> },
     ],
   },
 

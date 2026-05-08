@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Read(//e/Projeto/WELL LOG/src/**)",
+      "Bash(git commit -m 'fix: renombrar FieldPass→WELL LOG en título de pestaña del navegador *)",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'fix: agregar vercel.json con rewrites para SPA routing *)",
+      "Bash(git commit -m 'fix: agregar favicon.svg y corregir manifest icons *)",
+      "Bash(git commit -m 'feat: módulos admin completos — Estadisticas, Logs, GestionEmpresas, Documentos *)",
+      "Bash(git commit -m 'fix: especificar outputDirectory dist en vercel.json para SPA routing *)",
+      "Bash(git commit -m 'feat: useRealtime, ConfigEquipo operador, fix branding WELL LOG, fix RLS types *)"
+    ]
+  }
+}

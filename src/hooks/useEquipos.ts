@@ -130,6 +130,7 @@ export interface EquipoForm {
   locacion_actual_id?: string
   operador_asignado_id?: string
   empresa_operadora_id?: string
+  ubicacion_punto?: string
 }
 
 export function useCrearEquipo() {
@@ -155,7 +156,7 @@ export function useCrearEquipo() {
 export function useActualizarEquipo() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, ...form }: EquipoForm & { id: string }) => {
+    mutationFn: async ({ id, ...form }: Partial<EquipoForm> & { id: string }) => {
       const { error } = await supabase
         .from('equipos')
         .update(form)

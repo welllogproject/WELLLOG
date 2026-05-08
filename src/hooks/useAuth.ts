@@ -50,7 +50,7 @@ export function useAuthInit() {
           await cargarUsuario(session.user.id, setUsuario)
         }
       } catch (err) {
-        console.error('[FieldPass] Error inicializando sesión:', err)
+        console.error('[WELL LOG] Error inicializando sesión:', err)
       } finally {
         if (mounted) setLoading(false)
       }
@@ -89,7 +89,7 @@ async function cargarUsuario(
     .single()
 
   if (error || !data) {
-    console.error('[FieldPass] Error cargando usuario:', error)
+    console.error('[WELL LOG] Error cargando usuario:', error)
     setUsuario(null)
     return
   }
