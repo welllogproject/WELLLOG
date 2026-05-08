@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Map, ClipboardList, AlertTriangle,
   BarChart3, Users, LogOut, ShieldCheck, FileText,
-  Building2, BookOpen, Globe, Lock, Settings,
+  Building2, BookOpen, Globe, Lock, Settings, TrendingUp,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { StatusDot } from '@/components/ui/StatusDot'
@@ -14,11 +14,12 @@ interface NavItem {
 }
 
 const SUPERADMIN_ITEMS: NavItem[] = [
-  { to: '/superadmin', label: 'Plataforma', icon: <Globe size={18} /> },
-  { to: '/superadmin/empresas', label: 'Empresas', icon: <Building2 size={18} /> },
-  { to: '/superadmin/usuarios', label: 'Usuarios', icon: <Users size={18} /> },
+  { to: '/superadmin',          label: 'Plataforma',       icon: <Globe size={18} /> },
+  { to: '/superadmin/metricas', label: 'Métricas',         icon: <TrendingUp size={18} /> },
+  { to: '/superadmin/empresas', label: 'Empresas',         icon: <Building2 size={18} /> },
+  { to: '/superadmin/usuarios', label: 'Usuarios',         icon: <Users size={18} /> },
   { to: '/superadmin/permisos', label: 'Permisos de Acceso', icon: <Lock size={18} /> },
-  { to: '/superadmin/logs', label: 'Logs Globales', icon: <BookOpen size={18} /> },
+  { to: '/superadmin/logs',     label: 'Logs Globales',    icon: <BookOpen size={18} /> },
 ]
 
 const ADMIN_ITEMS: NavItem[] = [

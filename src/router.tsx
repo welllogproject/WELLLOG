@@ -21,6 +21,7 @@ import { SuperadminDashboard } from '@/views/superadmin/SuperadminDashboard'
 import { GestionEmpresas } from '@/views/superadmin/GestionEmpresas'
 import { GestionUsuarios } from '@/views/superadmin/GestionUsuarios'
 import { PermisosAcceso } from '@/views/superadmin/PermisosAcceso'
+import { MetricasPlataforma } from '@/views/superadmin/MetricasPlataforma'
 
 // Guards
 function OperadorGuard() {
@@ -98,6 +99,7 @@ export const router = createBrowserRouter([
       { path: 'empresas', element: <GestionEmpresas /> },
       { path: 'usuarios', element: <GestionUsuarios /> },
       { path: 'permisos', element: <PermisosAcceso /> },
+      { path: 'metricas', element: <MetricasPlataforma /> },
       { path: 'logs', element: <PagePlaceholder title="Logs Globales" /> },
     ],
   },
