@@ -19,6 +19,10 @@ import { GestionEquipos } from '@/views/admin/GestionEquipos'
 import { GestionLocaciones } from '@/views/admin/GestionLocaciones'
 import { GestionUsuarios as AdminGestionUsuarios } from '@/views/admin/GestionUsuarios'
 import { Auditores } from '@/views/admin/Auditores'
+import { Estadisticas } from '@/views/admin/Estadisticas'
+import { Logs } from '@/views/admin/Logs'
+import { GestionEmpresas as AdminGestionEmpresas } from '@/views/admin/GestionEmpresas'
+import { Documentos } from '@/views/admin/Documentos'
 
 // Auditor
 import { AuditorDashboard } from '@/views/auditor/AuditorDashboard'
@@ -78,15 +82,15 @@ export const router = createBrowserRouter([
       { path: 'registros', element: <Registros /> },
       { path: 'incidentes', element: <Incidentes /> },
       { path: 'mapa', element: <MapaEquipos /> },
-      { path: 'estadisticas', element: <EstadisticasHSE /> },
       { path: 'hse', element: <EstadisticasHSE /> },
       { path: 'equipos', element: <GestionEquipos /> },
       { path: 'locaciones', element: <GestionLocaciones /> },
       { path: 'usuarios', element: <AdminGestionUsuarios /> },
       { path: 'auditores', element: <Auditores /> },
-      { path: 'empresas', element: <PagePlaceholder title="Gestión de Empresas Visitantes" /> },
-      { path: 'documentos', element: <PagePlaceholder title="Documentos de Seguridad" /> },
-      { path: 'logs', element: <PagePlaceholder title="Logs de Auditoría" /> },
+      { path: 'estadisticas', element: <Estadisticas /> },
+      { path: 'empresas', element: <AdminGestionEmpresas /> },
+      { path: 'documentos', element: <Documentos /> },
+      { path: 'logs', element: <Logs /> },
     ],
   },
 
