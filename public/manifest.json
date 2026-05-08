@@ -1,6 +1,6 @@
 {
-  "name": "FieldPass",
-  "short_name": "FieldPass",
+  "name": "WELL LOG",
+  "short_name": "WELL LOG",
   "description": "Control de acceso digital para yacimientos petroleros",
   "start_url": "/",
   "display": "standalone",

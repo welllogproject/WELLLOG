@@ -230,6 +230,48 @@ export interface OperacionOffline {
 }
 
 // ──────────────────────────────────────────────────────────
+// PERMISO DE ACCESO (multi-tenant)
+// ──────────────────────────────────────────────────────────
+export type TipoAcceso = 'lectura' | 'lectura_en_vivo' | 'reporte'
+
+export interface PermisoAcceso {
+  id: string
+  empresa_propietaria_id: string
+  empresa_auditora_id: string
+  equipo_id?: string
+  tipo_acceso: TipoAcceso
+  puede_ver_incidentes: boolean
+  puede_ver_hse: boolean
+  puede_ver_coordenadas: boolean
+  fecha_inicio: string
+  fecha_fin?: string
+  activo: boolean
+  created_at: string
+  // Joins opcionales
+  empresa_propietaria?: Empresa
+  empresa_auditora?: Empresa
+  equipo?: Equipo
+}
+
+// ──────────────────────────────────────────────────────────
+// LOG DE SISTEMA
+// ──────────────────────────────────────────────────────────
+export interface LogSistema {
+  id: string
+  usuario_id?: string
+  accion: string
+  tabla_afectada?: string
+  registro_id?: string
+  cambios_antes?: Record<string, unknown>
+  cambios_despues?: Record<string, unknown>
+  ip_origen?: string
+  user_agent?: string
+  created_at: string
+  // Joins opcionales
+  usuario?: Usuario
+}
+
+// ──────────────────────────────────────────────────────────
 // FORMS — tipos de formulario
 // ──────────────────────────────────────────────────────────
 export interface FormIngresoData {

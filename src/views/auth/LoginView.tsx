@@ -18,8 +18,9 @@ export function LoginView() {
 
   // Redirigir si ya está autenticado
   if (!isLoading && usuario) {
-    if (usuario.rol === 'operador') return <Navigate to="/operador" replace />
-    if (usuario.rol === 'auditor') return <Navigate to="/auditor" replace />
+    if (usuario.rol === 'superadmin') return <Navigate to="/superadmin" replace />
+    if (usuario.rol === 'operador')   return <Navigate to="/operador" replace />
+    if (usuario.rol === 'auditor')    return <Navigate to="/auditor" replace />
     return <Navigate to="/admin" replace />
   }
 
@@ -61,7 +62,7 @@ export function LoginView() {
             <ShieldCheck size={28} className="text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-xl font-medium text-[#2C2C2A]">FieldPass</h1>
+            <h1 className="text-xl font-medium text-[#2C2C2A]">WELL LOG</h1>
             <p className="text-sm text-[#888780] mt-0.5">Control de acceso en campo</p>
           </div>
         </div>

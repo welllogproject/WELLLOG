@@ -26,9 +26,9 @@ export function App() {
       {isLoading ? (
         <div className="min-h-screen bg-[#F8F8F6] flex flex-col items-center justify-center gap-4">
           <div className="w-12 h-12 rounded-[14px] bg-[#7F77DD] flex items-center justify-center animate-pulse shadow-clay">
-            <span className="text-white font-semibold">FP</span>
+            <span className="text-white font-semibold">WL</span>
           </div>
-          <p className="text-sm font-medium text-[#5F5E5A]">Iniciando FieldPass...</p>
+          <p className="text-sm font-medium text-[#5F5E5A]">Iniciando WELL LOG...</p>
         </div>
       ) : (
         <RouterProvider router={router} />

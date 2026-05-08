@@ -1,49 +1,53 @@
-// src/router.tsx
-// Configuración de rutas y guards de acceso
-
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
 import { useRequireAuth } from '@/hooks/useAuth'
 
-// Vistas
+// Auth
 import { LoginView } from '@/views/auth/LoginView'
+
+// Operador
 import { OperadorHome } from '@/views/operador/OperadorHome'
 import { NuevoIngreso } from '@/views/operador/NuevoIngreso'
 import { MarcarSalida } from '@/views/operador/MarcarSalida'
+
+// Admin
 import { AdminDashboard } from '@/views/admin/AdminDashboard'
 import { Registros } from '@/views/admin/Registros'
 import { Incidentes } from '@/views/admin/Incidentes'
 import { MapaEquipos } from '@/views/admin/MapaEquipos'
 import { EstadisticasHSE } from '@/views/admin/EstadisticasHSE'
 
-// Guard para Operador
+// Superadmin
+import { SuperadminDashboard } from '@/views/superadmin/SuperadminDashboard'
+import { GestionEmpresas } from '@/views/superadmin/GestionEmpresas'
+import { GestionUsuarios } from '@/views/superadmin/GestionUsuarios'
+import { PermisosAcceso } from '@/views/superadmin/PermisosAcceso'
+
+// Guards
 function OperadorGuard() {
   useRequireAuth(['operador', 'admin', 'superadmin'])
   return <Outlet />
 }
 
-// Guard para Admin
 function AdminGuard() {
   useRequireAuth(['admin', 'superadmin'])
   return <Outlet />
 }
 
-// Guard para Auditor
 function AuditorGuard() {
   useRequireAuth(['auditor', 'admin', 'superadmin'])
   return <Outlet />
 }
 
+function SuperadminGuard() {
+  useRequireAuth(['superadmin'])
+  return <Outlet />
+}
+
 export const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <LoginView />,
-  },
-  {
-    path: '/',
-    element: <Navigate to="/login" replace />,
-  },
-  
-  // ── RUTAS OPERADOR (Mobile/Tablet) ──
+  { path: '/login', element: <LoginView /> },
+  { path: '/', element: <Navigate to="/login" replace /> },
+
+  // ── OPERADOR (Mobile/Tablet) ──────────────────────────
   {
     path: '/operador',
     element: <OperadorGuard />,
@@ -54,7 +58,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ── RUTAS ADMIN (Desktop) ──
+  // ── ADMIN (Desktop) ───────────────────────────────────
   {
     path: '/admin',
     element: <AdminGuard />,
@@ -64,8 +68,7 @@ export const router = createBrowserRouter([
       { path: 'incidentes', element: <Incidentes /> },
       { path: 'mapa', element: <MapaEquipos /> },
       { path: 'estadisticas', element: <EstadisticasHSE /> },
-      { path: 'hse', element: <EstadisticasHSE /> }, // Alias
-      // Placeholders
+      { path: 'hse', element: <EstadisticasHSE /> },
       { path: 'equipos', element: <PagePlaceholder title="Gestión de Equipos" /> },
       { path: 'usuarios', element: <PagePlaceholder title="Gestión de Usuarios" /> },
       { path: 'empresas', element: <PagePlaceholder title="Gestión de Empresas" /> },
@@ -74,7 +77,7 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // ── RUTAS AUDITOR (Desktop) ──
+  // ── AUDITOR (Desktop, solo lectura) ──────────────────
   {
     path: '/auditor',
     element: <AuditorGuard />,
@@ -86,10 +89,20 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // ── SUPERADMIN (Plataforma completa) ──────────────────
   {
-    path: '*',
-    element: <Navigate to="/login" replace />,
+    path: '/superadmin',
+    element: <SuperadminGuard />,
+    children: [
+      { path: '', element: <SuperadminDashboard /> },
+      { path: 'empresas', element: <GestionEmpresas /> },
+      { path: 'usuarios', element: <GestionUsuarios /> },
+      { path: 'permisos', element: <PermisosAcceso /> },
+      { path: 'logs', element: <PagePlaceholder title="Logs Globales" /> },
+    ],
   },
+
+  { path: '*', element: <Navigate to="/login" replace /> },
 ])
 
 import { PageLayout } from '@/components/layout/PageLayout'
