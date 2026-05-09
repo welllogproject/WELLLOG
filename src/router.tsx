@@ -3,6 +3,7 @@ import { useRequireAuth } from '@/hooks/useAuth'
 
 // Auth
 import { LoginView } from '@/views/auth/LoginView'
+import { RecoverPasswordView } from '@/views/auth/RecoverPasswordView'
 
 // Operador
 import { OperadorHome } from '@/views/operador/OperadorHome'
@@ -37,6 +38,9 @@ import { GestionEmpresas } from '@/views/superadmin/GestionEmpresas'
 import { GestionUsuarios } from '@/views/superadmin/GestionUsuarios'
 import { PermisosAcceso } from '@/views/superadmin/PermisosAcceso'
 import { MetricasPlataforma } from '@/views/superadmin/MetricasPlataforma'
+import { ConfiguracionPlataforma } from '@/views/superadmin/ConfiguracionPlataforma'
+import { SoportePlataforma } from '@/views/superadmin/SoportePlataforma'
+import { LogsGlobales } from '@/views/superadmin/LogsGlobales'
 
 // Guards
 function OperadorGuard() {
@@ -61,6 +65,7 @@ function SuperadminGuard() {
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginView /> },
+  { path: '/recover', element: <RecoverPasswordView /> },
   { path: '/', element: <Navigate to="/login" replace /> },
 
   // ── OPERADOR (Mobile/Tablet) ──────────────────────────
@@ -118,7 +123,9 @@ export const router = createBrowserRouter([
       { path: 'usuarios', element: <GestionUsuarios /> },
       { path: 'permisos', element: <PermisosAcceso /> },
       { path: 'metricas', element: <MetricasPlataforma /> },
-      { path: 'logs', element: <PagePlaceholder title="Logs Globales" /> },
+      { path: 'config', element: <ConfiguracionPlataforma /> },
+      { path: 'soporte', element: <SoportePlataforma /> },
+      { path: 'logs', element: <LogsGlobales /> },
     ],
   },
 

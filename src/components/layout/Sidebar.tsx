@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Map, ClipboardList, AlertTriangle,
   BarChart3, Users, LogOut, ShieldCheck, FileText,
   Building2, BookOpen, Globe, Lock, Settings, TrendingUp,
+  HelpCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { StatusDot } from '@/components/ui/StatusDot'
@@ -23,17 +24,24 @@ interface NavGroup {
 const SUPERADMIN_GROUPS: NavGroup[] = [
   {
     items: [
-      { to: '/superadmin',          label: 'Plataforma',         icon: <Globe size={16} /> },
-      { to: '/superadmin/metricas', label: 'Métricas',           icon: <TrendingUp size={16} /> },
+      { to: '/superadmin',            label: 'Plataforma',         icon: <Globe size={16} /> },
+      { to: '/superadmin/metricas',   label: 'Métricas',           icon: <TrendingUp size={16} /> },
     ],
   },
   {
     label: 'Gestión',
     items: [
-      { to: '/superadmin/empresas', label: 'Empresas',           icon: <Building2 size={16} /> },
-      { to: '/superadmin/usuarios', label: 'Usuarios',           icon: <Users size={16} /> },
-      { to: '/superadmin/permisos', label: 'Permisos de Acceso', icon: <Lock size={16} /> },
-      { to: '/superadmin/logs',     label: 'Logs Globales',      icon: <BookOpen size={16} /> },
+      { to: '/superadmin/empresas',   label: 'Empresas',           icon: <Building2 size={16} /> },
+      { to: '/superadmin/usuarios',   label: 'Usuarios',           icon: <Users size={16} /> },
+      { to: '/superadmin/permisos',   label: 'Permisos de Acceso', icon: <Lock size={16} /> },
+    ],
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { to: '/superadmin/config',     label: 'Configuración',      icon: <Settings size={16} /> },
+      { to: '/superadmin/soporte',    label: 'Soporte',            icon: <HelpCircle size={16} /> },
+      { to: '/superadmin/logs',       label: 'Logs Globales',      icon: <BookOpen size={16} /> },
     ],
   },
 ]

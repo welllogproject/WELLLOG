@@ -1,6 +1,7 @@
 // src/components/layout/TopBar.tsx
 import { Bell, Wifi, WifiOff } from 'lucide-react'
 import { useOfflineStore } from '@/stores/offlineStore'
+import { SupportButton } from '@/components/shared/SupportButton'
 
 interface TopBarProps {
   title: string
@@ -36,6 +37,8 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
             Sincronizando...
           </div>
         )}
+
+        <SupportButton variant="icon" />
 
         <button
           className="p-2 rounded-full hover:bg-[var(--hover-bg)] dark:hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors relative"

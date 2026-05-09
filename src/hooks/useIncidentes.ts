@@ -131,9 +131,42 @@ export function useCrearIncidente() {
 
       if (error) throw error
     },
-    onSuccess: () => {
+    onSuccess: async (_, variables) => {
       qc.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success('Incidente registrado — el administrador fue notificado ⚠️')
+
+      // Disparar alerta por email en background (no bloquea el flujo del operador)
+      try {
+        // Obtener el ID del incidente recién creado
+        const { data: incidente } = await supabase
+          .from('incidentes')
+          .select('id')
+          .eq('registro_acceso_id', variables.registroId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (incidente?.id) {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) {
+            fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/alert-incidente`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session.access_token}`,
+                  'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                },
+                body: JSON.stringify({ incidente_id: incidente.id }),
+              }
+            ).catch((err) => console.warn('[alert-incidente] Error al notificar:', err))
+          }
+        }
+      } catch (err) {
+        // La alerta falla silenciosamente — el incidente ya está guardado
+        console.warn('[alert-incidente] No se pudo enviar la alerta:', err)
+      }
     },
     onError: (error) => {
       toast.error(`Error al registrar incidente: ${error.message}`)

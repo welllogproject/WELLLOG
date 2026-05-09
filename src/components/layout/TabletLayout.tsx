@@ -2,6 +2,7 @@
 // Layout mobile-first para el operador — sin sidebar
 import { WifiOff } from 'lucide-react'
 import { useOfflineStore } from '@/stores/offlineStore'
+import { SupportButton } from '@/components/shared/SupportButton'
 
 interface TabletLayoutProps {
   children: React.ReactNode
@@ -18,11 +19,11 @@ export function TabletLayout({ children, equipoNombre, locacionCodigo }: TabletL
       <header className="bg-[var(--card-bg)] border-b border-[var(--border)] px-5 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--btn-ingreso)' }}>
-            <span className="text-white text-xs font-semibold">FP</span>
+            <span className="text-white text-xs font-semibold">WL</span>
           </div>
           <div>
             <span className="text-xs font-medium text-[var(--text-primary)]">
-              {equipoNombre || 'FieldPass'}
+              {equipoNombre || 'WELL LOG'}
             </span>
             {locacionCodigo && (
               <span className="text-[10px] text-[var(--text-muted)] ml-1.5">— {locacionCodigo}</span>
@@ -45,6 +46,9 @@ export function TabletLayout({ children, equipoNombre, locacionCodigo }: TabletL
       <main className="flex-1 flex flex-col">
         {children}
       </main>
+
+      {/* Botón de soporte flotante */}
+      <SupportButton variant="fab" />
     </div>
   )
 }

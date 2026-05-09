@@ -207,28 +207,35 @@ export interface UsuarioForm {
 
 export function useCrearUsuario() {
   const qc = useQueryClient()
+  const { usuario } = useAuthStore()
   return useMutation({
     mutationFn: async (form: UsuarioForm) => {
-      // Primero crear el registro en la tabla usuarios con estado 'pendiente_invitacion'
-      // La invitación real requiere service role (Edge Function).
-      // Por ahora insertamos el perfil y el admin puede compartir credenciales manualmente.
-      // TODO: mover a Edge Function /invite-user cuando esté disponible.
-      const { error } = await supabase.from('usuarios').insert({
-        empresa_id: form.empresa_id,
-        nombre_completo: form.nombre_completo,
-        email: form.email,
-        rol: form.rol,
-        dni: form.dni ?? null,
-        telefono: form.telefono ?? null,
-        estado: 'activo',
-        // id se asignará cuando el usuario confirme su cuenta
-        // Por ahora usamos un UUID temporal — el trigger lo reemplazará
-      })
-      if (error) throw error
+      if (!usuario) throw new Error('Sin sesión')
+
+      // Llamar a la Edge Function invite-user (requiere service role en el backend)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Sin sesión activa')
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify(form),
+        }
+      )
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al crear usuario')
+      return data
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [USR_KEY] })
-      toast.success('Usuario creado. Compartí las credenciales manualmente.')
+      toast.success('Invitación enviada — el usuario recibirá un email para activar su cuenta')
     },
     onError: (e: Error) => toast.error(e.message),
   })

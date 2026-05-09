@@ -8,9 +8,11 @@ import { PageLayout } from '@/components/layout/PageLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { SkeletonRow } from '@/components/ui/Skeleton'
-import { Search, Download } from 'lucide-react'
+import { Search, Download, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import * as XLSX from 'xlsx'
+import { descargarRegistroPDF } from '@/components/registro/RegistroPDF'
+import type { RegistroAcceso } from '@/types/models'
 
 const hace7dias = new Date()
 hace7dias.setDate(hace7dias.getDate() - 6)
@@ -122,6 +124,7 @@ export function Registros() {
                 <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden md:table-cell">Egreso</th>
                 <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3">Estado</th>
                 <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden lg:table-cell">Incidente</th>
+                <th className="px-3 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--divider)]">
@@ -170,6 +173,15 @@ export function Registros() {
                       ) : (
                         <Badge variant="activo">No</Badge>
                       )}
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <button
+                        onClick={() => descargarRegistroPDF(r as RegistroAcceso)}
+                        className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors"
+                        title="Descargar PDF"
+                      >
+                        <FileText size={14} />
+                      </button>
                     </td>
                   </tr>
                 ))

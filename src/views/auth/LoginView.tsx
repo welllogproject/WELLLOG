@@ -1,6 +1,6 @@
 // src/views/auth/LoginView.tsx
 import { useState, FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
@@ -126,6 +126,15 @@ export function LoginView() {
             >
               Ingresar
             </Button>
+
+            <div className="text-center">
+              <Link
+                to="/recover"
+                className="text-xs text-[var(--text-muted)] hover:text-[#7F77DD] transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
           </form>
         </div>
 
