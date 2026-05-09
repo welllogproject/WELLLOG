@@ -16,9 +16,11 @@ export const supabase = createClient(
   {
     auth: {
       persistSession: true,
-      autoRefreshToken: true,
+      // DESHABILITADO: autoRefreshToken bloquea TODAS las queries en F5
+      // porque intenta refrescar el token antes de ejecutar cualquier request.
+      // El refresh se maneja manualmente en useAuthInit.
+      autoRefreshToken: false,
       detectSessionInUrl: true,
-      // Usar el storageKey default de Supabase para no romper sesiones existentes
       flowType: 'implicit',
     },
     realtime: {
