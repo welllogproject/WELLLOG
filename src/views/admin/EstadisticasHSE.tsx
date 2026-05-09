@@ -23,9 +23,9 @@ function HSEIndexCard({
         {icon}
       </div>
       <div>
-        <p className="text-3xl font-medium text-[#2C2C2A]">{value}</p>
-        <p className="text-sm font-medium text-[#2C2C2A] mt-0.5">{label}</p>
-        <p className="text-xs text-[#888780] mt-1 leading-snug">{desc}</p>
+        <p className="text-3xl font-medium text-[var(--text-primary)]">{value}</p>
+        <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{label}</p>
+        <p className="text-xs text-[var(--text-muted)] mt-1 leading-snug">{desc}</p>
       </div>
     </Card>
   )
@@ -95,14 +95,14 @@ export function EstadisticasHSE() {
         <select
           value={equipoId}
           onChange={(e) => setEquipoId(e.target.value)}
-          className="text-sm bg-white border border-[rgba(0,0,0,0.1)] rounded-clay-sm py-2 px-3 outline-none focus:border-[#7F77DD] appearance-none"
+          className="text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm py-2 px-3 outline-none focus:border-[#7F77DD] appearance-none"
         >
           <option value="">Todos los equipos</option>
           {(equipos ?? []).map((eq) => (
             <option key={eq.id} value={eq.id}>{eq.nombre_equipo}</option>
           ))}
         </select>
-        <span className="text-xs text-[#888780]">Últimos 30 días</span>
+        <span className="text-xs text-[var(--text-muted)]">Últimos 30 días</span>
       </div>
 
       {/* Índices HSE */}
@@ -144,7 +144,7 @@ export function EstadisticasHSE() {
         <div className="grid gap-4">
           {/* Ingresos y egresos */}
           <Card>
-            <h3 className="text-sm font-medium text-[#2C2C2A] mb-4">Ingresos y Egresos — últimos 14 días</h3>
+            <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">Ingresos y Egresos — últimos 14 días</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
@@ -162,7 +162,7 @@ export function EstadisticasHSE() {
 
           {/* Horas hombre */}
           <Card>
-            <h3 className="text-sm font-medium text-[#2C2C2A] mb-4">Horas Hombre acumuladas</h3>
+            <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">Horas Hombre acumuladas</h3>
             <ResponsiveContainer width="100%" height={180}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />

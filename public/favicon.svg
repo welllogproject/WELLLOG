@@ -5,12 +5,13 @@
       <stop offset="100%" stop-color="#534AB7"/>
     </linearGradient>
   </defs>
-  <!-- Hexagonal background -->
-  <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="url(#g)"/>
-  <!-- Drill pipe / vertical line -->
-  <rect x="15" y="7" width="2" height="12" rx="1" fill="white" opacity="0.95"/>
-  <!-- Drill bit chevron -->
-  <path d="M11 17 L16 22 L21 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Top cap -->
-  <rect x="13" y="6" width="6" height="2" rx="1" fill="white" opacity="0.7"/>
+  <rect x="2" y="2" width="28" height="28" rx="7" fill="url(#g)"/>
+  <rect x="13.5" y="5" width="5" height="2.2" rx="0.5" fill="white"/>
+  <path d="M10 25 L14 7.5 M22 25 L18 7.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="13" y1="12" x2="19" y2="12" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="12" y1="17" x2="20" y2="17" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="11" y1="22" x2="21" y2="22" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M13.4 12 L19.6 17 M18.6 12 L12.4 17" stroke="white" stroke-width="1" opacity="0.65" stroke-linecap="round"/>
+  <path d="M12.2 17 L20.8 22 M19.8 17 L11.2 22" stroke="white" stroke-width="1" opacity="0.65" stroke-linecap="round"/>
+  <rect x="9" y="24.8" width="14" height="1.8" rx="0.5" fill="white"/>
 </svg>

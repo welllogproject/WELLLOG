@@ -12,7 +12,7 @@ import { SkeletonCard } from '@/components/ui/Skeleton'
 import { AlertTriangle, Clock, User, Building2, CheckCircle2 } from 'lucide-react'
 
 const GRAVEDAD_CONFIG = {
-  leve:     { color: 'bg-[#888780]/10 text-[#5F5E5A]', label: 'Leve' },
+  leve:     { color: 'bg-[#888780]/10 text-[var(--text-secondary)]', label: 'Leve' },
   moderado: { color: 'bg-[#BA7517]/10 text-[#7A4E0F]', label: 'Moderado' },
   grave:    { color: 'bg-[#E24B4A]/15 text-[#b93332]', label: 'Grave' },
   critico:  { color: 'bg-[#E24B4A]/25 text-[#b93332] font-semibold', label: '🚨 Crítico' },
@@ -59,7 +59,7 @@ export function Incidentes() {
               'px-3 py-1.5 rounded-full text-xs font-medium transition-all',
               filtroEstado === f.value
                 ? 'bg-[#7F77DD] text-white'
-                : 'bg-white border border-[rgba(0,0,0,0.1)] text-[#5F5E5A] hover:bg-gray-50',
+                : 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]',
             ].join(' ')}
           >
             {f.label}
@@ -77,7 +77,7 @@ export function Incidentes() {
           <div className="w-12 h-12 rounded-full bg-[#1D9E75]/10 flex items-center justify-center">
             <CheckCircle2 size={24} className="text-[#1D9E75]" />
           </div>
-          <p className="text-sm text-[#888780]">Sin incidentes para mostrar</p>
+          <p className="text-sm text-[var(--text-muted)]">Sin incidentes para mostrar</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -102,17 +102,17 @@ export function Incidentes() {
                     </Badge>
                   </div>
 
-                  <p className="font-medium text-[#2C2C2A] truncate">{inc.nombre_afectado}</p>
-                  <p className="text-sm text-[#5F5E5A] mt-0.5 line-clamp-2">{inc.descripcion}</p>
+                  <p className="font-medium text-[var(--text-primary)] truncate">{inc.nombre_afectado}</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-0.5 line-clamp-2">{inc.descripcion}</p>
 
                   <div className="flex items-center gap-4 mt-2">
-                    <span className="flex items-center gap-1 text-xs text-[#888780]">
+                    <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                       <User size={11} /> {inc.funcion_afectado || 'Sin función'}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-[#888780]">
+                    <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                       <Building2 size={11} /> {inc.empresa_afectado || 'Sin empresa'}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-[#AAAAAA]">
+                    <span className="flex items-center gap-1 text-xs text-[var(--text-faded)]">
                       <Clock size={11} />
                       {new Date(inc.fecha_incidente).toLocaleDateString('es-AR')}
                     </span>
@@ -133,7 +133,7 @@ export function Incidentes() {
       >
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium text-[#2C2C2A] block mb-1.5">
+            <label className="text-sm font-medium text-[var(--text-primary)] block mb-1.5">
               Conclusión de la investigación <span className="text-[#E24B4A]">*</span>
             </label>
             <textarea
@@ -141,11 +141,11 @@ export function Incidentes() {
               onChange={(e) => setConclusion(e.target.value)}
               rows={4}
               placeholder="Describí las causas raíz y el análisis de la investigación..."
-              className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] resize-none"
+              className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] resize-none"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-[#2C2C2A] block mb-1.5">
+            <label className="text-sm font-medium text-[var(--text-primary)] block mb-1.5">
               Acciones correctivas
             </label>
             <textarea
@@ -153,7 +153,7 @@ export function Incidentes() {
               onChange={(e) => setAcciones(e.target.value)}
               rows={3}
               placeholder="Medidas implementadas para prevenir recurrencia..."
-              className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] resize-none"
+              className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] resize-none"
             />
           </div>
           <div className="flex gap-3">

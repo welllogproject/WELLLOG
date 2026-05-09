@@ -52,14 +52,14 @@ function PanelEquipo() {
   return (
     <div className="absolute top-4 right-4 z-[1000] w-72 animate-slide-up">
       <Card padding="none">
-        <div className="flex items-center justify-between p-4 border-b border-[rgba(0,0,0,0.05)]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--divider)]">
           <div>
-            <p className="font-medium text-[#2C2C2A]">{equipoSeleccionado.nombre_equipo}</p>
-            <p className="text-xs text-[#888780]">{equipoSeleccionado.locacion?.codigo || 'Sin locación'}</p>
+            <p className="font-medium text-[var(--text-primary)]">{equipoSeleccionado.nombre_equipo}</p>
+            <p className="text-xs text-[var(--text-muted)]">{equipoSeleccionado.locacion?.codigo || 'Sin locación'}</p>
           </div>
           <button
             onClick={cerrarPanel}
-            className="p-1.5 rounded-full hover:bg-black/5 text-[#888780]"
+            className="p-1.5 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-muted)]"
           >
             <X size={16} />
           </button>
@@ -67,13 +67,13 @@ function PanelEquipo() {
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users size={15} className="text-[#888780]" />
-              <span className="text-sm text-[#5F5E5A]">Personas dentro</span>
+              <Users size={15} className="text-[var(--text-muted)]" />
+              <span className="text-sm text-[var(--text-secondary)]">Personas dentro</span>
             </div>
-            <span className="text-lg font-medium text-[#2C2C2A]">—</span>
+            <span className="text-lg font-medium text-[var(--text-primary)]">—</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-[#5F5E5A]">Estado</span>
+            <span className="text-sm text-[var(--text-secondary)]">Estado</span>
             <Badge
               variant={equipoSeleccionado.estado === 'activo' ? 'activo' : equipoSeleccionado.estado === 'mantenimiento' ? 'mantenimiento' : 'inactivo'}
               showDot
@@ -83,8 +83,8 @@ function PanelEquipo() {
           </div>
           {equipoSeleccionado.operador && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#5F5E5A]">Operador</span>
-              <span className="text-sm text-[#2C2C2A]">{equipoSeleccionado.operador.nombre_completo}</span>
+              <span className="text-sm text-[var(--text-secondary)]">Operador</span>
+              <span className="text-sm text-[var(--text-primary)]">{equipoSeleccionado.operador.nombre_completo}</span>
             </div>
           )}
         </div>
@@ -126,7 +126,7 @@ export function MapaEquipos() {
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-180px)]">
         {/* Mapa principal */}
-        <div className="lg:col-span-3 relative rounded-clay overflow-hidden border border-[rgba(0,0,0,0.08)]">
+        <div className="lg:col-span-3 relative rounded-clay overflow-hidden border border-[var(--border)]">
           <MapContainer
             center={centroArgentina}
             zoom={5}
@@ -150,7 +150,7 @@ export function MapaEquipos() {
                 <Popup>
                   <div className="text-sm">
                     <p className="font-medium">{equipo.nombre_equipo}</p>
-                    <p className="text-[#888780] text-xs">{equipo.locacion?.codigo}</p>
+                    <p className="text-[var(--text-muted)] text-xs">{equipo.locacion?.codigo}</p>
                   </div>
                 </Popup>
               </Marker>
@@ -166,14 +166,14 @@ export function MapaEquipos() {
 
           {/* Leyenda */}
           <div className="absolute bottom-4 left-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-clay-sm p-3 shadow-clay-sm">
-            <p className="text-xs font-medium text-[#5F5E5A] mb-2">Estado</p>
+            <p className="text-xs font-medium text-[var(--text-secondary)] mb-2">Estado</p>
             {[
               { color: 'green' as const, label: 'Operativo' },
               { color: 'amber' as const, label: 'Mantenimiento' },
               { color: 'gray' as const, label: 'Inactivo' },
               { color: 'red' as const, label: 'Con incidente' },
             ].map((item) => (
-              <div key={item.label} className="flex items-center gap-2 text-xs text-[#5F5E5A] mt-1">
+              <div key={item.label} className="flex items-center gap-2 text-xs text-[var(--text-secondary)] mt-1">
                 <StatusDot color={item.color} />
                 {item.label}
               </div>
@@ -183,9 +183,9 @@ export function MapaEquipos() {
 
         {/* Lista lateral */}
         <div className="overflow-y-auto space-y-2">
-          <h3 className="text-xs font-medium text-[#888780] uppercase tracking-wide mb-3">Todos los equipos</h3>
+          <h3 className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">Todos los equipos</h3>
           {isLoading ? (
-            <div className="text-sm text-[#888780]">Cargando...</div>
+            <div className="text-sm text-[var(--text-muted)]">Cargando...</div>
           ) : (
             (equipos ?? []).map((equipo) => (
               <button
@@ -198,9 +198,9 @@ export function MapaEquipos() {
                     color={equipo.estado === 'activo' ? 'green' : equipo.estado === 'mantenimiento' ? 'amber' : 'gray'}
                     pulse={equipo.estado === 'activo'}
                   />
-                  <p className="text-sm font-medium text-[#2C2C2A]">{equipo.nombre_equipo}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{equipo.nombre_equipo}</p>
                 </div>
-                <p className="text-xs text-[#888780] ml-4">
+                <p className="text-xs text-[var(--text-muted)] ml-4">
                   {equipo.locacion?.codigo || 'Sin locación'}
                 </p>
                 {!equipo.ubicacion_punto && (

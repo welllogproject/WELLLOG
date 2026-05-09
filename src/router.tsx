@@ -134,8 +134,8 @@ function PagePlaceholder({ title }: { title: string }) {
         <div className="w-16 h-16 rounded-full bg-[#1D9E75]/10 flex items-center justify-center mb-4 text-2xl">
           🚧
         </div>
-        <h2 className="text-xl font-medium text-[#2C2C2A]">{title}</h2>
-        <p className="text-[#888780] mt-2">Módulo en construcción</p>
+        <h2 className="text-xl font-medium text-[var(--text-primary)]">{title}</h2>
+        <p className="text-[var(--text-muted)] mt-2">Módulo en construcción</p>
       </div>
     </PageLayout>
   )

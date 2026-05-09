@@ -30,7 +30,7 @@ function dia(iso: string) {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-sm font-medium text-[#2C2C2A] mb-4">{children}</h2>
+  return <h2 className="text-sm font-medium text-[var(--text-primary)] mb-4">{children}</h2>
 }
 
 function ChartCard({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) {
@@ -195,8 +195,8 @@ function useEquiposPorEstado() {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-white border border-[rgba(0,0,0,0.09)] rounded-[10px] shadow-clay-sm px-3 py-2.5 text-xs">
-      {label && <p className="font-medium text-[#2C2C2A] mb-1.5">{label}</p>}
+    <div className="bg-[var(--card-bg)] border border-[var(--border)] rounded-[10px] shadow-clay-sm px-3 py-2.5 text-xs">
+      {label && <p className="font-medium text-[var(--text-primary)] mb-1.5">{label}</p>}
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color ?? p.fill }} className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color ?? p.fill }} />

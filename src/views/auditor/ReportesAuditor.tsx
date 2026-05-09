@@ -139,8 +139,8 @@ export function ReportesAuditor() {
             { label: 'Incidentes', value: (registros as any[]).filter((r) => r.declara_incidente === true).length },
           ].map(({ label, value }) => (
             <div key={label} className="card-clay p-4">
-              <p className="text-xs text-[#888780] uppercase tracking-wide mb-1">{label}</p>
-              <p className="text-2xl font-medium text-[#2C2C2A] tabular-nums">{value}</p>
+              <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">{label}</p>
+              <p className="text-2xl font-medium text-[var(--text-primary)] tabular-nums">{value}</p>
             </div>
           ))}
         </div>
@@ -148,10 +148,10 @@ export function ReportesAuditor() {
 
       {/* Tabla preview */}
       <div className="card-clay overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[rgba(0,0,0,0.06)]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--divider)]">
           <div className="flex items-center gap-2">
             <FileSpreadsheet size={16} className="text-[#1D9E75]" />
-            <h2 className="text-sm font-medium text-[#2C2C2A]">
+            <h2 className="text-sm font-medium text-[var(--text-primary)]">
               Vista previa{registros.length > 0 ? ` — ${registros.length} registros` : ''}
             </h2>
           </div>
@@ -168,7 +168,7 @@ export function ReportesAuditor() {
           </div>
         ) : registros.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-[#888780]">
+            <p className="text-sm text-[var(--text-muted)]">
               {!desde || !hasta ? 'Seleccioná un rango de fechas' : 'No hay registros para el período seleccionado'}
             </p>
           </div>
@@ -176,9 +176,9 @@ export function ReportesAuditor() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(0,0,0,0.06)]">
+                <tr className="border-b border-[var(--divider)]">
                   {['Fecha', 'Equipo', 'DNI', 'Nombre', 'Empresa', 'Estado', 'Duración', 'Incidente'].map((h) => (
-                    <th key={h} className="text-left px-4 py-2.5 text-xs font-medium text-[#888780] uppercase tracking-wide whitespace-nowrap">
+                    <th key={h} className="text-left px-4 py-2.5 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide whitespace-nowrap">
                       {h}
                     </th>
                   ))}
@@ -186,20 +186,20 @@ export function ReportesAuditor() {
               </thead>
               <tbody>
                 {(registros as any[]).slice(0, 50).map((r) => (
-                  <tr key={r.id} className="border-b border-[rgba(0,0,0,0.04)] hover:bg-[#F8F8F6] transition-colors">
-                    <td className="px-4 py-2.5 text-xs font-mono text-[#5F5E5A] whitespace-nowrap">
+                  <tr key={r.id} className="border-b border-[var(--divider)] hover:bg-[var(--hover-bg)] transition-colors">
+                    <td className="px-4 py-2.5 text-xs font-mono text-[var(--text-secondary)] whitespace-nowrap">
                       {new Date(r.fecha_ingreso).toLocaleDateString('es-AR')}
                     </td>
-                    <td className="px-4 py-2.5 text-sm font-medium text-[#2C2C2A]">{r.equipo?.nombre_equipo ?? '—'}</td>
-                    <td className="px-4 py-2.5 text-xs font-mono text-[#5F5E5A]">{r.dni}</td>
-                    <td className="px-4 py-2.5 text-sm text-[#2C2C2A]">{r.nombre_completo}</td>
-                    <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{r.empresa_visitante_nombre ?? '—'}</td>
+                    <td className="px-4 py-2.5 text-sm font-medium text-[var(--text-primary)]">{r.equipo?.nombre_equipo ?? '—'}</td>
+                    <td className="px-4 py-2.5 text-xs font-mono text-[var(--text-secondary)]">{r.dni}</td>
+                    <td className="px-4 py-2.5 text-sm text-[var(--text-primary)]">{r.nombre_completo}</td>
+                    <td className="px-4 py-2.5 text-xs text-[var(--text-secondary)]">{r.empresa_visitante_nombre ?? '—'}</td>
                     <td className="px-4 py-2.5">
                       <Badge variant={r.estado === 'dentro' ? 'activo' : r.estado === 'afuera' ? 'inactivo' : 'neutral'} size="sm">
                         {r.estado}
                       </Badge>
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-[#5F5E5A] whitespace-nowrap">
+                    <td className="px-4 py-2.5 text-xs text-[var(--text-secondary)] whitespace-nowrap">
                       {duracion(r.fecha_ingreso, r.fecha_egreso)}
                     </td>
                     <td className="px-4 py-2.5">
@@ -207,14 +207,14 @@ export function ReportesAuditor() {
                         ? <span className="text-xs font-medium text-[#E24B4A]">SÍ</span>
                         : r.declara_incidente === false
                         ? <span className="text-xs text-[#1D9E75]">NO</span>
-                        : <span className="text-xs text-[#888780]">—</span>}
+                        : <span className="text-xs text-[var(--text-muted)]">—</span>}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
             {registros.length > 50 && (
-              <p className="text-xs text-[#888780] text-center py-3">
+              <p className="text-xs text-[var(--text-muted)] text-center py-3">
                 Mostrando 50 de {registros.length} — exportá el CSV para verlos todos
               </p>
             )}

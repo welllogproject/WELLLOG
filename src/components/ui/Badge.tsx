@@ -6,16 +6,16 @@ type BadgeVariant = EstadoEquipo | EstadoIncidente | 'dentro' | 'afuera' | 'warn
 const variantConfig: Record<BadgeVariant, { bg: string; text: string; dot?: string }> = {
   activo:        { bg: 'bg-[#1D9E75]/10', text: 'text-[#0F6E56]', dot: 'bg-[#1D9E75]' },
   mantenimiento: { bg: 'bg-[#BA7517]/10', text: 'text-[#7A4E0F]', dot: 'bg-[#BA7517]' },
-  inactivo:      { bg: 'bg-[#888780]/10', text: 'text-[#5F5E5A]', dot: 'bg-[#888780]' },
+  inactivo:      { bg: 'bg-[#888780]/10', text: 'text-[var(--text-secondary)]', dot: 'bg-[#888780]' },
   pendiente:     { bg: 'bg-[#BA7517]/10', text: 'text-[#7A4E0F]', dot: 'bg-[#BA7517]' },
   investigando:  { bg: 'bg-[#7F77DD]/10', text: 'text-[#534AB7]', dot: 'bg-[#7F77DD]' },
-  cerrado:       { bg: 'bg-[#888780]/10', text: 'text-[#5F5E5A]', dot: 'bg-[#888780]' },
+  cerrado:       { bg: 'bg-[#888780]/10', text: 'text-[var(--text-secondary)]', dot: 'bg-[#888780]' },
   dentro:        { bg: 'bg-[#1D9E75]/10', text: 'text-[#0F6E56]', dot: 'bg-[#1D9E75]' },
-  afuera:        { bg: 'bg-[#888780]/10', text: 'text-[#5F5E5A]', dot: 'bg-[#888780]' },
+  afuera:        { bg: 'bg-[#888780]/10', text: 'text-[var(--text-secondary)]', dot: 'bg-[#888780]' },
   warning:       { bg: 'bg-[#BA7517]/10', text: 'text-[#7A4E0F]', dot: 'bg-[#BA7517]' },
   danger:        { bg: 'bg-[#E24B4A]/10', text: 'text-[#b93332]', dot: 'bg-[#E24B4A]' },
   info:          { bg: 'bg-[#7F77DD]/10', text: 'text-[#534AB7]', dot: 'bg-[#7F77DD]' },
-  neutral:       { bg: 'bg-[#888780]/10', text: 'text-[#5F5E5A]', dot: 'bg-[#888780]' },
+  neutral:       { bg: 'bg-[#888780]/10', text: 'text-[var(--text-secondary)]', dot: 'bg-[#888780]' },
 }
 
 interface BadgeProps {

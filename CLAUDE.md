@@ -1165,3 +1165,112 @@ vercel --prod
 **Soft delete con view.** Crear `CREATE VIEW v_registros_acceso AS SELECT * FROM registros_acceso WHERE deleted_at IS NULL` y usar la view en todos los selects del frontend.
 
 **Locación y Equipo son entidades separadas.** No simplificar esto. El formulario físico de Venver muestra ambos campos (`EQUIPO N°` y `LOCACION`) porque son conceptos distintos en la operación real de yacimientos.
+
+---
+
+## Estado actual del proyecto — Mayo 2026
+
+> Resumen de hito a hito para retomar contexto en futuras sesiones. Esta sección debe actualizarse cada vez que se completa una iteración significativa.
+
+### Lo que está implementado y funcionando
+
+**Auth & multi-tenant**
+- Login con Supabase Auth + RLS por empresa.
+- 5 roles operativos: `superadmin`, `admin`, `supervisor`, `operador`, `auditor`.
+- Helper functions SECURITY DEFINER en DB: `auth_empresa_id()`, `auth_rol()` — usadas por todas las policies para evitar JOINs repetidos y stack overflow.
+- **Persistencia de usuario en `localStorage`** (zustand persist). Al hacer F5, el usuario se rehidrata inmediatamente y la app no rebota a `/login` mientras Supabase hace cold start. Background revalidation vía `onAuthStateChange`.
+- Safety timeout en `useAuthInit` extendido a 12s (cold start de Supabase free tier puede tardar 10-15s).
+- `cargarUsuario` con retry (2 reintentos con backoff lineal de 800ms).
+
+**Vistas implementadas**
+- **Superadmin**: Plataforma, Métricas, Empresas, Usuarios, Permisos de Acceso, Logs Globales.
+- **Admin**: Dashboard con KPIs, Mapa de Equipos (Leaflet), Registros con filtros + export Excel, Incidentes, Estadísticas, HSE, CRUD de Equipos / Locaciones / Usuarios / Auditores / Empresas, Documentos, Logs.
+- **Auditor**: Dashboard, Mapa (con coordenadas degradadas ±500m en frontend), Incidentes, Reportes.
+- **Operador (tablet)**: OperadorHome, NuevoIngreso, MarcarSalida, ConfigEquipo. Layout sin sidebar.
+
+**UI / Tema**
+- ClayUI design system (cards blancas/oscuras, gradientes solo en botones, sin sombras decorativas).
+- **Modo oscuro/claro completo**:
+  - `darkMode: 'class'` en `tailwind.config.js`.
+  - Variables CSS en 2 paletas (`:root` y `.dark`) para: `--card-bg`, `--page-bg`, `--input-bg`, `--hover-bg`, `--border`, `--border-strong`, `--divider`, `--text-primary` / `--text-secondary` / `--text-muted` / `--text-faded`, `--skeleton`, sombras.
+  - `useTheme` hook con persistencia en `localStorage` + respeta `prefers-color-scheme`.
+  - `initTheme()` en `main.tsx` antes del primer render — sin flash.
+  - Componente `ThemeToggle` (sol/luna) en Sidebar y LoginView.
+  - Override de tiles de Leaflet para dark mode con CSS filters.
+- **Logo oficial**: `<Logo />` en `src/components/ui/Logo.tsx`. SVG inline de un derrick (torre de perforación) con cross-bracing X y crown block. Mismo SVG en `public/favicon.svg`.
+
+**Mapas y geo**
+- Leaflet + OpenStreetMap tiles (sin Mapbox aún).
+- PostGIS para coordenadas: `ubicacion_punto GEOMETRY(Point, 4326)` con `ST_SetSRID(ST_MakePoint(lng, lat), 4326)` o formato `POINT(lng lat)`.
+- Métricas diarias desnormalizadas en `metricas_diarias`. **Ojo**: las columnas `indice_frecuencia` y `indice_gravedad` son `NUMERIC(10,2)` (NO `NUMERIC(8,4)` — desbordan con la fórmula de la industria que multiplica por 200,000).
+
+**Datos de prueba**
+- Seed cargado en producción con: 3 equipos (V51, Venver 10, Venver 22), 2 locaciones (AAB 1012, CAN 0045), ~10 personas con registros activos, 1 incidente pendiente.
+- Para reseed: `ALTER TABLE equipos DISABLE TRIGGER USER` antes de UPDATEs masivos (el trigger `log_cambio_ubicacion_equipo` requiere `auth.uid()` que es NULL en SQL Editor).
+
+### Decisiones arquitectónicas tomadas
+
+- **TanStack Query v5 sobre SWR** — invalidaciones en cascada son críticas para que un egreso actualice mapa, métricas, dashboard, incidentes en simultáneo.
+- **Zustand para UI / persist solo lo crítico** — `usuario` y `equipoId` se persisten; `isLoading`, `mapStore`, `offlineStore` son volátiles.
+- **CSS variables sobre dark variants de Tailwind** — los componentes usan `bg-[var(--card-bg)]` en lugar de `bg-white dark:bg-gray-900`. Más DRY y permite cambios de paleta sin tocar componentes.
+- **RLS sin self-references** — una policy que consulta su propia tabla causa stack overflow infinito. Las policies de `locaciones` se reescriben para consultar `equipos` (que apunta a locaciones), nunca al revés.
+- **Coordenadas degradadas en frontend, no en DB** — el auditor recibe el dato real desde Supabase y un util JS le aplica offset ±500m antes de pintarlo en el mapa. La DB siempre tiene la verdad.
+
+### Issues conocidos / cosas que vigilar
+
+- **Cold start de Supabase free tier (10-15s)**. Mitigado con persistencia de usuario + timeout de 12s, pero en sesiones nuevas (sin localStorage) puede haber espera notable.
+- **`bg-white` y otros colores hardcoded** — quedaron varios `bg-[#XXXXXX]` específicos (errores rojos, badges, etc.) que son aceptables porque mantienen su semántica en ambos temas. No reemplazar agresivamente.
+- **Bundle > 500kB** — el build avisa. Cuando duela el TTI en tablet sin señal, hacer code splitting con `React.lazy()` por rol (operador no necesita el código del admin).
+- **Coordenadas en seed**: si se reinserta data de prueba con la columna `ubicacion_punto` directamente como string, recordar formato `'POINT(lng lat)'` (lng primero).
+
+### Pendientes — próximos pasos
+
+**Funcional / negocio**
+- [ ] **Service Worker + offline real**. Existen `offlineStore.ts` y `useOfflineSync.ts` pero el SW con Workbox no está implementado. La cola se guarda en memoria, no en IndexedDB persistente.
+- [ ] **Subida de firmas a Supabase Storage** con signed URLs de 15min. Hoy se guardan como base64 en la columna `firma_*_data` (fallback offline). Falta el path al bucket privado.
+- [ ] **Edge Function `alert-incidente`** — el trigger `notify_incidente` la llama vía `net.http_post`, pero la función todavía no está deployada. Cuando se cree un incidente real en producción, el trigger fallará silenciosamente.
+- [ ] **Edge Function `generate-report-hse`** — PDF mensual con índices IF/IG.
+- [ ] **Documentos de seguridad — flujo de bloqueo de ingreso**. Los datos están en la tabla `documentos_seguridad`, falta el chequeo en el flujo del operador (warning amarillo / danger rojo bloqueante).
+- [ ] **QR scanner** detrás del feature flag `VITE_FEATURE_QR`. Para egreso rápido por escaneo del visitante.
+- [ ] **Geofence**: validación opcional de que la tablet esté cerca del equipo (warning, no bloqueo).
+
+**Técnico / DX**
+- [ ] Code splitting por rol con `React.lazy()`. Reduciría el bundle inicial a ~600kB.
+- [ ] Migrar a Mapbox cuando el plan free se quede chico (Leaflet OK para MVP).
+- [ ] Agregar tests E2E del flujo de ingreso/egreso con Playwright.
+- [ ] Headers de seguridad en `vercel.json` (CSP, X-Frame-Options).
+
+**Producción**
+- [ ] Confirmar que la promoción a producción de Vercel toma el último deploy con env vars correctas. La URL canónica es `wlogproject.vercel.app`.
+- [ ] Configurar dominio propio cuando esté disponible.
+- [ ] Verificar que las RLS policies actuales no tienen self-references después de cualquier nueva policy que se agregue.
+
+### Archivos clave creados/modificados en la última sesión (modo oscuro + logo + F5 fix)
+
+```
+src/
+├── hooks/
+│   ├── useAuth.ts                    ← retry + timeout 12s + no recargar si rehidratado
+│   └── useTheme.ts                   ← NUEVO: hook de tema con persist + initTheme()
+├── stores/
+│   └── authStore.ts                  ← persist también el usuario (no solo equipoId)
+├── components/ui/
+│   ├── Logo.tsx                      ← NUEVO: SVG derrick reutilizable
+│   ├── ThemeToggle.tsx               ← NUEVO: botón sol/luna
+│   ├── Input.tsx                     ← migrado a CSS vars
+│   ├── Skeleton.tsx                  ← migrado a var(--skeleton)
+│   └── (Card, Button, Badge, Modal, Table — usan utility classes ya con vars)
+├── components/layout/
+│   ├── Sidebar.tsx                   ← logo nuevo + ThemeToggle + vars
+│   ├── TopBar.tsx                    ← migrado a vars
+│   └── PageLayout.tsx                ← bg con var(--page-bg)
+├── views/auth/
+│   └── LoginView.tsx                 ← logo nuevo + ThemeToggle fixed top-right
+├── main.tsx                          ← initTheme() antes de createRoot
+├── index.css                         ← variables .dark + utility classes nuevas + leaflet dark
+public/
+└── favicon.svg                       ← derrick consistente con <Logo />
+tailwind.config.js                    ← darkMode: 'class'
+```
+
+Bulk migration de colores con `sed -E` para cambiar `text-[#2C2C2A]`, `text-[#5F5E5A]`, etc. → `text-[var(--text-primary)]`, `text-[var(--text-secondary)]`. Hecho en ~80 archivos en una sola pasada. Si aparece un nuevo archivo con esos hex, usar el mismo enfoque.

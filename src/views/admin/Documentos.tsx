@@ -148,16 +148,16 @@ export function Documentos() {
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative max-w-xs flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
           <input type="text" placeholder="Buscar por DNI, nombre o documento..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all"
           />
         </div>
         <div className="flex gap-2">
           {(['todos', 'vencidos', 'proximos', 'vigentes'] as const).map((f) => (
             <button key={f} onClick={() => setFilterAlerta(f)}
-              className={`px-3 py-2 text-xs font-medium rounded-[8px] transition-all ${filterAlerta === f ? 'bg-[#7F77DD]/10 text-[#534AB7]' : 'bg-white border border-[rgba(0,0,0,0.10)] text-[#5F5E5A] hover:bg-[#F8F8F6]'}`}>
+              className={`px-3 py-2 text-xs font-medium rounded-[8px] transition-all ${filterAlerta === f ? 'bg-[#7F77DD]/10 text-[#534AB7]' : 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]'}`}>
               {f === 'todos' ? 'Todos' : f === 'vencidos' ? 'Vencidos' : f === 'proximos' ? 'Próximos a vencer' : 'Vigentes'}
             </button>
           ))}
@@ -174,8 +174,8 @@ export function Documentos() {
                   <FileText size={14} className="text-[#534AB7]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-[#2C2C2A]">{d.nombre_titular ?? '—'}</p>
-                  <p className="text-xs text-[#888780]">DNI {d.dni_titular}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)]">{d.nombre_titular ?? '—'}</p>
+                  <p className="text-xs text-[var(--text-muted)]">DNI {d.dni_titular}</p>
                 </div>
               </div>
             ),
@@ -184,17 +184,17 @@ export function Documentos() {
             key: 'tipo', header: 'Tipo',
             render: (d) => <Badge variant="info" size="sm">{TIPO_LABELS[d.tipo] ?? d.tipo}</Badge>,
           },
-          { key: 'nombre', header: 'Documento', render: (d) => <span className="text-xs text-[#5F5E5A]">{d.nombre_documento ?? '—'}</span> },
+          { key: 'nombre', header: 'Documento', render: (d) => <span className="text-xs text-[var(--text-secondary)]">{d.nombre_documento ?? '—'}</span> },
           {
             key: 'vencimiento', header: 'Vencimiento',
             render: (d) => {
-              if (!d.fecha_vencimiento) return <span className="text-xs text-[#888780]">Sin vencimiento</span>
+              if (!d.fecha_vencimiento) return <span className="text-xs text-[var(--text-muted)]">Sin vencimiento</span>
               const dias = diasParaVencer(d.fecha_vencimiento)
               const color = dias < 0 ? '#E24B4A' : dias <= 30 ? '#BA7517' : '#1D9E75'
               return (
                 <div>
                   <p className="text-xs font-medium" style={{ color }}>{d.fecha_vencimiento}</p>
-                  <p className="text-xs text-[#888780]">
+                  <p className="text-xs text-[var(--text-muted)]">
                     {dias < 0 ? `Venció hace ${Math.abs(dias)} días` : dias === 0 ? 'Vence hoy' : `${dias} días`}
                   </p>
                 </div>
@@ -215,7 +215,7 @@ export function Documentos() {
             key: 'acciones', header: '', cellClass: 'text-right',
             render: (d) => (
               <button onClick={() => eliminar.mutate(d.id)}
-                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A] transition-colors">
+                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors">
                 Eliminar
               </button>
             ),
@@ -255,7 +255,7 @@ export function Documentos() {
               <input type="checkbox" checked={form.bloqueante}
                 onChange={(e) => setForm({ ...form, bloqueante: e.target.checked })}
                 className="w-4 h-4 rounded accent-[#E24B4A]" />
-              <span className="text-sm text-[#2C2C2A]">Bloquear ingreso si está vencido</span>
+              <span className="text-sm text-[var(--text-primary)]">Bloquear ingreso si está vencido</span>
             </label>
           </div>
         </div>

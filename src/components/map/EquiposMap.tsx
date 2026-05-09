@@ -94,7 +94,7 @@ export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <div className="flex-1 rounded-[16px] overflow-hidden border border-[rgba(0,0,0,0.08)] min-h-[420px]">
+      <div className="flex-1 rounded-[16px] overflow-hidden border border-[var(--border)] min-h-[420px]">
         <MapContainer
           center={[-38.4161, -63.5989]}
           zoom={5}
@@ -124,7 +124,7 @@ export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin
                 <Popup minWidth={220} maxWidth={280}>
                   <div className="p-1">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-semibold text-[#2C2C2A] text-sm">{equipo.nombre_equipo}</p>
+                      <p className="font-semibold text-[var(--text-primary)] text-sm">{equipo.nombre_equipo}</p>
                       <span
                         className="text-[10px] font-medium px-2 py-0.5 rounded-full text-white"
                         style={{ background: color }}
@@ -133,18 +133,18 @@ export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin
                       </span>
                     </div>
                     {equipo.locacion && (
-                      <p className="text-xs text-[#5F5E5A] mb-1">
+                      <p className="text-xs text-[var(--text-secondary)] mb-1">
                         📍 {equipo.locacion.codigo}{equipo.locacion.nombre ? ` — ${equipo.locacion.nombre}` : ''}
                       </p>
                     )}
-                    <p className="text-xs text-[#5F5E5A] mb-2">
+                    <p className="text-xs text-[var(--text-secondary)] mb-2">
                       👥 <strong>{count}</strong> persona{count !== 1 ? 's' : ''} dentro
                     </p>
                     {hasIncidente && (
                       <p className="text-xs text-[#E24B4A] font-medium mb-2">⚠️ Incidente pendiente</p>
                     )}
                     {degradarCoords && (
-                      <p className="text-[10px] text-[#888780] italic">Coordenadas aproximadas ±500m</p>
+                      <p className="text-[10px] text-[var(--text-muted)] italic">Coordenadas aproximadas ±500m</p>
                     )}
                   </div>
                 </Popup>
@@ -162,18 +162,18 @@ export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin
           { color: ESTADO_COLOR.inactivo, label: 'Inactivo' },
           { color: ESTADO_COLOR.incidente, label: 'Incidente pendiente' },
         ].map(({ color, label }) => (
-          <div key={label} className="flex items-center gap-1.5 text-xs text-[#5F5E5A]">
+          <div key={label} className="flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
             <span className="w-3 h-3 rounded-full inline-block" style={{ background: color }} />
             {label}
           </div>
         ))}
-        <span className="text-xs text-[#888780] ml-auto">Número = personas dentro</span>
+        <span className="text-xs text-[var(--text-muted)] ml-auto">Número = personas dentro</span>
       </div>
 
       {/* Equipos sin coordenadas */}
       {sinCoords.length > 0 && (
         <div className="card-clay p-4">
-          <p className="text-xs font-medium text-[#5F5E5A] mb-2">
+          <p className="text-xs font-medium text-[var(--text-secondary)] mb-2">
             {sinCoords.length} equipo{sinCoords.length > 1 ? 's' : ''} sin coordenadas configuradas
           </p>
           <div className="flex flex-wrap gap-2">

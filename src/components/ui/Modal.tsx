@@ -55,7 +55,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', hideClose
         className={[
           'relative w-full',
           sizeClasses[size],
-          'bg-white rounded-t-[24px] sm:rounded-[24px]',
+          'bg-[var(--card-bg)] rounded-t-[24px] sm:rounded-[24px]',
           'shadow-clay-lg',
           'animate-slide-up',
           'max-h-[92vh] overflow-y-auto',
@@ -63,14 +63,14 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', hideClose
       >
         {/* Header */}
         {(title || !hideClose) && (
-          <div className="flex items-center justify-between p-5 pb-4 border-b border-[rgba(0,0,0,0.06)]">
+          <div className="flex items-center justify-between p-5 pb-4 border-b border-[var(--divider)]">
             {title && (
-              <h2 className="text-base font-medium text-[#2C2C2A]">{title}</h2>
+              <h2 className="text-base font-medium text-[var(--text-primary)]">{title}</h2>
             )}
             {!hideClose && (
               <button
                 onClick={onClose}
-                className="ml-auto p-1.5 rounded-full hover:bg-black/5 transition-colors text-[#5F5E5A]"
+                className="ml-auto p-1.5 rounded-full hover:bg-[var(--hover-bg)] transition-colors text-[var(--text-secondary)]"
                 aria-label="Cerrar"
               >
                 <X size={18} />

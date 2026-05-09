@@ -32,8 +32,8 @@ export function DeclaracionIncidente({ personaNombre, onConfirm, isLoading }: De
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* Encabezado */}
       <div className="text-center">
-        <h2 className="text-lg font-medium text-[#2C2C2A]">Declaración de Incidente</h2>
-        <p className="text-sm text-[#5F5E5A] mt-1">
+        <h2 className="text-lg font-medium text-[var(--text-primary)]">Declaración de Incidente</h2>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">
           <span className="font-medium">{personaNombre}</span> — firmá la columna que corresponde antes de salir
         </p>
       </div>
@@ -48,7 +48,7 @@ export function DeclaracionIncidente({ personaNombre, onConfirm, isLoading }: De
             'flex flex-col items-center gap-3 p-4 rounded-clay border-2 transition-all duration-150',
             columna === 'NO'
               ? 'border-[#1D9E75] bg-[#1D9E75]/5'
-              : 'border-[rgba(0,0,0,0.1)] bg-white hover:border-[#1D9E75]/50',
+              : 'border-[var(--border-strong)] bg-[var(--card-bg)] hover:border-[#1D9E75]/50',
           ].join(' ')}
         >
           <div className={[
@@ -58,8 +58,8 @@ export function DeclaracionIncidente({ personaNombre, onConfirm, isLoading }: De
             <ShieldCheck size={24} />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-[#2C2C2A] text-sm">NO</p>
-            <p className="text-xs text-[#5F5E5A] mt-1 leading-snug">
+            <p className="font-semibold text-[var(--text-primary)] text-sm">NO</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-snug">
               No he sufrido ningún incidente
             </p>
           </div>
@@ -73,7 +73,7 @@ export function DeclaracionIncidente({ personaNombre, onConfirm, isLoading }: De
             'flex flex-col items-center gap-3 p-4 rounded-clay border-2 transition-all duration-150',
             columna === 'SI'
               ? 'border-[#E24B4A] bg-[#E24B4A]/5'
-              : 'border-[rgba(0,0,0,0.1)] bg-white hover:border-[#E24B4A]/50',
+              : 'border-[var(--border-strong)] bg-[var(--card-bg)] hover:border-[#E24B4A]/50',
           ].join(' ')}
         >
           <div className={[
@@ -83,8 +83,8 @@ export function DeclaracionIncidente({ personaNombre, onConfirm, isLoading }: De
             <AlertTriangle size={24} />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-[#2C2C2A] text-sm">SÍ</p>
-            <p className="text-xs text-[#5F5E5A] mt-1 leading-snug">
+            <p className="font-semibold text-[var(--text-primary)] text-sm">SÍ</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-1 leading-snug">
               Estuve involucrado en un incidente
             </p>
           </div>

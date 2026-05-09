@@ -16,14 +16,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-[#2C2C2A]">
+          <label htmlFor={inputId} className="text-sm font-medium text-[var(--text-primary)]">
             {label}
             {props.required && <span className="text-[#E24B4A] ml-0.5">*</span>}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5F5E5A]">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
               {icon}
             </div>
           )}
@@ -31,11 +31,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={[
-              'w-full bg-white border rounded-clay-sm outline-none transition-all duration-150',
-              'placeholder:text-[#AAAAAA]',
+              'w-full bg-[var(--card-bg)] text-[var(--text-primary)] border rounded-clay-sm outline-none transition-all duration-150',
+              'placeholder:text-[var(--text-faded)]',
               error
                 ? 'border-[#E24B4A] focus:border-[#E24B4A] focus:ring-2 focus:ring-[#E24B4A]/20'
-                : 'border-[rgba(0,0,0,0.12)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
+                : 'border-[var(--border-strong)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
               variant === 'numeric-large'
                 ? 'text-4xl font-medium text-center tracking-widest py-5 px-4'
                 : `text-sm py-2.5 ${icon ? 'pl-10 pr-4' : 'px-4'}`,
@@ -45,7 +45,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           />
         </div>
         {error && <p className="text-xs text-[#E24B4A]">{error}</p>}
-        {hint && !error && <p className="text-xs text-[#5F5E5A]">{hint}</p>}
+        {hint && !error && <p className="text-xs text-[var(--text-muted)]">{hint}</p>}
       </div>
     )
   }
@@ -65,7 +65,7 @@ export function Select({ label, error, options, placeholder, className = '', id,
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-[#2C2C2A]">
+        <label htmlFor={inputId} className="text-sm font-medium text-[var(--text-primary)]">
           {label}
           {props.required && <span className="text-[#E24B4A] ml-0.5">*</span>}
         </label>
@@ -73,11 +73,11 @@ export function Select({ label, error, options, placeholder, className = '', id,
       <select
         id={inputId}
         className={[
-          'w-full bg-white border rounded-clay-sm text-sm py-2.5 px-4 outline-none transition-all duration-150 appearance-none cursor-pointer',
+          'w-full bg-[var(--card-bg)] border rounded-clay-sm text-sm py-2.5 px-4 outline-none transition-all duration-150 appearance-none cursor-pointer',
           error
             ? 'border-[#E24B4A] focus:border-[#E24B4A]'
-            : 'border-[rgba(0,0,0,0.12)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
-          'text-[#2C2C2A]',
+            : 'border-[var(--border-strong)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
+          'text-[var(--text-primary)]',
           className,
         ].join(' ')}
         {...props}

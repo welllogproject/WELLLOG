@@ -34,9 +34,9 @@ function KPICard({
         {icon}
       </div>
       <div>
-        <p className="text-2xl font-medium text-[#2C2C2A]">{value}</p>
-        <p className="text-sm text-[#5F5E5A]">{label}</p>
-        {sub && <p className="text-xs text-[#AAAAAA] mt-0.5">{sub}</p>}
+        <p className="text-2xl font-medium text-[var(--text-primary)]">{value}</p>
+        <p className="text-sm text-[var(--text-secondary)]">{label}</p>
+        {sub && <p className="text-xs text-[var(--text-faded)] mt-0.5">{sub}</p>}
       </div>
     </Card>
   )
@@ -135,19 +135,19 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Actividad reciente */}
         <Card className="lg:col-span-2" padding="none">
-          <div className="p-5 border-b border-[rgba(0,0,0,0.05)]">
-            <h3 className="text-sm font-medium text-[#2C2C2A] flex items-center gap-2">
-              <Clock size={15} className="text-[#888780]" />
+          <div className="p-5 border-b border-[var(--divider)]">
+            <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+              <Clock size={15} className="text-[var(--text-muted)]" />
               Actividad reciente
             </h3>
           </div>
-          <div className="divide-y divide-[rgba(0,0,0,0.04)]">
+          <div className="divide-y divide-[var(--divider)]">
             {!registrosRecientes ? (
               <div className="p-4">
                 <SkeletonCard />
               </div>
             ) : registrosRecientes.length === 0 ? (
-              <p className="text-sm text-[#888780] text-center py-8">Sin actividad hoy</p>
+              <p className="text-sm text-[var(--text-muted)] text-center py-8">Sin actividad hoy</p>
             ) : (
               registrosRecientes.map((r: {
                 id: string
@@ -165,14 +165,14 @@ export function AdminDashboard() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#2C2C2A] truncate">{r.nombre_completo}</p>
-                    <p className="text-xs text-[#888780]">{r.empresa_visitante_nombre || 'Sin empresa'} · {r.motivo_visita}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] truncate">{r.nombre_completo}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{r.empresa_visitante_nombre || 'Sin empresa'} · {r.motivo_visita}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0">
                     <Badge variant={r.estado === 'dentro' ? 'dentro' : 'afuera'} showDot>
                       {r.estado === 'dentro' ? 'Dentro' : 'Salió'}
                     </Badge>
-                    <span className="text-[10px] text-[#AAAAAA]">
+                    <span className="text-[10px] text-[var(--text-faded)]">
                       {formatDistanceToNow(new Date(r.fecha_ingreso), { addSuffix: true, locale: es })}
                     </span>
                   </div>
@@ -184,9 +184,9 @@ export function AdminDashboard() {
 
         {/* Estado de equipos */}
         <Card padding="none">
-          <div className="p-5 border-b border-[rgba(0,0,0,0.05)]">
-            <h3 className="text-sm font-medium text-[#2C2C2A] flex items-center gap-2">
-              <TrendingUp size={15} className="text-[#888780]" />
+          <div className="p-5 border-b border-[var(--divider)]">
+            <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+              <TrendingUp size={15} className="text-[var(--text-muted)]" />
               Estado de equipos
             </h3>
           </div>
@@ -203,8 +203,8 @@ export function AdminDashboard() {
                   pulse={equipo.estado === 'activo'}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#2C2C2A] truncate">{equipo.nombre_equipo}</p>
-                  <p className="text-xs text-[#888780]">{equipo.locacion?.codigo || 'Sin locación'}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{equipo.nombre_equipo}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{equipo.locacion?.codigo || 'Sin locación'}</p>
                 </div>
                 <Badge variant={equipo.estado === 'activo' ? 'activo' : equipo.estado === 'mantenimiento' ? 'mantenimiento' : 'inactivo'} size="sm">
                   {equipo.estado === 'activo' ? 'Operativo' : equipo.estado === 'mantenimiento' ? 'Mant.' : 'Inactivo'}

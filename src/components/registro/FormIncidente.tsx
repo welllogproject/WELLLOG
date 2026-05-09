@@ -69,7 +69,7 @@ export function FormIncidente({ onSubmit, isLoading }: FormIncidenteProps) {
       </div>
 
       <div>
-        <label className="text-sm font-medium text-[#2C2C2A] block mb-1.5">
+        <label className="text-sm font-medium text-[var(--text-primary)] block mb-1.5">
           Descripción del incidente <span className="text-[#E24B4A]">*</span>
         </label>
         <textarea
@@ -78,10 +78,10 @@ export function FormIncidente({ onSubmit, isLoading }: FormIncidenteProps) {
           rows={4}
           placeholder="Describí brevemente qué ocurrió..."
           className={[
-            'w-full bg-white border rounded-clay-sm text-sm py-2.5 px-4 outline-none transition-all resize-none',
+            'w-full bg-[var(--card-bg)] border rounded-clay-sm text-sm py-2.5 px-4 outline-none transition-all resize-none',
             errors.descripcion
               ? 'border-[#E24B4A] focus:ring-2 focus:ring-[#E24B4A]/20'
-              : 'border-[rgba(0,0,0,0.12)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
+              : 'border-[var(--border-strong)] focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15',
           ].join(' ')}
         />
         {errors.descripcion && <p className="text-xs text-[#E24B4A] mt-1">{errors.descripcion}</p>}
@@ -126,11 +126,11 @@ export function FormIncidente({ onSubmit, isLoading }: FormIncidenteProps) {
             ].join(' ')}
           >
             <span className={[
-              'absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
+              'absolute top-0.5 w-5 h-5 bg-[var(--card-bg)] rounded-full shadow transition-transform duration-200',
               informoJefe ? 'translate-x-5' : 'translate-x-0.5',
             ].join(' ')} />
           </button>
-          <label className="text-sm font-medium text-[#2C2C2A]">
+          <label className="text-sm font-medium text-[var(--text-primary)]">
             ¿Informó al Jefe de Turno?
           </label>
         </div>

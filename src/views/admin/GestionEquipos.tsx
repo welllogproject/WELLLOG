@@ -98,16 +98,16 @@ export function GestionEquipos() {
     >
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative max-w-xs flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
           <input type="text" placeholder="Buscar por nombre o locación..." value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
           />
         </div>
         <div className="flex gap-2">
           {(['todos', 'activo', 'mantenimiento', 'inactivo'] as const).map((e) => (
             <button key={e} onClick={() => setFilterEstado(e)}
-              className={`px-3 py-2 text-xs font-medium rounded-[8px] transition-all ${filterEstado === e ? 'bg-[#7F77DD]/10 text-[#534AB7]' : 'bg-white border border-[rgba(0,0,0,0.10)] text-[#5F5E5A] hover:bg-[#F8F8F6]'}`}>
+              className={`px-3 py-2 text-xs font-medium rounded-[8px] transition-all ${filterEstado === e ? 'bg-[#7F77DD]/10 text-[#534AB7]' : 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]'}`}>
               {e === 'todos' ? 'Todos' : ESTADO_LABELS[e as EstadoEquipo]}
             </button>
           ))}
@@ -124,8 +124,8 @@ export function GestionEquipos() {
                   <Settings2 size={14} className="text-[#534AB7]" />
                 </div>
                 <div>
-                  <p className="font-medium text-[#2C2C2A]">{e.nombre_equipo}</p>
-                  {e.tipo_equipo && <p className="text-xs text-[#888780]">{TIPO_LABELS[e.tipo_equipo]}</p>}
+                  <p className="font-medium text-[var(--text-primary)]">{e.nombre_equipo}</p>
+                  {e.tipo_equipo && <p className="text-xs text-[var(--text-muted)]">{TIPO_LABELS[e.tipo_equipo]}</p>}
                 </div>
               </div>
             ),
@@ -133,14 +133,14 @@ export function GestionEquipos() {
           {
             key: 'locacion', header: 'Locación',
             render: (e) => e.locacion
-              ? <span className="font-mono text-xs font-medium text-[#2C2C2A]">{e.locacion.codigo}</span>
-              : <span className="text-xs text-[#888780]">Sin asignar</span>,
+              ? <span className="font-mono text-xs font-medium text-[var(--text-primary)]">{e.locacion.codigo}</span>
+              : <span className="text-xs text-[var(--text-muted)]">Sin asignar</span>,
           },
           {
             key: 'operador', header: 'Operador asignado',
             render: (e) => e.operador
-              ? <div><p className="text-sm text-[#2C2C2A]">{e.operador.nombre_completo}</p><p className="text-xs text-[#888780]">{e.operador.email}</p></div>
-              : <span className="text-xs text-[#888780]">Sin asignar</span>,
+              ? <div><p className="text-sm text-[var(--text-primary)]">{e.operador.nombre_completo}</p><p className="text-xs text-[var(--text-muted)]">{e.operador.email}</p></div>
+              : <span className="text-xs text-[var(--text-muted)]">Sin asignar</span>,
           },
           {
             key: 'estado', header: 'Estado',
@@ -150,8 +150,8 @@ export function GestionEquipos() {
             key: 'acciones', header: '', cellClass: 'text-right',
             render: (e) => (
               <div className="flex items-center justify-end gap-1">
-                <button onClick={() => abrirEditar(e)} className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[#888780] hover:text-[#534AB7] transition-colors" title="Editar"><Pencil size={14} /></button>
-                <button onClick={() => setConfirmDelete(e)} className="p-1.5 rounded-lg hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A] transition-colors" title="Eliminar"><Trash2 size={14} /></button>
+                <button onClick={() => abrirEditar(e)} className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors" title="Editar"><Pencil size={14} /></button>
+                <button onClick={() => setConfirmDelete(e)} className="p-1.5 rounded-lg hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors" title="Eliminar"><Trash2 size={14} /></button>
               </div>
             ),
           },
@@ -196,8 +196,8 @@ export function GestionEquipos() {
 
       {/* Modal confirmar eliminación */}
       <Modal isOpen={!!confirmDelete} onClose={() => setConfirmDelete(null)} title="Eliminar equipo" size="sm">
-        <p className="text-sm text-[#5F5E5A]">
-          ¿Eliminar <span className="font-medium text-[#2C2C2A]">{confirmDelete?.nombre_equipo}</span>? Esta acción no se puede deshacer.
+        <p className="text-sm text-[var(--text-secondary)]">
+          ¿Eliminar <span className="font-medium text-[var(--text-primary)]">{confirmDelete?.nombre_equipo}</span>? Esta acción no se puede deshacer.
         </p>
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="secondary" size="sm" onClick={() => setConfirmDelete(null)}>Cancelar</Button>

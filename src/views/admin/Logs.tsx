@@ -49,17 +49,17 @@ export function Logs() {
   return (
     <PageLayout title="Logs de Auditoría" subtitle="Historial completo de acciones del sistema">
       <div className="relative max-w-xs mb-5">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
         <input type="text" placeholder="Buscar por usuario, acción..." value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+          className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
         />
       </div>
 
       <div className="card-clay overflow-hidden">
-        <div className="flex items-center gap-2 px-5 py-4 border-b border-[rgba(0,0,0,0.06)]">
-          <BookOpen size={15} className="text-[#888780]" />
-          <h2 className="text-sm font-medium text-[#2C2C2A]">
+        <div className="flex items-center gap-2 px-5 py-4 border-b border-[var(--divider)]">
+          <BookOpen size={15} className="text-[var(--text-muted)]" />
+          <h2 className="text-sm font-medium text-[var(--text-primary)]">
             {filtrados.length} registros
           </h2>
         </div>
@@ -72,15 +72,15 @@ export function Logs() {
           </div>
         ) : filtrados.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-sm text-[#888780]">No hay registros de auditoría</p>
+            <p className="text-sm text-[var(--text-muted)]">No hay registros de auditoría</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[rgba(0,0,0,0.06)]">
+                <tr className="border-b border-[var(--divider)]">
                   {['Fecha', 'Usuario', 'Acción', 'Tabla', 'IP'].map((h) => (
-                    <th key={h} className="text-left px-4 py-2.5 text-xs font-medium text-[#888780] uppercase tracking-wide whitespace-nowrap">
+                    <th key={h} className="text-left px-4 py-2.5 text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide whitespace-nowrap">
                       {h}
                     </th>
                   ))}
@@ -90,18 +90,18 @@ export function Logs() {
                 {filtrados.map((log) => {
                   const config = ACCION_CONFIG[log.accion]
                   return (
-                    <tr key={log.id} className="border-b border-[rgba(0,0,0,0.04)] hover:bg-[#F8F8F6] transition-colors">
-                      <td className="px-4 py-2.5 text-xs font-mono text-[#5F5E5A] whitespace-nowrap">
+                    <tr key={log.id} className="border-b border-[var(--divider)] hover:bg-[var(--hover-bg)] transition-colors">
+                      <td className="px-4 py-2.5 text-xs font-mono text-[var(--text-secondary)] whitespace-nowrap">
                         {new Date(log.created_at).toLocaleString('es-AR')}
                       </td>
                       <td className="px-4 py-2.5">
                         {log.usuario ? (
                           <div>
-                            <p className="text-sm text-[#2C2C2A]">{log.usuario.nombre_completo}</p>
-                            <p className="text-xs text-[#888780]">{log.usuario.email}</p>
+                            <p className="text-sm text-[var(--text-primary)]">{log.usuario.nombre_completo}</p>
+                            <p className="text-xs text-[var(--text-muted)]">{log.usuario.email}</p>
                           </div>
                         ) : (
-                          <span className="text-xs text-[#888780]">Sistema</span>
+                          <span className="text-xs text-[var(--text-muted)]">Sistema</span>
                         )}
                       </td>
                       <td className="px-4 py-2.5">
@@ -114,9 +114,9 @@ export function Logs() {
                         </span>
                       </td>
                       <td className="px-4 py-2.5">
-                        <span className="text-xs font-mono text-[#5F5E5A]">{log.tabla_afectada ?? '—'}</span>
+                        <span className="text-xs font-mono text-[var(--text-secondary)]">{log.tabla_afectada ?? '—'}</span>
                       </td>
-                      <td className="px-4 py-2.5 text-xs font-mono text-[#888780]">
+                      <td className="px-4 py-2.5 text-xs font-mono text-[var(--text-muted)]">
                         {log.ip_origen ?? '—'}
                       </td>
                     </tr>

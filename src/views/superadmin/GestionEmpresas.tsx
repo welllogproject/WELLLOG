@@ -109,13 +109,13 @@ export function GestionEmpresas() {
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1 max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
           <input
             type="text"
             placeholder="Buscar por nombre, CUIT o email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
           />
         </div>
         <div className="flex gap-2">
@@ -127,7 +127,7 @@ export function GestionEmpresas() {
                 'px-3 py-2 text-xs font-medium rounded-[8px] transition-all',
                 filterTipo === t
                   ? 'bg-[#7F77DD]/10 text-[#534AB7]'
-                  : 'bg-white border border-[rgba(0,0,0,0.10)] text-[#5F5E5A] hover:bg-[#F8F8F6]',
+                  : 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]',
               ].join(' ')}
             >
               {t === 'todas' ? 'Todas' : TIPO_LABELS[t]}
@@ -150,9 +150,9 @@ export function GestionEmpresas() {
                   {e.nombre.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-medium text-[#2C2C2A]">{e.nombre}</p>
+                  <p className="font-medium text-[var(--text-primary)]">{e.nombre}</p>
                   {e.razon_social && (
-                    <p className="text-xs text-[#888780]">{e.razon_social}</p>
+                    <p className="text-xs text-[var(--text-muted)]">{e.razon_social}</p>
                   )}
                 </div>
               </div>
@@ -170,12 +170,12 @@ export function GestionEmpresas() {
           {
             key: 'cuit',
             header: 'CUIT',
-            render: (e) => <span className="text-[#5F5E5A] font-mono text-xs">{e.cuit ?? '—'}</span>,
+            render: (e) => <span className="text-[var(--text-secondary)] font-mono text-xs">{e.cuit ?? '—'}</span>,
           },
           {
             key: 'email_contacto',
             header: 'Email',
-            render: (e) => <span className="text-[#5F5E5A]">{e.email_contacto ?? '—'}</span>,
+            render: (e) => <span className="text-[var(--text-secondary)]">{e.email_contacto ?? '—'}</span>,
           },
           {
             key: 'plan',
@@ -201,7 +201,7 @@ export function GestionEmpresas() {
               <div className="flex items-center justify-end gap-1">
                 <button
                   onClick={() => abrirEditar(e)}
-                  className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[#888780] hover:text-[#534AB7] transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors"
                   title="Editar"
                 >
                   <Pencil size={14} />
@@ -211,8 +211,8 @@ export function GestionEmpresas() {
                   className={[
                     'p-1.5 rounded-lg transition-colors',
                     e.activa
-                      ? 'hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A]'
-                      : 'hover:bg-[#1D9E75]/10 text-[#888780] hover:text-[#1D9E75]',
+                      ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]'
+                      : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]',
                   ].join(' ')}
                   title={e.activa ? 'Suspender' : 'Activar'}
                 >

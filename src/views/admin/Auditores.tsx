@@ -80,7 +80,7 @@ export function Auditores() {
                 <div className="w-8 h-8 rounded-[10px] bg-[#1D9E75]/10 flex items-center justify-center">
                   <ShieldCheck size={14} className="text-[#0F6E56]" />
                 </div>
-                <span className="font-medium text-[#2C2C2A]">{p.empresa_auditora?.nombre ?? '—'}</span>
+                <span className="font-medium text-[var(--text-primary)]">{p.empresa_auditora?.nombre ?? '—'}</span>
               </div>
             ),
           },
@@ -88,7 +88,7 @@ export function Auditores() {
             key: 'equipo', header: 'Equipo',
             render: (p) => p.equipo
               ? <Badge variant="neutral" size="sm">{p.equipo.nombre_equipo}</Badge>
-              : <span className="text-xs text-[#888780] italic">Todos los equipos</span>,
+              : <span className="text-xs text-[var(--text-muted)] italic">Todos los equipos</span>,
           },
           {
             key: 'tipo_acceso', header: 'Acceso',
@@ -101,13 +101,13 @@ export function Auditores() {
                 {p.puede_ver_incidentes && <span className="text-[10px] px-1.5 py-0.5 bg-[#E24B4A]/10 text-[#b93332] rounded-full">Incidentes</span>}
                 {p.puede_ver_hse && <span className="text-[10px] px-1.5 py-0.5 bg-[#BA7517]/10 text-[#7A4E0F] rounded-full">HSE</span>}
                 {p.puede_ver_coordenadas && <span className="text-[10px] px-1.5 py-0.5 bg-[#7F77DD]/10 text-[#534AB7] rounded-full">Coords exactas</span>}
-                {!p.puede_ver_incidentes && !p.puede_ver_hse && !p.puede_ver_coordenadas && <span className="text-xs text-[#888780]">Solo registros</span>}
+                {!p.puede_ver_incidentes && !p.puede_ver_hse && !p.puede_ver_coordenadas && <span className="text-xs text-[var(--text-muted)]">Solo registros</span>}
               </div>
             ),
           },
           {
             key: 'vigencia', header: 'Vigencia',
-            render: (p) => <span className="text-xs text-[#5F5E5A]">{p.fecha_inicio}{p.fecha_fin ? ` → ${p.fecha_fin}` : ' → Sin vencimiento'}</span>,
+            render: (p) => <span className="text-xs text-[var(--text-secondary)]">{p.fecha_inicio}{p.fecha_fin ? ` → ${p.fecha_fin}` : ' → Sin vencimiento'}</span>,
           },
           {
             key: 'activo', header: 'Estado',
@@ -117,7 +117,7 @@ export function Auditores() {
             key: 'acciones', header: '', cellClass: 'text-right',
             render: (p) => (
               <button onClick={() => toggle.mutate({ id: p.id, activo: !p.activo })}
-                className={`p-1.5 rounded-lg transition-colors ${p.activo ? 'hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A]' : 'hover:bg-[#1D9E75]/10 text-[#888780] hover:text-[#1D9E75]'}`}
+                className={`p-1.5 rounded-lg transition-colors ${p.activo ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]' : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]'}`}
                 title={p.activo ? 'Revocar' : 'Activar'}>
                 {p.activo ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
               </button>
@@ -149,7 +149,7 @@ export function Auditores() {
           <Input label="Desde" type="date" value={form.fecha_inicio} onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })} required />
           <Input label="Hasta (opcional)" type="date" value={form.fecha_fin ?? ''} onChange={(e) => setForm({ ...form, fecha_fin: e.target.value || undefined })} />
           <div className="sm:col-span-2">
-            <p className="text-sm font-medium text-[#2C2C2A] mb-3">Datos adicionales visibles</p>
+            <p className="text-sm font-medium text-[var(--text-primary)] mb-3">Datos adicionales visibles</p>
             <div className="flex flex-wrap gap-4">
               {[
                 { key: 'puede_ver_incidentes', label: 'Incidentes HSE' },
@@ -160,7 +160,7 @@ export function Auditores() {
                   <input type="checkbox" checked={form[key as keyof PermisoForm] as boolean}
                     onChange={(e) => setForm({ ...form, [key]: e.target.checked })}
                     className="w-4 h-4 rounded accent-[#7F77DD]" />
-                  <span className="text-sm text-[#2C2C2A]">{label}</span>
+                  <span className="text-sm text-[var(--text-primary)]">{label}</span>
                 </label>
               ))}
             </div>

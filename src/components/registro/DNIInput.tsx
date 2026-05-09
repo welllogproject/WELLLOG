@@ -51,9 +51,9 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
           onKeyDown={handleKeyboard}
           className={[
             'w-full text-center text-5xl font-medium tracking-[0.2em] py-6 px-4',
-            'bg-white border-2 rounded-clay outline-none transition-colors',
-            'text-[#2C2C2A] placeholder:text-[#DDDDDD]',
-            error ? 'border-[#E24B4A]' : value.length >= 7 ? 'border-[#1D9E75]' : 'border-[rgba(0,0,0,0.12)]',
+            'bg-[var(--card-bg)] border-2 rounded-clay outline-none transition-colors',
+            'text-[var(--text-primary)] placeholder:text-[#DDDDDD]',
+            error ? 'border-[#E24B4A]' : value.length >= 7 ? 'border-[#1D9E75]' : 'border-[var(--border-strong)]',
           ].join(' ')}
           placeholder="00000000"
           aria-label="Número de DNI"
@@ -62,7 +62,7 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-[#AAAAAA] hover:text-[#E24B4A] transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-[var(--text-faded)] hover:text-[#E24B4A] transition-colors"
             aria-label="Limpiar"
           >
             <Delete size={22} />
@@ -88,10 +88,10 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
               key === '✓'
                 ? value.length >= 7
                   ? 'btn-salida text-white'
-                  : 'bg-[#888780]/10 text-[#AAAAAA] cursor-not-allowed'
+                  : 'bg-[#888780]/10 text-[var(--text-faded)] cursor-not-allowed'
                 : key === '←'
-                ? 'bg-white border border-[rgba(0,0,0,0.1)] text-[#5F5E5A] hover:bg-gray-50'
-                : 'bg-white border border-[rgba(0,0,0,0.1)] text-[#2C2C2A] hover:bg-gray-50 shadow-clay-sm',
+                ? 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)]'
+                : 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-primary)] hover:bg-[var(--hover-bg)] shadow-clay-sm',
             ].join(' ')}
             aria-label={key === '←' ? 'Borrar' : key === '✓' ? 'Confirmar' : key}
           >
@@ -100,7 +100,7 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
         ))}
       </div>
 
-      <p className="text-sm text-[#888780]">
+      <p className="text-sm text-[var(--text-muted)]">
         {value.length < 7 ? 'Ingresá el número de DNI' : `DNI: ${value}`}
       </p>
     </div>

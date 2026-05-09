@@ -26,15 +26,15 @@ export function Table<T>({
   onRowClick,
 }: TableProps<T>) {
   return (
-    <div className="w-full overflow-x-auto rounded-[16px] border border-[rgba(0,0,0,0.08)] bg-white">
+    <div className="w-full overflow-x-auto rounded-[16px] border border-[var(--border)] bg-[var(--card-bg)]">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[rgba(0,0,0,0.07)]">
+          <tr className="border-b border-[var(--border)]">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={[
-                  'px-4 py-3 text-left text-xs font-medium text-[#5F5E5A] uppercase tracking-wide whitespace-nowrap',
+                  'px-4 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide whitespace-nowrap',
                   col.headerClass ?? '',
                 ].join(' ')}
               >
@@ -46,7 +46,7 @@ export function Table<T>({
         <tbody>
           {isLoading ? (
             Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i} className="border-b border-[rgba(0,0,0,0.05)]">
+              <tr key={i} className="border-b border-[var(--divider)]">
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-3">
                     <div className="h-4 bg-[#F0F0EE] rounded animate-pulse" />
@@ -56,7 +56,7 @@ export function Table<T>({
             ))
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="px-4 py-12 text-center text-[#888780]">
+              <td colSpan={columns.length} className="px-4 py-12 text-center text-[var(--text-muted)]">
                 {emptyMessage}
               </td>
             </tr>
@@ -66,14 +66,14 @@ export function Table<T>({
                 key={rowKey(row)}
                 onClick={() => onRowClick?.(row)}
                 className={[
-                  'border-b border-[rgba(0,0,0,0.05)] last:border-0 transition-colors duration-100',
-                  onRowClick ? 'cursor-pointer hover:bg-[#F8F8F6]' : '',
+                  'border-b border-[var(--divider)] last:border-0 transition-colors duration-100',
+                  onRowClick ? 'cursor-pointer hover:bg-[var(--hover-bg)]' : '',
                 ].join(' ')}
               >
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={['px-4 py-3 text-[#2C2C2A]', col.cellClass ?? ''].join(' ')}
+                    className={['px-4 py-3 text-[var(--text-primary)]', col.cellClass ?? ''].join(' ')}
                   >
                     {col.render
                       ? col.render(row)

@@ -100,10 +100,10 @@ export function GestionEmpresas() {
       }
     >
       <div className="relative max-w-xs mb-5">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
         <input type="text" placeholder="Buscar por nombre o CUIT..." value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+          className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
         />
       </div>
 
@@ -116,13 +116,13 @@ export function GestionEmpresas() {
                 <div className="w-8 h-8 rounded-[10px] bg-[#7F77DD]/10 flex items-center justify-center">
                   <Building2 size={14} className="text-[#534AB7]" />
                 </div>
-                <span className="font-medium text-[#2C2C2A]">{e.nombre}</span>
+                <span className="font-medium text-[var(--text-primary)]">{e.nombre}</span>
               </div>
             ),
           },
-          { key: 'cuit', header: 'CUIT', render: (e) => <span className="font-mono text-xs text-[#5F5E5A]">{e.cuit ?? '—'}</span> },
-          { key: 'email', header: 'Email', render: (e) => <span className="text-xs text-[#5F5E5A]">{e.email_contacto ?? '—'}</span> },
-          { key: 'telefono', header: 'Teléfono', render: (e) => <span className="text-xs text-[#5F5E5A]">{e.telefono ?? '—'}</span> },
+          { key: 'cuit', header: 'CUIT', render: (e) => <span className="font-mono text-xs text-[var(--text-secondary)]">{e.cuit ?? '—'}</span> },
+          { key: 'email', header: 'Email', render: (e) => <span className="text-xs text-[var(--text-secondary)]">{e.email_contacto ?? '—'}</span> },
+          { key: 'telefono', header: 'Teléfono', render: (e) => <span className="text-xs text-[var(--text-secondary)]">{e.telefono ?? '—'}</span> },
           {
             key: 'estado', header: 'Estado',
             render: (e) => <Badge variant={e.activa ? 'activo' : 'inactivo'} showDot size="sm">{e.activa ? 'Activa' : 'Inactiva'}</Badge>,
@@ -131,7 +131,7 @@ export function GestionEmpresas() {
             key: 'acciones', header: '', cellClass: 'text-right',
             render: (e) => (
               <button onClick={() => toggle.mutate({ id: e.id, activa: !e.activa })}
-                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[#5F5E5A] hover:text-[#534AB7] transition-colors">
+                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-secondary)] hover:text-[#534AB7] transition-colors">
                 {e.activa ? 'Desactivar' : 'Activar'}
               </button>
             ),

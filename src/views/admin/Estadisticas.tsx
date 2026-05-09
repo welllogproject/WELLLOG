@@ -17,9 +17,9 @@ function KPI({ label, value, sub, icon, color }: { label: string; value: string 
     <div className="card-clay p-5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xs font-medium text-[#5F5E5A] uppercase tracking-wide">{label}</p>
-          <p className="text-2xl font-medium text-[#2C2C2A] mt-1 tabular-nums">{value}</p>
-          {sub && <p className="text-xs text-[#888780] mt-0.5">{sub}</p>}
+          <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">{label}</p>
+          <p className="text-2xl font-medium text-[var(--text-primary)] mt-1 tabular-nums">{value}</p>
+          {sub && <p className="text-xs text-[var(--text-muted)] mt-0.5">{sub}</p>}
         </div>
         <div className="w-9 h-9 rounded-[10px] flex items-center justify-center flex-shrink-0"
           style={{ background: `${color}18`, color }}>
@@ -97,11 +97,11 @@ export function Estadisticas() {
     <PageLayout title="Estadísticas Operacionales" subtitle="Movimiento y actividad de los últimos 30 días">
       <div className="flex items-center gap-2 mb-5">
         <select value={equipoId} onChange={(e) => setEquipoId(e.target.value)}
-          className="text-sm bg-white border border-[rgba(0,0,0,0.1)] rounded-clay-sm py-2 px-3 outline-none focus:border-[#7F77DD]">
+          className="text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm py-2 px-3 outline-none focus:border-[#7F77DD]">
           <option value="">Todos los equipos</option>
           {equipos.map((eq) => <option key={eq.id} value={eq.id}>{eq.nombre_equipo}</option>)}
         </select>
-        <span className="text-xs text-[#888780]">Últimos 30 días</span>
+        <span className="text-xs text-[var(--text-muted)]">Últimos 30 días</span>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -118,7 +118,7 @@ export function Estadisticas() {
       ) : (
         <div className="grid gap-4">
           <Card>
-            <h3 className="text-sm font-medium text-[#2C2C2A] mb-4">Ingresos diarios — últimos 14 días</h3>
+            <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">Ingresos diarios — últimos 14 días</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barGap={2}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
@@ -132,7 +132,7 @@ export function Estadisticas() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-medium text-[#2C2C2A] mb-4">Horas Hombre diarias</h3>
+              <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">Horas Hombre diarias</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" />
@@ -145,9 +145,9 @@ export function Estadisticas() {
             </Card>
 
             <Card>
-              <h3 className="text-sm font-medium text-[#2C2C2A] mb-4">Top empresas visitantes</h3>
+              <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">Top empresas visitantes</h3>
               {topEmpresas.length === 0 ? (
-                <p className="text-sm text-[#888780] py-8 text-center">Sin datos</p>
+                <p className="text-sm text-[var(--text-muted)] py-8 text-center">Sin datos</p>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={topEmpresas} layout="vertical" margin={{ left: 8 }}>

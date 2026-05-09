@@ -18,9 +18,9 @@ function KpiCard({ icon, label, value, sub, color = '#7F77DD' }: KpiCardProps) {
     <div className="card-clay p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium text-[#5F5E5A] uppercase tracking-wide">{label}</p>
-          <p className="text-3xl font-medium text-[#2C2C2A] mt-1.5 tabular-nums">{value}</p>
-          {sub && <p className="text-xs text-[#888780] mt-1">{sub}</p>}
+          <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide">{label}</p>
+          <p className="text-3xl font-medium text-[var(--text-primary)] mt-1.5 tabular-nums">{value}</p>
+          {sub && <p className="text-xs text-[var(--text-muted)] mt-1">{sub}</p>}
         </div>
         <div
           className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0 mt-0.5"
@@ -145,7 +145,7 @@ export function SuperadminDashboard() {
         {/* Últimas empresas */}
         <div className="card-clay p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium text-[#2C2C2A]">Empresas recientes</h2>
+            <h2 className="text-sm font-medium text-[var(--text-primary)]">Empresas recientes</h2>
             <Link
               to="/superadmin/empresas"
               className="text-xs text-[#7F77DD] hover:underline"
@@ -161,7 +161,7 @@ export function SuperadminDashboard() {
               : (empresas ?? []).map((e) => (
                   <div
                     key={e.id}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-[10px] hover:bg-[#F8F8F6] transition-colors"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <div
@@ -173,8 +173,8 @@ export function SuperadminDashboard() {
                         {e.nombre.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-[#2C2C2A]">{e.nombre}</p>
-                        <p className="text-xs text-[#888780] capitalize">{e.tipo}</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{e.nombre}</p>
+                        <p className="text-xs text-[var(--text-muted)] capitalize">{e.tipo}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -192,7 +192,7 @@ export function SuperadminDashboard() {
 
         {/* Accesos rápidos */}
         <div className="card-clay p-5">
-          <h2 className="text-sm font-medium text-[#2C2C2A] mb-4">Gestión de la plataforma</h2>
+          <h2 className="text-sm font-medium text-[var(--text-primary)] mb-4">Gestión de la plataforma</h2>
           <div className="grid grid-cols-2 gap-3">
             {[
               { to: '/superadmin/empresas', icon: <Building2 size={20} />, label: 'Empresas', desc: 'Contratistas y operadoras', color: '#7F77DD' },
@@ -203,7 +203,7 @@ export function SuperadminDashboard() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="p-4 rounded-[12px] border border-[rgba(0,0,0,0.08)] hover:border-[rgba(0,0,0,0.14)] hover:bg-[#F8F8F6] transition-all"
+                className="p-4 rounded-[12px] border border-[var(--border)] hover:border-[rgba(0,0,0,0.14)] hover:bg-[var(--hover-bg)] transition-all"
               >
                 <div
                   className="w-9 h-9 rounded-[10px] flex items-center justify-center mb-3"
@@ -211,8 +211,8 @@ export function SuperadminDashboard() {
                 >
                   {item.icon}
                 </div>
-                <p className="text-sm font-medium text-[#2C2C2A]">{item.label}</p>
-                <p className="text-xs text-[#888780] mt-0.5">{item.desc}</p>
+                <p className="text-sm font-medium text-[var(--text-primary)]">{item.label}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">{item.desc}</p>
               </Link>
             ))}
           </div>

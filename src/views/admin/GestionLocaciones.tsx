@@ -66,11 +66,11 @@ export function GestionLocaciones() {
       }
     >
       <div className="relative max-w-xs mb-5">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
         <input
           type="text" placeholder="Buscar por código o nombre..."
           value={search} onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+          className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
         />
       </div>
 
@@ -83,17 +83,17 @@ export function GestionLocaciones() {
                 <div className="w-8 h-8 rounded-[10px] bg-[#1D9E75]/10 flex items-center justify-center">
                   <MapPin size={14} className="text-[#1D9E75]" />
                 </div>
-                <span className="font-medium text-[#2C2C2A] font-mono">{l.codigo}</span>
+                <span className="font-medium text-[var(--text-primary)] font-mono">{l.codigo}</span>
               </div>
             ),
           },
-          { key: 'nombre', header: 'Nombre', render: (l) => <span className="text-[#5F5E5A]">{l.nombre ?? '—'}</span> },
-          { key: 'descripcion', header: 'Descripción', render: (l) => <span className="text-[#888780] text-xs">{l.descripcion ?? '—'}</span> },
+          { key: 'nombre', header: 'Nombre', render: (l) => <span className="text-[var(--text-secondary)]">{l.nombre ?? '—'}</span> },
+          { key: 'descripcion', header: 'Descripción', render: (l) => <span className="text-[var(--text-muted)] text-xs">{l.descripcion ?? '—'}</span> },
           {
             key: 'ubicacion', header: 'Coordenadas',
             render: (l) => l.ubicacion_punto
               ? <span className="font-mono text-xs text-[#534AB7]">{(l.ubicacion_punto as any).lat?.toFixed(4)}, {(l.ubicacion_punto as any).lng?.toFixed(4)}</span>
-              : <span className="text-xs text-[#888780]">Sin coordenadas</span>,
+              : <span className="text-xs text-[var(--text-muted)]">Sin coordenadas</span>,
           },
           {
             key: 'activa', header: 'Estado',
@@ -103,8 +103,8 @@ export function GestionLocaciones() {
             key: 'acciones', header: '', cellClass: 'text-right',
             render: (l) => (
               <div className="flex items-center justify-end gap-1">
-                <button onClick={() => abrirEditar(l)} className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[#888780] hover:text-[#534AB7] transition-colors" title="Editar"><Pencil size={14} /></button>
-                <button onClick={() => toggleActiva(l)} className={`p-1.5 rounded-lg transition-colors ${l.activa ? 'hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A]' : 'hover:bg-[#1D9E75]/10 text-[#888780] hover:text-[#1D9E75]'}`} title={l.activa ? 'Desactivar' : 'Activar'}>
+                <button onClick={() => abrirEditar(l)} className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors" title="Editar"><Pencil size={14} /></button>
+                <button onClick={() => toggleActiva(l)} className={`p-1.5 rounded-lg transition-colors ${l.activa ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]' : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]'}`} title={l.activa ? 'Desactivar' : 'Activar'}>
                   {l.activa ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                 </button>
               </div>

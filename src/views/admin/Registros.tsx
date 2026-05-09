@@ -66,13 +66,13 @@ export function Registros() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Búsqueda */}
           <div className="relative">
-            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar nombre, DNI, empresa..."
-              className="w-full pl-9 pr-4 py-2.5 text-sm bg-[#F8F8F6] border border-[rgba(0,0,0,0.1)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
             />
           </div>
 
@@ -80,7 +80,7 @@ export function Registros() {
           <select
             value={equipoId}
             onChange={(e) => setEquipoId(e.target.value)}
-            className="w-full py-2.5 px-4 text-sm bg-[#F8F8F6] border border-[rgba(0,0,0,0.1)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors appearance-none"
+            className="w-full py-2.5 px-4 text-sm bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors appearance-none"
           >
             <option value="">Todos los equipos</option>
             {(equipos ?? []).map((eq) => (
@@ -93,7 +93,7 @@ export function Registros() {
             type="date"
             value={fechaDesde}
             onChange={(e) => setFechaDesde(e.target.value)}
-            className="w-full py-2.5 px-4 text-sm bg-[#F8F8F6] border border-[rgba(0,0,0,0.1)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
+            className="w-full py-2.5 px-4 text-sm bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
           />
 
           {/* Fecha hasta */}
@@ -101,7 +101,7 @@ export function Registros() {
             type="date"
             value={fechaHasta}
             onChange={(e) => setFechaHasta(e.target.value)}
-            className="w-full py-2.5 px-4 text-sm bg-[#F8F8F6] border border-[rgba(0,0,0,0.1)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
+            className="w-full py-2.5 px-4 text-sm bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors"
           />
         </div>
       </Card>
@@ -111,44 +111,44 @@ export function Registros() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[rgba(0,0,0,0.06)]">
-                <th className="text-left text-xs font-medium text-[#888780] px-5 py-3">Persona</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3 hidden md:table-cell">Empresa</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3 hidden lg:table-cell">Motivo</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3">Ingreso</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3 hidden md:table-cell">Egreso</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3">Estado</th>
-                <th className="text-left text-xs font-medium text-[#888780] px-3 py-3 hidden lg:table-cell">Incidente</th>
+              <tr className="border-b border-[var(--divider)]">
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-5 py-3">Persona</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden md:table-cell">Empresa</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden lg:table-cell">Motivo</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3">Ingreso</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden md:table-cell">Egreso</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3">Estado</th>
+                <th className="text-left text-xs font-medium text-[var(--text-muted)] px-3 py-3 hidden lg:table-cell">Incidente</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[rgba(0,0,0,0.04)]">
+            <tbody className="divide-y divide-[var(--divider)]">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}><td colSpan={7} className="px-5"><SkeletonRow /></td></tr>
                 ))
               ) : registrosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center text-sm text-[#888780] py-10">
+                  <td colSpan={7} className="text-center text-sm text-[var(--text-muted)] py-10">
                     Sin registros para los filtros seleccionados
                   </td>
                 </tr>
               ) : (
                 registrosFiltrados.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#F8F8F6] transition-colors">
+                  <tr key={r.id} className="hover:bg-[var(--hover-bg)] transition-colors">
                     <td className="px-5 py-3">
-                      <p className="font-medium text-[#2C2C2A]">{r.nombre_completo}</p>
-                      <p className="text-xs text-[#888780]">DNI {r.dni}</p>
+                      <p className="font-medium text-[var(--text-primary)]">{r.nombre_completo}</p>
+                      <p className="text-xs text-[var(--text-muted)]">DNI {r.dni}</p>
                     </td>
-                    <td className="px-3 py-3 text-[#5F5E5A] hidden md:table-cell">
+                    <td className="px-3 py-3 text-[var(--text-secondary)] hidden md:table-cell">
                       {r.empresa_visitante_nombre || '—'}
                     </td>
-                    <td className="px-3 py-3 text-[#5F5E5A] hidden lg:table-cell">
+                    <td className="px-3 py-3 text-[var(--text-secondary)] hidden lg:table-cell">
                       {r.motivo_visita}
                     </td>
-                    <td className="px-3 py-3 text-[#5F5E5A] text-xs">
+                    <td className="px-3 py-3 text-[var(--text-secondary)] text-xs">
                       {new Date(r.fecha_ingreso).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                     </td>
-                    <td className="px-3 py-3 text-[#5F5E5A] text-xs hidden md:table-cell">
+                    <td className="px-3 py-3 text-[var(--text-secondary)] text-xs hidden md:table-cell">
                       {r.fecha_egreso
                         ? new Date(r.fecha_egreso).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
                         : <span className="text-[#1D9E75]">Dentro</span>
@@ -161,7 +161,7 @@ export function Registros() {
                     </td>
                     <td className="px-3 py-3 hidden lg:table-cell">
                       {r.declara_incidente == null ? (
-                        <span className="text-xs text-[#AAAAAA]">—</span>
+                        <span className="text-xs text-[var(--text-faded)]">—</span>
                       ) : r.declara_incidente ? (
                         <Badge variant="danger">⚠️ Sí</Badge>
                       ) : (

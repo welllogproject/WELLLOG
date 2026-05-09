@@ -151,19 +151,19 @@ export function GestionUsuarios() {
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1 max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
           <input
             type="text"
             placeholder="Buscar por nombre, email o DNI..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
           />
         </div>
         <select
           value={filterEmpresa}
           onChange={(e) => setFilterEmpresa(e.target.value)}
-          className="py-2.5 px-3 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all text-[#2C2C2A]"
+          className="py-2.5 px-3 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all text-[var(--text-primary)]"
         >
           {empresaOptions.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -172,7 +172,7 @@ export function GestionUsuarios() {
         <select
           value={filterRol}
           onChange={(e) => setFilterRol(e.target.value as Rol | '')}
-          className="py-2.5 px-3 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all text-[#2C2C2A]"
+          className="py-2.5 px-3 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-all text-[var(--text-primary)]"
         >
           {rolOptions.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -191,8 +191,8 @@ export function GestionUsuarios() {
                   {u.nombre_completo.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-medium text-[#2C2C2A]">{u.nombre_completo}</p>
-                  <p className="text-xs text-[#888780]">{u.email}</p>
+                  <p className="font-medium text-[var(--text-primary)]">{u.nombre_completo}</p>
+                  <p className="text-xs text-[var(--text-muted)]">{u.email}</p>
                 </div>
               </div>
             ),
@@ -202,8 +202,8 @@ export function GestionUsuarios() {
             header: 'Empresa',
             render: (u) => (
               <div>
-                <p className="text-[#2C2C2A]">{u.empresa?.nombre ?? '—'}</p>
-                <p className="text-xs text-[#888780] capitalize">{u.empresa?.tipo}</p>
+                <p className="text-[var(--text-primary)]">{u.empresa?.nombre ?? '—'}</p>
+                <p className="text-xs text-[var(--text-muted)] capitalize">{u.empresa?.tipo}</p>
               </div>
             ),
           },
@@ -217,7 +217,7 @@ export function GestionUsuarios() {
           {
             key: 'dni',
             header: 'DNI',
-            render: (u) => <span className="text-[#5F5E5A] font-mono text-xs">{u.dni ?? '—'}</span>,
+            render: (u) => <span className="text-[var(--text-secondary)] font-mono text-xs">{u.dni ?? '—'}</span>,
           },
           {
             key: 'estado',
@@ -236,7 +236,7 @@ export function GestionUsuarios() {
               <div className="flex items-center justify-end gap-1">
                 <button
                   onClick={() => abrirEditar(u)}
-                  className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[#5F5E5A] hover:text-[#534AB7] transition-colors"
+                  className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-secondary)] hover:text-[#534AB7] transition-colors"
                 >
                   Editar
                 </button>
@@ -245,8 +245,8 @@ export function GestionUsuarios() {
                   className={[
                     'p-1.5 rounded-lg transition-colors',
                     u.estado === 'activo'
-                      ? 'hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A]'
-                      : 'hover:bg-[#1D9E75]/10 text-[#888780] hover:text-[#1D9E75]',
+                      ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]'
+                      : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]',
                   ].join(' ')}
                   title={u.estado === 'activo' ? 'Suspender' : 'Activar'}
                 >

@@ -38,7 +38,7 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
         )}
 
         <button
-          className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors relative"
+          className="p-2 rounded-full hover:bg-[var(--hover-bg)] dark:hover:bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors relative"
           aria-label="Notificaciones"
         >
           <Bell size={17} />

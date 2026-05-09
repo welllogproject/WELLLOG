@@ -102,7 +102,7 @@ export function PermisosAcceso() {
         <Info size={16} className="text-[#534AB7] flex-shrink-0 mt-0.5" />
         <div className="text-sm text-[#534AB7]">
           <p className="font-medium mb-0.5">Modelo multi-tenant</p>
-          <p className="text-xs text-[#5F5E5A]">
+          <p className="text-xs text-[var(--text-secondary)]">
             Cada contratista decide de forma independiente qué datos comparte con cada operadora.
             Una operadora como YPF puede recibir acceso de múltiples contratistas a la vez —
             cada relación es independiente y revocable por separado.
@@ -120,7 +120,7 @@ export function PermisosAcceso() {
                 <div className="w-7 h-7 rounded-lg bg-[#7F77DD]/15 flex items-center justify-center text-xs font-semibold text-[#534AB7]">
                   {(p.empresa_propietaria?.nombre ?? '?').charAt(0)}
                 </div>
-                <span className="font-medium text-[#2C2C2A]">
+                <span className="font-medium text-[var(--text-primary)]">
                   {p.empresa_propietaria?.nombre ?? '—'}
                 </span>
               </div>
@@ -134,7 +134,7 @@ export function PermisosAcceso() {
                 <div className="w-7 h-7 rounded-lg bg-[#1D9E75]/15 flex items-center justify-center text-xs font-semibold text-[#0F6E56]">
                   {(p.empresa_auditora?.nombre ?? '?').charAt(0)}
                 </div>
-                <span className="font-medium text-[#2C2C2A]">
+                <span className="font-medium text-[var(--text-primary)]">
                   {p.empresa_auditora?.nombre ?? '—'}
                 </span>
               </div>
@@ -147,7 +147,7 @@ export function PermisosAcceso() {
               p.equipo ? (
                 <Badge variant="neutral" size="sm">{p.equipo.nombre_equipo}</Badge>
               ) : (
-                <span className="text-xs text-[#888780] italic">Todos los equipos</span>
+                <span className="text-xs text-[var(--text-muted)] italic">Todos los equipos</span>
               ),
           },
           {
@@ -180,7 +180,7 @@ export function PermisosAcceso() {
                   </span>
                 )}
                 {!p.puede_ver_incidentes && !p.puede_ver_hse && !p.puede_ver_coordenadas && (
-                  <span className="text-xs text-[#888780]">Solo registros</span>
+                  <span className="text-xs text-[var(--text-muted)]">Solo registros</span>
                 )}
               </div>
             ),
@@ -189,10 +189,10 @@ export function PermisosAcceso() {
             key: 'vigencia',
             header: 'Vigencia',
             render: (p) => (
-              <div className="text-xs text-[#5F5E5A]">
+              <div className="text-xs text-[var(--text-secondary)]">
                 <span>{p.fecha_inicio}</span>
                 {p.fecha_fin && <span> → {p.fecha_fin}</span>}
-                {!p.fecha_fin && <span className="text-[#888780]"> → Sin vencimiento</span>}
+                {!p.fecha_fin && <span className="text-[var(--text-muted)]"> → Sin vencimiento</span>}
               </div>
             ),
           },
@@ -215,8 +215,8 @@ export function PermisosAcceso() {
                 className={[
                   'p-1.5 rounded-lg transition-colors',
                   p.activo
-                    ? 'hover:bg-[#E24B4A]/10 text-[#888780] hover:text-[#E24B4A]'
-                    : 'hover:bg-[#1D9E75]/10 text-[#888780] hover:text-[#1D9E75]',
+                    ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]'
+                    : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]',
                 ].join(' ')}
                 title={p.activo ? 'Revocar' : 'Activar'}
               >
@@ -294,7 +294,7 @@ export function PermisosAcceso() {
 
           {/* Permisos adicionales */}
           <div className="sm:col-span-2">
-            <p className="text-sm font-medium text-[#2C2C2A] mb-3">Datos adicionales que puede ver</p>
+            <p className="text-sm font-medium text-[var(--text-primary)] mb-3">Datos adicionales que puede ver</p>
             <div className="flex flex-wrap gap-3">
               {[
                 { key: 'puede_ver_incidentes', label: 'Incidentes HSE' },
@@ -311,7 +311,7 @@ export function PermisosAcceso() {
                     onChange={(e) => setForm({ ...form, [key]: e.target.checked })}
                     className="w-4 h-4 rounded accent-[#7F77DD]"
                   />
-                  <span className="text-sm text-[#2C2C2A]">{label}</span>
+                  <span className="text-sm text-[var(--text-primary)]">{label}</span>
                 </label>
               ))}
             </div>

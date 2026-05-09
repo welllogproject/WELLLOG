@@ -38,28 +38,39 @@ export function useAuth() {
 
 // Inicialización de sesión — llamar una sola vez en App.tsx
 export function useAuthInit() {
-  const { setUsuario, setLoading } = useAuthStore()
+  const { usuario, setUsuario, setLoading } = useAuthStore()
 
   useEffect(() => {
     let mounted = true
 
-    // Safety net: if onAuthStateChange never fires (network issue), unblock the app
+    // Si ya tenemos usuario rehidratado del localStorage, ya estamos listos.
+    // El onAuthStateChange validará en background.
+    if (usuario) {
+      setLoading(false)
+    }
+
+    // Safety net por si onAuthStateChange no se dispara (cold start largo o red caída).
+    // Si no hay usuario rehidratado, esperamos hasta 12s antes de soltar el lock.
     const safetyTimeout = setTimeout(() => {
       if (mounted) {
         console.warn('[WELL LOG] Auth init timeout — forcing ready state')
         setLoading(false)
       }
-    }, 5000)
+    }, usuario ? 0 : 12000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
 
         if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
+          // Refresh en background — no bloquea si ya teníamos usuario rehidratado
           await cargarUsuario(session.user.id, setUsuario)
         } else if (event === 'SIGNED_OUT') {
           setUsuario(null)
           queryClient.clear()
+        } else if (event === 'INITIAL_SESSION' && !session) {
+          // No hay sesión válida — limpiar usuario rehidratado si existe
+          setUsuario(null)
         }
 
         clearTimeout(safetyTimeout)
@@ -72,30 +83,46 @@ export function useAuthInit() {
       clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
-  }, [setUsuario, setLoading])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 }
 
 async function cargarUsuario(
   userId: string,
-  setUsuario: (u: Usuario | null) => void
+  setUsuario: (u: Usuario | null) => void,
+  retries = 2
 ) {
-  try {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('id', userId)
-      .single()
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (error || !data) {
-      console.error('[WELL LOG] Error cargando usuario:', error?.message)
-      // Only clear user on explicit "not found", not on transient errors
-      if (error?.code === 'PGRST116') setUsuario(null)
+      if (error) {
+        // Sólo limpiar el usuario si es 'no encontrado' explícito
+        if (error.code === 'PGRST116') {
+          console.error('[WELL LOG] Usuario no existe en tabla usuarios')
+          setUsuario(null)
+          return
+        }
+        // Error transitorio: reintenta
+        if (attempt < retries) {
+          await new Promise(r => setTimeout(r, 800 * (attempt + 1)))
+          continue
+        }
+        console.error('[WELL LOG] Error cargando usuario tras reintentos:', error.message)
+        return
+      }
+
+      if (data) setUsuario(data as Usuario)
       return
+    } catch (err) {
+      if (attempt >= retries) {
+        console.error('[WELL LOG] cargarUsuario exception:', err)
+      }
     }
-
-    setUsuario(data as Usuario)
-  } catch (err) {
-    console.error('[WELL LOG] cargarUsuario exception:', err)
   }
 }
 

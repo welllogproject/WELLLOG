@@ -42,14 +42,14 @@ export function FirmaCanvas({ onFirma, label = 'Firma', height = 180, required }
     <div className="flex flex-col gap-2">
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-[#2C2C2A]">
+          <label className="text-sm font-medium text-[var(--text-primary)]">
             {label}
             {required && <span className="text-[#E24B4A] ml-0.5">*</span>}
           </label>
           {hasStroke && (
             <button
               onClick={limpiar}
-              className="flex items-center gap-1 text-xs text-[#888780] hover:text-[#E24B4A] transition-colors"
+              className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors"
               type="button"
             >
               <RotateCcw size={12} />
@@ -84,7 +84,7 @@ export function FirmaCanvas({ onFirma, label = 'Firma', height = 180, required }
       </div>
 
       {!hasStroke && (
-        <p className="text-xs text-[#AAAAAA] text-center">Firmar aquí</p>
+        <p className="text-xs text-[var(--text-faded)] text-center">Firmar aquí</p>
       )}
       {hasStroke && (
         <p className="text-xs text-[#1D9E75] text-center">✓ Firma registrada</p>

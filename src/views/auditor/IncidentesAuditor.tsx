@@ -62,13 +62,13 @@ export function IncidentesAuditor() {
       subtitle="Declaraciones HSE de equipos autorizados — solo lectura"
     >
       <div className="relative max-w-xs mb-5">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAAAAA]" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-faded)]" />
         <input
           type="text"
           placeholder="Buscar por nombre, DNI o equipo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+          className="w-full pl-9 pr-4 py-2.5 text-sm bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
         />
       </div>
 
@@ -77,7 +77,7 @@ export function IncidentesAuditor() {
           {
             key: 'fecha', header: 'Fecha',
             render: (i) => (
-              <span className="text-xs font-mono text-[#5F5E5A]">
+              <span className="text-xs font-mono text-[var(--text-secondary)]">
                 {new Date(i.fecha_incidente).toLocaleDateString('es-AR')}
               </span>
             ),
@@ -86,8 +86,8 @@ export function IncidentesAuditor() {
             key: 'equipo', header: 'Equipo',
             render: (i) => (
               <div>
-                <p className="text-sm font-medium text-[#2C2C2A]">{i.equipo?.nombre_equipo ?? '—'}</p>
-                {i.locacion && <p className="text-xs text-[#888780]">{i.locacion.codigo}</p>}
+                <p className="text-sm font-medium text-[var(--text-primary)]">{i.equipo?.nombre_equipo ?? '—'}</p>
+                {i.locacion && <p className="text-xs text-[var(--text-muted)]">{i.locacion.codigo}</p>}
               </div>
             ),
           },
@@ -95,20 +95,20 @@ export function IncidentesAuditor() {
             key: 'afectado', header: 'Afectado',
             render: (i) => (
               <div>
-                <p className="text-sm text-[#2C2C2A]">{i.nombre_afectado}</p>
-                <p className="text-xs text-[#888780]">{i.dni_afectado}{i.empresa_afectado ? ` — ${i.empresa_afectado}` : ''}</p>
+                <p className="text-sm text-[var(--text-primary)]">{i.nombre_afectado}</p>
+                <p className="text-xs text-[var(--text-muted)]">{i.dni_afectado}{i.empresa_afectado ? ` — ${i.empresa_afectado}` : ''}</p>
               </div>
             ),
           },
           {
             key: 'tipo', header: 'Tipo',
-            render: (i) => <span className="text-xs text-[#5F5E5A]">{TIPO_LABELS[i.tipo] ?? i.tipo ?? '—'}</span>,
+            render: (i) => <span className="text-xs text-[var(--text-secondary)]">{TIPO_LABELS[i.tipo] ?? i.tipo ?? '—'}</span>,
           },
           {
             key: 'gravedad', header: 'Gravedad',
             render: (i) => i.gravedad
               ? <Badge variant={GRAVEDAD_VARIANT[i.gravedad] ?? 'neutral'} size="sm">{GRAVEDAD_LABELS[i.gravedad]}</Badge>
-              : <span className="text-xs text-[#888780]">—</span>,
+              : <span className="text-xs text-[var(--text-muted)]">—</span>,
           },
           {
             key: 'estado', header: 'Estado',
@@ -126,7 +126,7 @@ export function IncidentesAuditor() {
             render: (i) => (
               <button
                 onClick={() => setDetalle(i)}
-                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[#5F5E5A] hover:text-[#534AB7] transition-colors"
+                className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-secondary)] hover:text-[#534AB7] transition-colors"
               >
                 Ver
               </button>
@@ -144,47 +144,47 @@ export function IncidentesAuditor() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Equipo</p>
-                <p className="font-medium text-[#2C2C2A]">{detalle.equipo?.nombre_equipo ?? '—'}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Equipo</p>
+                <p className="font-medium text-[var(--text-primary)]">{detalle.equipo?.nombre_equipo ?? '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Locación</p>
-                <p className="text-[#2C2C2A]">{detalle.locacion?.codigo ?? '—'}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Locación</p>
+                <p className="text-[var(--text-primary)]">{detalle.locacion?.codigo ?? '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Afectado</p>
-                <p className="font-medium text-[#2C2C2A]">{detalle.nombre_afectado}</p>
-                <p className="text-xs text-[#888780]">{detalle.dni_afectado}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Afectado</p>
+                <p className="font-medium text-[var(--text-primary)]">{detalle.nombre_afectado}</p>
+                <p className="text-xs text-[var(--text-muted)]">{detalle.dni_afectado}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Empresa</p>
-                <p className="text-[#2C2C2A]">{detalle.empresa_afectado ?? '—'}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Empresa</p>
+                <p className="text-[var(--text-primary)]">{detalle.empresa_afectado ?? '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Tipo</p>
-                <p className="text-[#2C2C2A]">{TIPO_LABELS[detalle.tipo] ?? detalle.tipo ?? '—'}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Tipo</p>
+                <p className="text-[var(--text-primary)]">{TIPO_LABELS[detalle.tipo] ?? detalle.tipo ?? '—'}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Gravedad</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Gravedad</p>
                 {detalle.gravedad
                   ? <Badge variant={GRAVEDAD_VARIANT[detalle.gravedad] ?? 'neutral'} size="sm">{GRAVEDAD_LABELS[detalle.gravedad]}</Badge>
-                  : <span className="text-[#888780]">—</span>}
+                  : <span className="text-[var(--text-muted)]">—</span>}
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Días perdidos</p>
-                <p className="text-[#2C2C2A]">{detalle.dias_perdidos ?? 0}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Días perdidos</p>
+                <p className="text-[var(--text-primary)]">{detalle.dias_perdidos ?? 0}</p>
               </div>
               <div>
-                <p className="text-xs text-[#888780] uppercase tracking-wide mb-0.5">Fecha</p>
-                <p className="text-[#2C2C2A]">{new Date(detalle.fecha_incidente).toLocaleString('es-AR')}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-0.5">Fecha</p>
+                <p className="text-[var(--text-primary)]">{new Date(detalle.fecha_incidente).toLocaleString('es-AR')}</p>
               </div>
             </div>
             <div>
-              <p className="text-xs text-[#888780] uppercase tracking-wide mb-1">Descripción</p>
-              <p className="text-sm text-[#2C2C2A] bg-[#F8F8F6] rounded-[10px] p-3">{detalle.descripcion}</p>
+              <p className="text-xs text-[var(--text-muted)] uppercase tracking-wide mb-1">Descripción</p>
+              <p className="text-sm text-[var(--text-primary)] bg-[var(--input-bg)] rounded-[10px] p-3">{detalle.descripcion}</p>
             </div>
             <div className="flex items-center gap-2">
-              <AlertTriangle size={14} className={detalle.estado === 'cerrado' ? 'text-[#888780]' : 'text-[#E24B4A]'} />
+              <AlertTriangle size={14} className={detalle.estado === 'cerrado' ? 'text-[var(--text-muted)]' : 'text-[#E24B4A]'} />
               <Badge
                 variant={detalle.estado === 'cerrado' ? 'inactivo' : detalle.estado === 'investigando' ? 'warning' : 'danger'}
                 showDot size="sm"

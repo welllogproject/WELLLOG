@@ -90,7 +90,7 @@ export function MarcarSalida() {
   return (
     <TabletLayout equipoNombre={equipo?.nombre_equipo} locacionCodigo={equipo?.locacion?.codigo}>
       {/* Header */}
-      <div className="bg-white border-b border-[rgba(0,0,0,0.06)] px-5 py-3 flex items-center gap-3">
+      <div className="bg-[var(--card-bg)] border-b border-[var(--divider)] px-5 py-3 flex items-center gap-3">
         {paso !== 'exito' && (
           <button
             onClick={() => {
@@ -98,12 +98,12 @@ export function MarcarSalida() {
               else if (paso === 'declaracion') { setPaso('lista'); setPersonaSeleccionada(null) }
               else if (paso === 'incidente') setPaso('declaracion')
             }}
-            className="p-1.5 rounded-full hover:bg-black/5 text-[#5F5E5A]"
+            className="p-1.5 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-secondary)]"
           >
             <ArrowLeft size={20} />
           </button>
         )}
-        <h2 className="text-base font-medium text-[#2C2C2A]">
+        <h2 className="text-base font-medium text-[var(--text-primary)]">
           {paso === 'lista' ? 'Marcar Salida' :
            paso === 'declaracion' ? 'Declaración de Incidente' :
            paso === 'incidente' ? 'Detalle del Incidente' :
@@ -120,7 +120,7 @@ export function MarcarSalida() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nombre o DNI..."
-              className="w-full bg-white border border-[rgba(0,0,0,0.1)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-colors"
+              className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-colors"
               autoFocus
             />
 
@@ -128,7 +128,7 @@ export function MarcarSalida() {
               {isLoading ? (
                 <><SkeletonRow /><SkeletonRow /></>
               ) : personasFiltradas.length === 0 ? (
-                <p className="text-center text-sm text-[#888780] py-8">
+                <p className="text-center text-sm text-[var(--text-muted)] py-8">
                   {search ? 'Sin resultados' : 'Nadie dentro del equipo'}
                 </p>
               ) : (
@@ -144,13 +144,13 @@ export function MarcarSalida() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#2C2C2A]">{persona.nombre_completo}</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">{persona.nombre_completo}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-[#888780]">DNI {persona.dni}</span>
+                        <span className="text-xs text-[var(--text-muted)]">DNI {persona.dni}</span>
                         {persona.empresa_visitante_nombre && (
                           <>
                             <span className="text-[#DDDDDD]">·</span>
-                            <span className="flex items-center gap-1 text-xs text-[#888780]">
+                            <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                               <Building2 size={10} />
                               {persona.empresa_visitante_nombre}
                             </span>
@@ -158,7 +158,7 @@ export function MarcarSalida() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-[#AAAAAA] flex-shrink-0">
+                    <div className="flex items-center gap-1 text-xs text-[var(--text-faded)] flex-shrink-0">
                       <Clock size={12} />
                       {tiempoDesde(persona.fecha_ingreso)}
                     </div>
@@ -196,15 +196,15 @@ export function MarcarSalida() {
               <CheckCircle2 size={40} className="text-white" />
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-medium text-[#2C2C2A]">
+              <h3 className="text-xl font-medium text-[var(--text-primary)]">
                 {declaracion?.declara ? 'Egreso con incidente registrado' : '¡Egreso registrado!'}
               </h3>
-              <p className="text-sm text-[#5F5E5A] mt-1">{personaSeleccionada?.nombre_completo}</p>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">{personaSeleccionada?.nombre_completo}</p>
               {declaracion?.declara && (
                 <p className="text-xs text-[#BA7517] mt-2">⚠️ El administrador fue notificado</p>
               )}
             </div>
-            <p className="text-sm text-[#AAAAAA]">Volviendo al inicio...</p>
+            <p className="text-sm text-[var(--text-faded)]">Volviendo al inicio...</p>
           </div>
         )}
       </div>

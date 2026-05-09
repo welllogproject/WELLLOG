@@ -17,8 +17,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   ingreso: 'btn-ingreso font-medium rounded-clay shadow-clay-sm',
   salida: 'btn-salida font-medium rounded-clay shadow-clay-sm',
   primary: 'btn-ingreso font-medium rounded-clay shadow-clay-sm',
-  secondary: 'bg-white border border-[rgba(0,0,0,0.12)] text-[#2C2C2A] font-medium rounded-clay hover:bg-gray-50 transition-all duration-150',
-  ghost: 'bg-transparent text-[#5F5E5A] font-medium rounded-clay hover:bg-black/5 transition-all duration-150',
+  secondary: 'bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-primary)] font-medium rounded-clay hover:bg-[var(--hover-bg)] transition-all duration-150',
+  ghost: 'bg-transparent text-[var(--text-secondary)] font-medium rounded-clay hover:bg-[var(--hover-bg)] transition-all duration-150',
   danger: 'btn-peligro font-medium rounded-clay shadow-clay-sm',
 }
 

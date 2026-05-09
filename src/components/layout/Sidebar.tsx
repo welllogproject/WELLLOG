@@ -7,6 +7,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { StatusDot } from '@/components/ui/StatusDot'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Logo } from '@/components/ui/Logo'
 
 interface NavItem {
   to: string
@@ -54,23 +55,6 @@ const ROL_LABELS: Record<string, string> = {
   operador: 'Operador',
 }
 
-function WellLogIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="wl-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#7F77DD" />
-          <stop offset="100%" stopColor="#534AB7" />
-        </linearGradient>
-      </defs>
-      <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="url(#wl-grad)" />
-      <rect x="15" y="7" width="2" height="12" rx="1" fill="white" opacity="0.95" />
-      <path d="M11 17 L16 22 L21 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <rect x="13" y="6" width="6" height="2" rx="1" fill="white" opacity="0.7" />
-    </svg>
-  )
-}
-
 export function Sidebar() {
   const { usuario, rol, logout } = useAuth()
   const location = useLocation()
@@ -97,7 +81,7 @@ export function Sidebar() {
       <div className="px-5 py-4 border-b border-[var(--border)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <WellLogIcon size={28} />
+            <Logo size={28} />
             <div>
               <span className="font-medium text-[var(--text-primary)] text-sm tracking-tight block">WELL LOG</span>
               {rol === 'superadmin' && (
@@ -120,7 +104,7 @@ export function Sidebar() {
                   'flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-sm transition-all duration-150',
                   isActive(item.to)
                     ? 'font-medium'
-                    : 'text-[var(--text-muted)] hover:bg-black/5 dark:hover:bg-white/5 hover:text-[var(--text-primary)]',
+                    : 'text-[var(--text-muted)] hover:bg-[var(--hover-bg)] dark:hover:bg-white/5 hover:text-[var(--text-primary)]',
                 ].join(' ')}
                 style={
                   isActive(item.to)
@@ -138,7 +122,7 @@ export function Sidebar() {
 
       {/* Usuario */}
       <div className="p-3 border-t border-[var(--border)]">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] dark:hover:bg-white/5 transition-colors">
           <div className="relative">
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium"

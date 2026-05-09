@@ -18,9 +18,21 @@
   /* UI base */
   --card-bg: #FFFFFF;
   --page-bg: #F8F8F6;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --input-bg: #F8F8F6;
   --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --divider: rgba(0, 0, 0, 0.05);
+
+  /* Texto en 4 niveles */
   --text-primary: #2C2C2A;
-  --text-muted: #5F5E5A;
+  --text-secondary: #4A4A47;
+  --text-muted: #6F6E6A;
+  --text-faded: #95938F;
+
+  /* Skeleton */
+  --skeleton: #E8E8E5;
+
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
@@ -33,12 +45,26 @@
 .dark {
   --card-bg: #1E1E1C;
   --page-bg: #141412;
-  --border: rgba(255, 255, 255, 0.08);
-  --text-primary: #E8E8E5;
-  --text-muted: #9E9D99;
+  --hover-bg: rgba(255, 255, 255, 0.05);
+  --input-bg: #2A2A28;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --divider: rgba(255, 255, 255, 0.06);
+
+  --text-primary: #F2F2EF;
+  --text-secondary: #C8C7C2;
+  --text-muted: #9D9C97;
+  --text-faded: #6F6E69;
+
+  --skeleton: #2E2E2C;
+
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* ── RESET Y BASE ───────────────────────────────────────── */
@@ -133,8 +159,40 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
   }
 
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
   .text-muted {
     color: var(--text-muted);
+  }
+
+  .text-faded {
+    color: var(--text-faded);
+  }
+
+  .bg-card {
+    background: var(--card-bg);
+  }
+
+  .bg-page {
+    background: var(--page-bg);
+  }
+
+  .bg-input {
+    background: var(--input-bg);
+  }
+
+  .bg-hover {
+    background: var(--hover-bg);
+  }
+
+  .border-card {
+    border-color: var(--border);
+  }
+
+  .divide-card > * + * {
+    border-color: var(--divider);
   }
 }
 
@@ -173,15 +231,30 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── FIRMA CANVAS ───────────────────────────────────────── */
 .firma-canvas {
-  border: 2px dashed rgba(0,0,0,0.12);
+  border: 2px dashed var(--border-strong);
   border-radius: 12px;
-  background: #FAFAFA;
+  background: var(--input-bg);
   touch-action: none;
   cursor: crosshair;
   display: block;
 }
 .firma-canvas:hover {
   border-color: #7F77DD;
+}
+
+/* ── LEAFLET DARK MODE ──────────────────────────────────── */
+.dark .leaflet-tile {
+  filter: brightness(0.7) invert(1) contrast(0.85) hue-rotate(200deg) saturate(0.8) brightness(0.85);
+}
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+.dark .leaflet-control-zoom a {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border);
 }
 
 /* ── TABLET OPTIMIZATIONS ───────────────────────────────── */

@@ -44,12 +44,12 @@ export function OperadorHome() {
           <div className="w-16 h-16 rounded-full bg-[#BA7517]/10 flex items-center justify-center">
             <span className="text-3xl">⚙️</span>
           </div>
-          <h2 className="text-lg font-medium text-[#2C2C2A]">Tablet sin configurar</h2>
-          <p className="text-sm text-[#5F5E5A] max-w-xs">
+          <h2 className="text-lg font-medium text-[var(--text-primary)]">Tablet sin configurar</h2>
+          <p className="text-sm text-[var(--text-secondary)] max-w-xs">
             Esta tablet no tiene un equipo asignado. Contactá al administrador para vincularla.
           </p>
           <div className="mt-2 px-4 py-2 bg-[#F0EFED] rounded-full">
-            <p className="text-xs text-[#888780] font-mono">
+            <p className="text-xs text-[var(--text-muted)] font-mono">
               ID: {navigator.userAgent.slice(0, 20)}...
             </p>
           </div>
@@ -66,19 +66,19 @@ export function OperadorHome() {
       <OfflineBanner />
 
       {/* Stats rápidos */}
-      <div className="bg-white border-b border-[rgba(0,0,0,0.06)] px-5 py-4">
+      <div className="bg-[var(--card-bg)] border-b border-[var(--divider)] px-5 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-3xl font-medium text-[#2C2C2A]">
+            <p className="text-3xl font-medium text-[var(--text-primary)]">
               {isLoading ? '—' : personas?.length ?? 0}
             </p>
-            <p className="text-sm text-[#5F5E5A]">personas dentro</p>
+            <p className="text-sm text-[var(--text-secondary)]">personas dentro</p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-[#888780]">
+            <p className="text-sm text-[var(--text-muted)]">
               {new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
-            <p className="text-xs text-[#AAAAAA]">
+            <p className="text-xs text-[var(--text-faded)]">
               {equipo?.locacion?.nombre || 'Locación no asignada'}
             </p>
           </div>
@@ -118,7 +118,7 @@ export function OperadorHome() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre o DNI..."
-            className="w-full bg-white border border-[rgba(0,0,0,0.1)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-colors"
+            className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-colors"
           />
         )}
 
@@ -135,7 +135,7 @@ export function OperadorHome() {
               <div className="w-10 h-10 rounded-full bg-[#1D9E75]/10 flex items-center justify-center">
                 <UserCheck size={20} className="text-[#1D9E75]" />
               </div>
-              <p className="text-sm text-[#5F5E5A]">
+              <p className="text-sm text-[var(--text-secondary)]">
                 {search ? 'Sin resultados' : 'Nadie dentro del equipo'}
               </p>
             </div>
@@ -151,13 +151,13 @@ export function OperadorHome() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#2C2C2A] truncate">{persona.nombre_completo}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">{persona.nombre_completo}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-[#888780]">DNI {persona.dni}</span>
+                    <span className="text-xs text-[var(--text-muted)]">DNI {persona.dni}</span>
                     {persona.empresa_visitante_nombre && (
                       <>
                         <span className="text-[#DDDDDD]">·</span>
-                        <span className="flex items-center gap-1 text-xs text-[#888780]">
+                        <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
                           <Building2 size={10} />
                           {persona.empresa_visitante_nombre}
                         </span>
@@ -165,7 +165,7 @@ export function OperadorHome() {
                     )}
                   </div>
                   {persona.funcion_visitante && (
-                    <div className="flex items-center gap-1 mt-0.5 text-xs text-[#AAAAAA]">
+                    <div className="flex items-center gap-1 mt-0.5 text-xs text-[var(--text-faded)]">
                       <Briefcase size={10} />
                       {persona.funcion_visitante}
                     </div>
@@ -173,7 +173,7 @@ export function OperadorHome() {
                 </div>
 
                 {/* Tiempo */}
-                <div className="flex items-center gap-1 text-xs text-[#AAAAAA] flex-shrink-0">
+                <div className="flex items-center gap-1 text-xs text-[var(--text-faded)] flex-shrink-0">
                   <Clock size={12} />
                   {formatTiempo(persona.fecha_ingreso)}
                 </div>

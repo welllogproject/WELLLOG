@@ -114,16 +114,16 @@ export function NuevoIngreso() {
   return (
     <TabletLayout equipoNombre={equipo?.nombre_equipo} locacionCodigo={equipo?.locacion?.codigo}>
       {/* Header con paso */}
-      <div className="bg-white border-b border-[rgba(0,0,0,0.06)] px-5 py-3 flex items-center gap-3">
+      <div className="bg-[var(--card-bg)] border-b border-[var(--divider)] px-5 py-3 flex items-center gap-3">
         {paso !== 'exito' && (
           <button
             onClick={() => paso === 'dni' ? navigate('/operador') : setPaso(paso === 'firma' ? 'confirmar' : 'dni')}
-            className="p-1.5 rounded-full hover:bg-black/5 transition-colors text-[#5F5E5A]"
+            className="p-1.5 rounded-full hover:bg-[var(--hover-bg)] transition-colors text-[var(--text-secondary)]"
           >
             <ArrowLeft size={20} />
           </button>
         )}
-        <h2 className="text-base font-medium text-[#2C2C2A]">
+        <h2 className="text-base font-medium text-[var(--text-primary)]">
           {paso === 'dni' ? 'Nuevo Ingreso — DNI' :
            paso === 'confirmar' ? 'Confirmar Datos' :
            paso === 'firma' ? 'Firma de Ingreso' :
@@ -172,15 +172,15 @@ export function NuevoIngreso() {
 
             {/* DNI (readonly) */}
             <div>
-              <label className="text-sm font-medium text-[#2C2C2A] block mb-1">DNI</label>
-              <div className="bg-[#F0EFED] border border-[rgba(0,0,0,0.08)] rounded-clay-sm px-4 py-2.5 text-sm text-[#5F5E5A] font-mono">
+              <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">DNI</label>
+              <div className="bg-[#F0EFED] border border-[var(--border)] rounded-clay-sm px-4 py-2.5 text-sm text-[var(--text-secondary)] font-mono">
                 {dni}
               </div>
             </div>
 
             {/* Nombre */}
             <div>
-              <label className="text-sm font-medium text-[#2C2C2A] block mb-1">
+              <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">
                 Nombre y Apellido <span className="text-[#E24B4A]">*</span>
               </label>
               <input
@@ -188,29 +188,29 @@ export function NuevoIngreso() {
                 value={datos.nombre_completo}
                 onChange={(e) => setDatos((d) => ({ ...d, nombre_completo: e.target.value }))}
                 placeholder="Apellido y Nombre"
-                className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+                className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-[#2C2C2A] block mb-1">Empresa</label>
+                <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">Empresa</label>
                 <input
                   type="text"
                   value={datos.empresa}
                   onChange={(e) => setDatos((d) => ({ ...d, empresa: e.target.value }))}
                   placeholder="Nombre de empresa"
-                  className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all"
+                  className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#2C2C2A] block mb-1">Función</label>
+                <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">Función</label>
                 <input
                   type="text"
                   value={datos.funcion}
                   onChange={(e) => setDatos((d) => ({ ...d, funcion: e.target.value }))}
                   placeholder="Ej: Técnico de Campo"
-                  className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all"
+                  className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all"
                 />
               </div>
             </div>
@@ -224,15 +224,15 @@ export function NuevoIngreso() {
             />
 
             <div>
-              <label className="text-sm font-medium text-[#2C2C2A] block mb-1">
-                Patente del vehículo <span className="text-[#AAAAAA] font-normal">(opcional)</span>
+              <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">
+                Patente del vehículo <span className="text-[var(--text-faded)] font-normal">(opcional)</span>
               </label>
               <input
                 type="text"
                 value={datos.patente}
                 onChange={(e) => setDatos((d) => ({ ...d, patente: e.target.value.toUpperCase() }))}
                 placeholder="AA123BB"
-                className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all font-mono uppercase"
+                className="w-full bg-[var(--card-bg)] border border-[var(--border-strong)] rounded-clay-sm text-sm py-2.5 px-4 outline-none focus:border-[#7F77DD] transition-all font-mono uppercase"
               />
             </div>
 
@@ -246,8 +246,8 @@ export function NuevoIngreso() {
         {paso === 'firma' && (
           <div className="flex flex-col gap-6 animate-fade-in">
             <div className="text-center">
-              <p className="text-sm text-[#5F5E5A]">
-                <span className="font-medium text-[#2C2C2A]">{datos.nombre_completo}</span> — firma para confirmar el ingreso
+              <p className="text-sm text-[var(--text-secondary)]">
+                <span className="font-medium text-[var(--text-primary)]">{datos.nombre_completo}</span> — firma para confirmar el ingreso
               </p>
             </div>
 
@@ -278,10 +278,10 @@ export function NuevoIngreso() {
               <CheckCircle2 size={40} className="text-white" />
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-medium text-[#2C2C2A]">¡Ingreso registrado!</h3>
-              <p className="text-sm text-[#5F5E5A] mt-1">{datos.nombre_completo}</p>
+              <h3 className="text-xl font-medium text-[var(--text-primary)]">¡Ingreso registrado!</h3>
+              <p className="text-sm text-[var(--text-secondary)] mt-1">{datos.nombre_completo}</p>
             </div>
-            <p className="text-sm text-[#AAAAAA]">Volviendo al inicio...</p>
+            <p className="text-sm text-[var(--text-faded)]">Volviendo al inicio...</p>
           </div>
         )}
       </div>

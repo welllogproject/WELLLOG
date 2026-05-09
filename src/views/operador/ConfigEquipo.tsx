@@ -61,8 +61,8 @@ export function ConfigEquipo() {
               <MapPin size={20} className="text-[#534AB7]" />
             </div>
             <div>
-              <h2 className="text-base font-medium text-[#2C2C2A]">Ubicación del equipo</h2>
-              <p className="text-xs text-[#888780]">Solo se puede cambiar desde acá</p>
+              <h2 className="text-base font-medium text-[var(--text-primary)]">Ubicación del equipo</h2>
+              <p className="text-xs text-[var(--text-muted)]">Solo se puede cambiar desde acá</p>
             </div>
           </div>
 

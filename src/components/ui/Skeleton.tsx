@@ -8,7 +8,7 @@ interface SkeletonProps {
 
 export function Skeleton({ className = '' }: SkeletonProps) {
   return (
-    <div className={`animate-pulse bg-[#E8E8E5] rounded-lg ${className}`} />
+    <div className={`animate-pulse bg-[var(--skeleton)] rounded-lg ${className}`} />
   )
 }
 
@@ -24,7 +24,7 @@ export function SkeletonCard() {
 
 export function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 py-3 px-4 border-b border-[rgba(0,0,0,0.05)]">
+    <div className="flex items-center gap-4 py-3 px-4 border-b border-[var(--divider)]">
       <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-3 w-1/3" />

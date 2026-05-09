@@ -54,9 +54,15 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'fieldpass-auth',
       partialize: (state) => ({
-        // Solo persistir el equipo_id, no el usuario (se rehidrata desde Supabase)
         equipoId: state.equipoId,
+        // Persistimos el usuario para sobrevivir F5 sin esperar el cold start
+        // de Supabase. Se revalida en background con onAuthStateChange.
+        usuario: state.usuario,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Si rehidratamos un usuario válido, no quedarse atrapado en loading
+        if (state?.usuario) state.isLoading = false
+      },
     }
   )
 )
