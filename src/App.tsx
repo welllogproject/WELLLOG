@@ -18,13 +18,18 @@ function GlobalHooks() {
 }
 
 export function App() {
-  const { isLoading } = useAuthStore()
+  const { isLoading, _hydrated, usuario } = useAuthStore()
+
+  // Solo mostrar spinner si:
+  // - Zustand aún no terminó de rehidratar (< 50ms normalmente), O
+  // - No hay usuario rehidratado Y Supabase aún está verificando la sesión
+  const showSpinner = !_hydrated || (isLoading && !usuario)
 
   return (
     <QueryClientProvider client={queryClient}>
       <GlobalHooks />
-      
-      {isLoading ? (
+
+      {showSpinner ? (
         <div className="min-h-screen bg-[var(--input-bg)] flex flex-col items-center justify-center gap-4">
           <div className="w-12 h-12 rounded-[14px] bg-[#7F77DD] flex items-center justify-center animate-pulse shadow-clay">
             <span className="text-white font-semibold">WL</span>
@@ -35,7 +40,7 @@ export function App() {
         <RouterProvider router={router} />
       )}
 
-      <Toaster 
+      <Toaster
         position="top-center"
         toastOptions={{
           duration: 4000,

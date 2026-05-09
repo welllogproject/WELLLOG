@@ -37,40 +37,62 @@ export function useAuth() {
 }
 
 // Inicialización de sesión — llamar una sola vez en App.tsx
+// Estrategia:
+//   1. Zustand rehidrata el usuario desde localStorage → isLoading = false inmediato
+//   2. En paralelo, verificamos la sesión real con Supabase en background
+//   3. Si la sesión expiró → limpiamos y mandamos a /login
+//   4. Si la sesión es válida → actualizamos el perfil silenciosamente
 export function useAuthInit() {
-  const { setUsuario, setLoading } = useAuthStore()
+  const { setUsuario, setLoading, usuario } = useAuthStore()
 
   useEffect(() => {
     let mounted = true
 
-    // 1) Chequeo sincrónico de la session almacenada por supabase-js.
-    //    Si no hay session valida (refresh token expirado), limpiar el usuario rehidratado
-    //    de localStorage para que el guard mande a /login.
-    supabase.auth.getSession().then(async ({ data, error }) => {
-      if (!mounted) return
-      if (error || !data.session?.user) {
-        setUsuario(null)
-        setLoading(false)
-        return
-      }
-      await cargarUsuario(data.session.user.id, setUsuario)
-      if (mounted) setLoading(false)
-    })
-
-    // 2) Suscripcion para futuros cambios (login, logout, refresh, expiracion).
+    // onAuthStateChange es la fuente de verdad. Se dispara:
+    // - INITIAL_SESSION: al montar, con la sesión actual (o null si no hay)
+    // - SIGNED_IN: al hacer login
+    // - SIGNED_OUT: al hacer logout o expirar
+    // - TOKEN_REFRESHED: al renovar el token
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
 
+        if (event === 'INITIAL_SESSION') {
+          if (!session?.user) {
+            // No hay sesión válida — limpiar cualquier usuario rehidratado
+            setUsuario(null)
+            setLoading(false)
+          } else {
+            // Hay sesión válida — cargar/actualizar perfil en background
+            // Si ya tenemos usuario rehidratado, no bloqueamos la UI
+            await cargarUsuario(session.user.id, setUsuario)
+            if (mounted) setLoading(false)
+          }
+          return
+        }
+
         if (event === 'SIGNED_IN' && session?.user) {
           await cargarUsuario(session.user.id, setUsuario)
-        } else if (event === 'SIGNED_OUT') {
+          if (mounted) setLoading(false)
+          return
+        }
+
+        if (event === 'SIGNED_OUT') {
           setUsuario(null)
+          setLoading(false)
           queryClient.clear()
-        } else if (event === 'TOKEN_REFRESHED' && !session) {
-          // Refresh fallido — sesion expirada
-          setUsuario(null)
-          queryClient.clear()
+          return
+        }
+
+        if (event === 'TOKEN_REFRESHED') {
+          if (!session?.user) {
+            // Refresh falló — sesión expirada
+            setUsuario(null)
+            setLoading(false)
+            queryClient.clear()
+          }
+          // Si el refresh fue exitoso, no necesitamos hacer nada más
+          return
         }
       }
     )
@@ -97,15 +119,13 @@ async function cargarUsuario(
         .single()
 
       if (error) {
-        // Sólo limpiar el usuario si es 'no encontrado' explícito
         if (error.code === 'PGRST116') {
           console.error('[WELL LOG] Usuario no existe en tabla usuarios')
           setUsuario(null)
           return
         }
-        // Error transitorio: reintenta
         if (attempt < retries) {
-          await new Promise(r => setTimeout(r, 800 * (attempt + 1)))
+          await new Promise(r => setTimeout(r, 600 * (attempt + 1)))
           continue
         }
         console.error('[WELL LOG] Error cargando usuario tras reintentos:', error.message)
@@ -134,8 +154,9 @@ export function useRequireAuth(rolesPermitidos?: Rol[]) {
       return
     }
     if (rolesPermitidos && !rolesPermitidos.includes(usuario.rol)) {
-      // Redirigir al home correcto según rol
       if (usuario.rol === 'operador') navigate('/operador', { replace: true })
+      else if (usuario.rol === 'auditor') navigate('/auditor', { replace: true })
+      else if (usuario.rol === 'superadmin') navigate('/superadmin', { replace: true })
       else navigate('/admin', { replace: true })
     }
   }, [usuario, isLoading, navigate, rolesPermitidos])

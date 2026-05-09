@@ -11,11 +11,13 @@ interface AuthState {
   usuario: Usuario | null
   equipoId: string | null         // Solo para operadores — persistido
   isLoading: boolean
+  _hydrated: boolean              // true una vez que Zustand terminó de rehidratar
 
   // Actions
   setUsuario: (usuario: Usuario | null) => void
   setEquipoId: (id: string | null) => void
   setLoading: (loading: boolean) => void
+  setHydrated: (v: boolean) => void
   logout: () => void
 
   // Helpers derivados
@@ -31,10 +33,12 @@ export const useAuthStore = create<AuthState>()(
       usuario: null,
       equipoId: null,
       isLoading: true,
+      _hydrated: false,
 
       setUsuario: (usuario) => set({ usuario }),
       setEquipoId: (id) => set({ equipoId: id }),
       setLoading: (loading) => set({ isLoading: loading }),
+      setHydrated: (v) => set({ _hydrated: v }),
 
       logout: () => set({
         usuario: null,
@@ -60,8 +64,13 @@ export const useAuthStore = create<AuthState>()(
         usuario: state.usuario,
       }),
       onRehydrateStorage: () => (state) => {
-        // Si rehidratamos un usuario válido, no quedarse atrapado en loading
-        if (state?.usuario) state.isLoading = false
+        if (!state) return
+        // Marcar como hidratado
+        state._hydrated = true
+        // Si hay usuario persistido, no bloquear la UI con loading
+        if (state.usuario) {
+          state.isLoading = false
+        }
       },
     }
   )
