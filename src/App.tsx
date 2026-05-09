@@ -10,7 +10,6 @@ import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useAuthStore } from '@/stores/authStore'
 import { DebugPanel } from '@/components/shared/DebugPanel'
 
-// Componente para inicializar hooks globales dentro del contexto
 function GlobalHooks() {
   useAuthInit()
   useOfflineSync()
@@ -20,24 +19,26 @@ function GlobalHooks() {
 export function App() {
   const { isLoading, _hydrated, usuario } = useAuthStore()
 
-  // Solo mostrar spinner si:
-  // - Zustand aún no terminó de rehidratar (< 50ms normalmente), O
-  // - No hay usuario rehidratado Y Supabase aún está verificando la sesión
+  // Spinner solo mientras Zustand no terminó de rehidratar
+  // O si no hay usuario y Supabase aún verifica la sesión
   const showSpinner = !_hydrated || (isLoading && !usuario)
 
   return (
     <QueryClientProvider client={queryClient}>
       <GlobalHooks />
 
-      {showSpinner ? (
-        <div className="min-h-screen bg-[var(--input-bg)] flex flex-col items-center justify-center gap-4">
+      {/* RouterProvider SIEMPRE montado — nunca se desmonta.
+          El spinner va encima como overlay para no perder el caché
+          ni desmontar los componentes al hacer F5. */}
+      <RouterProvider router={router} />
+
+      {showSpinner && (
+        <div className="fixed inset-0 z-[9999] bg-[var(--input-bg)] flex flex-col items-center justify-center gap-4">
           <div className="w-12 h-12 rounded-[14px] bg-[#7F77DD] flex items-center justify-center animate-pulse shadow-clay">
             <span className="text-white font-semibold">WL</span>
           </div>
           <p className="text-sm font-medium text-[var(--text-secondary)]">Iniciando WELL LOG...</p>
         </div>
-      ) : (
-        <RouterProvider router={router} />
       )}
 
       <Toaster
@@ -51,13 +52,8 @@ export function App() {
             fontSize: '14px',
             fontFamily: 'Inter, sans-serif'
           },
-          success: {
-            style: { background: '#1D9E75' }
-          },
-          error: {
-            style: { background: '#E24B4A' },
-            duration: 6000
-          }
+          success: { style: { background: '#1D9E75' } },
+          error:   { style: { background: '#E24B4A' }, duration: 6000 }
         }}
       />
       <ReactQueryDevtools initialIsOpen={false} />
