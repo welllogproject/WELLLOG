@@ -11,6 +11,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="manifest" href="/manifest.json" />
+
+    <!-- Desregistrar Service Workers ANTES de que React cargue.
+         El SW anterior con CacheFirst bloqueaba todas las requests a Supabase.
+         Este script inline corre sincrónicamente antes del bundle de React. -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        // Desregistrar todos los SW registrados
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            registrations[i].unregister();
+          }
+        });
+        // Limpiar todos los cachés de Workbox
+        if ('caches' in window) {
+          caches.keys().then(function(keys) {
+            keys.forEach(function(key) { caches.delete(key); });
+          });
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
