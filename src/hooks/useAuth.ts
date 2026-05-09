@@ -40,55 +40,55 @@ export function useAuthInit() {
   useEffect(() => {
     let mounted = true
 
-    // Si ya tenemos usuario rehidratado de localStorage,
-    // quitamos el loading INMEDIATAMENTE para que las queries arranquen.
-    // Supabase verifica la sesión en background sin bloquear la UI.
+    // ESTRATEGIA DEFINITIVA:
+    // 1. Si hay usuario en Zustand (localStorage) → quitar loading INMEDIATO
+    //    Las queries arrancan de inmediato con el usuario disponible.
+    // 2. En background, intentar refrescar la sesión de Supabase.
+    //    Si falla o tarda → no importa, las queries ya están corriendo.
+    //    Solo limpiar el usuario si Supabase dice explícitamente que no hay sesión
+    //    Y el usuario no tiene token (primera vez o logout real).
+
     if (usuario) {
+      // Usuario en localStorage → UI carga inmediatamente
       setLoading(false)
-    }
 
-    const init = async () => {
-      try {
-        // Usar getUser() en vez de getSession() para evitar el lock de localStorage.
-        // getUser() hace una request directa al servidor JWT sin locks.
-        // Si hay timeout, confiar en el usuario de Zustand.
-        const userPromise = supabase.auth.getUser()
-        const timeoutPromise = new Promise<null>(
-          (resolve) => setTimeout(() => resolve(null), 5000)
-        )
-
-        const result = await Promise.race([userPromise, timeoutPromise])
-
+      // Intentar refrescar el token en background sin bloquear
+      supabase.auth.refreshSession().then(({ data, error }) => {
         if (!mounted) return
-
-        if (result === null) {
-          // Timeout — confiar en el usuario de Zustand si existe
-          if (!usuario) setUsuario(null)
-          setLoading(false)
-          return
+        if (error) {
+          // Si el refresh falla, intentar con getSession como fallback
+          supabase.auth.getSession().then(({ data: sd }) => {
+            if (!mounted) return
+            if (!sd.session?.user) {
+              // Sesión realmente expirada — limpiar y mandar al login
+              setUsuario(null)
+              queryClient.clear()
+            }
+          }).catch(() => {
+            // Error de red — mantener el usuario, las queries van a fallar
+            // individualmente y el usuario puede recargar
+          })
         }
+        // Si el refresh fue exitoso, el cliente de Supabase ya tiene el nuevo token
+        // No necesitamos hacer nada más
+      }).catch(() => {
+        // Error de red en el refresh — mantener el usuario
+      })
 
-        const { data: { user }, error } = result
-
-        if (error || !user) {
-          setUsuario(null)
-          setLoading(false)
-          return
+    } else {
+      // Sin usuario en localStorage → verificar si hay sesión en Supabase
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (!mounted) return
+        if (session?.user) {
+          await cargarUsuario(session.user.id, setUsuario)
         }
-
-        // Usuario válido — actualizar perfil
-        await cargarUsuario(user.id, setUsuario)
         if (mounted) setLoading(false)
-
-      } catch (err) {
-        console.error('[WELL LOG] init exception:', err)
+      }).catch(() => {
         if (mounted) setLoading(false)
-      }
+      })
     }
 
-    init()
-
-    // Listener para cambios futuros (login, logout, refresh)
+    // Listener para cambios futuros
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
@@ -106,10 +106,9 @@ export function useAuthInit() {
           return
         }
 
-        if (event === 'TOKEN_REFRESHED' && !session?.user) {
-          setUsuario(null)
-          setLoading(false)
-          queryClient.clear()
+        if (event === 'TOKEN_REFRESHED' && session?.user) {
+          // Token refrescado exitosamente — actualizar perfil si cambió
+          if (mounted) setLoading(false)
           return
         }
       }
