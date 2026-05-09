@@ -19,10 +19,11 @@ export const supabase = createClient(
       autoRefreshToken: false,
       detectSessionInUrl: true,
       flowType: 'implicit',
-      // Deshabilitar el lock de navigator.locks que bloquea en F5
-      lock: 'no-op',
-      // Deshabilitar el lock de storage
-      storageKey: 'sb-lurltcetxvebyqwsswes-auth-token',
+      // Deshabilitar el lock que bloquea en F5
+      lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<any>) => {
+        // Ejecutar sin lock — evita el deadlock de navigator.locks en F5
+        return fn()
+      },
       storage: {
         getItem: (key: string) => {
           if (typeof window === 'undefined') return null
