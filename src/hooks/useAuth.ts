@@ -47,21 +47,24 @@ export function useAuthInit() {
 
     const init = async () => {
       try {
+        console.log('[WELL LOG] Iniciando getSession...')
         const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('[WELL LOG] getSession result:', { session: session?.user?.email ?? null, error: error?.message ?? null })
 
         if (!mounted) return
 
         if (error || !session?.user) {
-          // Sin sesión válida
+          console.log('[WELL LOG] Sin sesión válida → setUsuario(null)')
           setUsuario(null)
           setLoading(false)
           return
         }
 
-        // Sesión válida — cargar perfil
+        console.log('[WELL LOG] Sesión válida → cargando perfil para', session.user.id)
         await cargarUsuario(session.user.id, setUsuario)
         if (mounted) setLoading(false)
-      } catch {
+      } catch (err) {
+        console.error('[WELL LOG] init exception:', err)
         if (mounted) {
           setUsuario(null)
           setLoading(false)
