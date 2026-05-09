@@ -255,6 +255,17 @@ export function NuevoIngreso() {
               </p>
             </div>
 
+            {/* Aviso de privacidad — Ley 25.326 */}
+            <div className="bg-[#7F77DD]/8 border border-[#7F77DD]/20 rounded-[12px] p-3">
+              <p className="text-[11px] text-[#534AB7] leading-relaxed">
+                <span className="font-semibold">Aviso de privacidad (Ley 25.326):</span> Los datos personales ingresados
+                (nombre, DNI, empresa, función) son recopilados con fines de control de acceso y seguridad en el
+                yacimiento. Serán tratados de forma confidencial por {equipo?.nombre_equipo ?? 'el equipo'} y
+                conservados por un período máximo de 5 años. Tiene derecho a acceder, rectificar y suprimir sus datos
+                contactando al administrador del equipo.
+              </p>
+            </div>
+
             <FirmaCanvas
               onFirma={setFirma}
               label="Firma de ingreso"

@@ -2,7 +2,7 @@
 // Panel de soporte — ver tickets, impersonar empresa, health check
 
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useTodasEmpresas } from '@/hooks/useEmpresas'
 import { PageLayout } from '@/components/layout/PageLayout'
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import {
   Activity, CheckCircle2, XCircle, AlertTriangle,
-  Eye, RefreshCw, Database, Wifi, Clock,
+  Eye, RefreshCw, Database, Wifi, Clock, Download, HardDrive,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -46,7 +46,48 @@ function useHealthCheck() {
   })
 }
 
-// ── Actividad reciente por empresa ─────────────────────────
+// ── Backups ────────────────────────────────────────────────
+function useBackups() {
+  return useQuery({
+    queryKey: ['superadmin', 'backups'],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage
+        .from('backups')
+        .list('daily', { limit: 30, sortBy: { column: 'name', order: 'desc' } })
+      if (error) throw error
+      return data ?? []
+    },
+    staleTime: 1000 * 60,
+  })
+}
+
+function useEjecutarBackup() {
+  return useMutation({
+    mutationFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Sin sesión')
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/backup-diario`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({}),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error en backup')
+      return data
+    },
+    onSuccess: (data) => {
+      toast.success(`Backup completado — ${data.total_registros} registros, ${data.size_kb}KB`)
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
+}
 function useActividadEmpresas() {
   return useQuery({
     queryKey: ['superadmin', 'actividad-empresas'],
@@ -100,6 +141,8 @@ export function SoportePlataforma() {
   const { data: actividad = [], isLoading: loadingActividad } = useActividadEmpresas()
   const { data: errores = [] } = useErroresSync()
   const { data: empresas = [] } = useTodasEmpresas()
+  const { data: backups = [], refetch: refetchBackups } = useBackups()
+  const ejecutarBackup = useEjecutarBackup()
 
   const [impersonarModal, setImpersonarModal] = useState(false)
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState('')
@@ -257,6 +300,68 @@ export function SoportePlataforma() {
           </div>
         </Card>
       )}
+
+      {/* ── Backups ── */}
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+            <HardDrive size={15} className="text-[var(--text-muted)]" />
+            Copias de seguridad
+          </h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => refetchBackups()}
+              className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-[var(--text-muted)] transition-colors"
+              title="Actualizar lista"
+            >
+              <RefreshCw size={14} />
+            </button>
+            <Button
+              variant="ingreso"
+              size="sm"
+              onClick={() => ejecutarBackup.mutate(undefined, { onSuccess: () => refetchBackups() })}
+              loading={ejecutarBackup.isPending}
+            >
+              <Download size={13} className="mr-1.5" />
+              Backup ahora
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-[#1D9E75]/8 border border-[#1D9E75]/20 rounded-[10px] p-3 mb-4">
+          <p className="text-xs text-[#0F6E56]">
+            Los backups se ejecutan automáticamente todos los días a las 3 AM (hora Argentina) y se conservan por 30 días en Supabase Storage.
+            Para configurar el cron job: Supabase Dashboard → Database → Cron Jobs → New Job →
+            <code className="bg-[#1D9E75]/15 px-1 rounded mx-1">0 6 * * *</code>
+            → URL: <code className="bg-[#1D9E75]/15 px-1 rounded">/functions/v1/backup-diario</code>
+          </p>
+        </div>
+
+        {backups.length === 0 ? (
+          <p className="text-sm text-[var(--text-muted)] text-center py-6">
+            No hay backups todavía. Ejecutá el primero manualmente.
+          </p>
+        ) : (
+          <div className="space-y-1">
+            {backups.slice(0, 10).map((b: any) => (
+              <div key={b.name} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle2 size={14} className="text-[#1D9E75] flex-shrink-0" />
+                  <div>
+                    <p className="text-sm text-[var(--text-primary)]">{b.name}</p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      {b.metadata?.size ? `${Math.round(b.metadata.size / 1024)}KB` : '—'}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs text-[var(--text-faded)]">
+                  {b.created_at ? new Date(b.created_at).toLocaleDateString('es-AR') : '—'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
       {/* Modal impersonar */}
       <Modal isOpen={impersonarModal} onClose={() => setImpersonarModal(false)} title="Ver como empresa" size="sm">

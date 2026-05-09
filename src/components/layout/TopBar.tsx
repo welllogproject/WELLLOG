@@ -1,5 +1,5 @@
 // src/components/layout/TopBar.tsx
-import { Bell, Wifi, WifiOff } from 'lucide-react'
+import { Bell, Wifi, WifiOff, BookOpen } from 'lucide-react'
 import { useOfflineStore } from '@/stores/offlineStore'
 import { SupportButton } from '@/components/shared/SupportButton'
 
@@ -7,20 +7,19 @@ interface TopBarProps {
   title: string
   subtitle?: string
   actions?: React.ReactNode
+  onHelp?: () => void
 }
 
-export function TopBar({ title, subtitle, actions }: TopBarProps) {
+export function TopBar({ title, subtitle, actions, onHelp }: TopBarProps) {
   const { isOnline, cola } = useOfflineStore()
 
   return (
     <header className="h-14 bg-[var(--card-bg)] border-b border-[var(--border)] flex items-center px-6 gap-4 flex-shrink-0 transition-colors duration-200">
-      {/* Título */}
       <div className="flex-1 min-w-0">
         <h1 className="text-sm font-medium text-[var(--text-primary)] truncate">{title}</h1>
         {subtitle && <p className="text-xs text-[var(--text-muted)]">{subtitle}</p>}
       </div>
 
-      {/* Acciones */}
       <div className="flex items-center gap-2">
         {actions}
 
@@ -36,6 +35,18 @@ export function TopBar({ title, subtitle, actions }: TopBarProps) {
             <Wifi size={12} />
             Sincronizando...
           </div>
+        )}
+
+        {/* Botón de ayuda */}
+        {onHelp && (
+          <button
+            onClick={onHelp}
+            className="p-2 rounded-full hover:bg-[var(--hover-bg)] text-[var(--text-muted)] hover:text-[#7F77DD] transition-colors"
+            aria-label="Guía de uso"
+            title="¿Cómo se usa?"
+          >
+            <BookOpen size={17} />
+          </button>
         )}
 
         <SupportButton variant="icon" />

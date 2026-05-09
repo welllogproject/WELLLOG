@@ -3,6 +3,9 @@
 import { WifiOff } from 'lucide-react'
 import { useOfflineStore } from '@/stores/offlineStore'
 import { SupportButton } from '@/components/shared/SupportButton'
+import { OnboardingGuide, useOnboardingGuide } from '@/components/shared/OnboardingGuide'
+import { useAuthStore } from '@/stores/authStore'
+import type { Rol } from '@/types/roles'
 
 interface TabletLayoutProps {
   children: React.ReactNode
@@ -12,6 +15,8 @@ interface TabletLayoutProps {
 
 export function TabletLayout({ children, equipoNombre, locacionCodigo }: TabletLayoutProps) {
   const { isOnline, cola } = useOfflineStore()
+  const { usuario } = useAuthStore()
+  const guia = useOnboardingGuide()
 
   return (
     <div className="min-h-screen bg-[var(--input-bg)] flex flex-col">
@@ -48,7 +53,16 @@ export function TabletLayout({ children, equipoNombre, locacionCodigo }: TabletL
       </main>
 
       {/* Botón de soporte flotante */}
-      <SupportButton variant="fab" />
+      <SupportButton variant="fab" onHelp={guia.abrir} />
+
+      {/* Guía de onboarding */}
+      {usuario?.rol && (
+        <OnboardingGuide
+          rol={usuario.rol as Rol}
+          forzar={guia.mostrar}
+          onClose={guia.cerrar}
+        />
+      )}
     </div>
   )
 }

@@ -3,7 +3,7 @@
 // Configurable via VITE_SUPPORT_EMAIL y VITE_SUPPORT_WHATSAPP
 
 import { useState } from 'react'
-import { HelpCircle, X, Mail, MessageCircle, ExternalLink } from 'lucide-react'
+import { HelpCircle, X, Mail, MessageCircle, ExternalLink, BookOpen } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
 const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL as string | undefined
@@ -21,12 +21,11 @@ function buildMailtoLink(email: string, asunto: string, cuerpo: string) {
 }
 
 interface SupportButtonProps {
-  /** 'fab' = botón flotante esquina inferior derecha (default para tablet/operador)
-   *  'icon' = ícono inline en el TopBar (para admin/auditor) */
   variant?: 'fab' | 'icon'
+  onHelp?: () => void
 }
 
-export function SupportButton({ variant = 'icon' }: SupportButtonProps) {
+export function SupportButton({ variant = 'icon', onHelp }: SupportButtonProps) {
   const [open, setOpen] = useState(false)
   const { usuario } = useAuthStore()
 
@@ -56,15 +55,29 @@ export function SupportButton({ variant = 'icon' }: SupportButtonProps) {
     <>
       {/* Botón */}
       {variant === 'fab' ? (
-        <button
-          onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full shadow-clay flex items-center justify-center transition-all active:scale-95"
-          style={{ background: 'var(--btn-ingreso)' }}
-          aria-label="Soporte"
-          title="¿Necesitás ayuda?"
-        >
-          <HelpCircle size={22} className="text-white" />
-        </button>
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+          {/* Botón de ayuda */}
+          {onHelp && (
+            <button
+              onClick={onHelp}
+              className="w-10 h-10 rounded-full shadow-clay flex items-center justify-center bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-muted)] hover:text-[#7F77DD] transition-all active:scale-95"
+              aria-label="Guía de uso"
+              title="¿Cómo se usa?"
+            >
+              <BookOpen size={18} />
+            </button>
+          )}
+          {/* Botón de soporte */}
+          <button
+            onClick={() => setOpen(true)}
+            className="w-12 h-12 rounded-full shadow-clay flex items-center justify-center transition-all active:scale-95"
+            style={{ background: 'var(--btn-ingreso)' }}
+            aria-label="Soporte"
+            title="¿Necesitás ayuda?"
+          >
+            <HelpCircle size={22} className="text-white" />
+          </button>
+        </div>
       ) : (
         <button
           onClick={() => setOpen(true)}
