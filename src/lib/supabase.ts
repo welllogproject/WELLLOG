@@ -18,10 +18,7 @@ export const supabase = createClient(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
-      // Usar localStorage explícitamente (más predecible que el default)
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      // Deshabilitar el lock de storage que puede causar deadlocks en F5
-      storageKey: 'welllog-auth-token',
+      // Usar el storageKey default de Supabase para no romper sesiones existentes
       flowType: 'implicit',
     },
     realtime: {

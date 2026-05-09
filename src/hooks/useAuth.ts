@@ -49,38 +49,35 @@ export function useAuthInit() {
 
     const init = async () => {
       try {
-        // Timeout de 3 segundos — getSession puede bloquearse en F5
-        // por el lock interno de Supabase en localStorage
-        const sessionPromise = supabase.auth.getSession()
+        // Usar getUser() en vez de getSession() para evitar el lock de localStorage.
+        // getUser() hace una request directa al servidor JWT sin locks.
+        // Si hay timeout, confiar en el usuario de Zustand.
+        const userPromise = supabase.auth.getUser()
         const timeoutPromise = new Promise<null>(
-          (resolve) => setTimeout(() => resolve(null), 3000)
+          (resolve) => setTimeout(() => resolve(null), 5000)
         )
 
-        const result = await Promise.race([sessionPromise, timeoutPromise])
+        const result = await Promise.race([userPromise, timeoutPromise])
 
         if (!mounted) return
 
         if (result === null) {
-          // Timeout — si hay usuario en Zustand, confiar en él
-          // Si no hay usuario, mandarlo al login
-          if (!usuario) {
-            setUsuario(null)
-          }
+          // Timeout — confiar en el usuario de Zustand si existe
+          if (!usuario) setUsuario(null)
           setLoading(false)
           return
         }
 
-        const { data: { session }, error } = result
+        const { data: { user }, error } = result
 
-        if (error || !session?.user) {
-          // Sin sesión válida en Supabase — limpiar
+        if (error || !user) {
           setUsuario(null)
           setLoading(false)
           return
         }
 
-        // Sesión válida — actualizar perfil en background
-        await cargarUsuario(session.user.id, setUsuario)
+        // Usuario válido — actualizar perfil
+        await cargarUsuario(user.id, setUsuario)
         if (mounted) setLoading(false)
 
       } catch (err) {
