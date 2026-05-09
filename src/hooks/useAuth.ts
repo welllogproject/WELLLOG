@@ -79,19 +79,24 @@ async function cargarUsuario(
   userId: string,
   setUsuario: (u: Usuario | null) => void
 ) {
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('*')
-    .eq('id', userId)
-    .single()
+  try {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('*')
+      .eq('id', userId)
+      .single()
 
-  if (error || !data) {
-    console.error('[WELL LOG] Error cargando usuario:', error)
-    setUsuario(null)
-    return
+    if (error || !data) {
+      console.error('[WELL LOG] Error cargando usuario:', error?.message)
+      // Only clear user on explicit "not found", not on transient errors
+      if (error?.code === 'PGRST116') setUsuario(null)
+      return
+    }
+
+    setUsuario(data as Usuario)
+  } catch (err) {
+    console.error('[WELL LOG] cargarUsuario exception:', err)
   }
-
-  setUsuario(data as Usuario)
 }
 
 // Guard de ruta por rol

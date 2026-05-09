@@ -1,4 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#7F77DD"/>
-  <text x="16" y="22" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="white" text-anchor="middle">WL</text>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7F77DD"/>
+      <stop offset="100%" stop-color="#534AB7"/>
+    </linearGradient>
+  </defs>
+  <!-- Hexagonal background -->
+  <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="url(#g)"/>
+  <!-- Drill pipe / vertical line -->
+  <rect x="15" y="7" width="2" height="12" rx="1" fill="white" opacity="0.95"/>
+  <!-- Drill bit chevron -->
+  <path d="M11 17 L16 22 L21 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Top cap -->
+  <rect x="13" y="6" width="6" height="2" rx="1" fill="white" opacity="0.7"/>
 </svg>
