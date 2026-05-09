@@ -43,6 +43,14 @@ export function useAuthInit() {
   useEffect(() => {
     let mounted = true
 
+    // Safety net: never leave the app stuck in loading state
+    const safetyTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn('[WELL LOG] Auth init timeout — forcing ready state')
+        setLoading(false)
+      }
+    }, 6000)
+
     const init = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -52,6 +60,7 @@ export function useAuthInit() {
       } catch (err) {
         console.error('[WELL LOG] Error inicializando sesión:', err)
       } finally {
+        clearTimeout(safetyTimeout)
         if (mounted) setLoading(false)
       }
     }
