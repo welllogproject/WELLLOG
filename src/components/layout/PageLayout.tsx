@@ -12,7 +12,7 @@ interface PageLayoutProps {
 
 export function PageLayout({ title, subtitle, actions, children }: PageLayoutProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F8F8F6]">
+    <div className="flex h-screen overflow-hidden bg-[var(--page-bg)] transition-colors duration-200">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar title={title} subtitle={subtitle} actions={actions} />

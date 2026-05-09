@@ -5,8 +5,26 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
+
+function WellLogIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wl-login-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#7F77DD" />
+          <stop offset="100%" stopColor="#534AB7" />
+        </linearGradient>
+      </defs>
+      <path d="M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z" fill="url(#wl-login-grad)" />
+      <rect x="15" y="7" width="2" height="12" rx="1" fill="white" opacity="0.95" />
+      <path d="M11 17 L16 22 L21 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <rect x="13" y="6" width="6" height="2" rx="1" fill="white" opacity="0.7" />
+    </svg>
+  )
+}
 
 export function LoginView() {
   const { usuario, isLoading } = useAuthStore()
@@ -50,20 +68,20 @@ export function LoginView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F8F6] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--page-bg)] flex items-center justify-center p-4 transition-colors duration-200">
+      {/* Theme toggle esquina */}
+      <div className="fixed top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       {/* Card login */}
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
-          <div
-            className="w-14 h-14 rounded-[18px] flex items-center justify-center shadow-clay"
-            style={{ background: 'var(--btn-ingreso)' }}
-          >
-            <ShieldCheck size={28} className="text-white" />
-          </div>
+          <WellLogIcon size={56} />
           <div className="text-center">
-            <h1 className="text-xl font-medium text-[#2C2C2A]">WELL LOG</h1>
-            <p className="text-sm text-[#888780] mt-0.5">Control de acceso en campo</p>
+            <h1 className="text-xl font-medium text-[var(--text-primary)]">WELL LOG</h1>
+            <p className="text-sm text-[var(--text-muted)] mt-0.5">Control de acceso en campo</p>
           </div>
         </div>
 
@@ -84,7 +102,7 @@ export function LoginView() {
             />
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="login-password" className="text-sm font-medium text-[#2C2C2A]">
+              <label htmlFor="login-password" className="text-sm font-medium text-[var(--text-primary)]">
                 Contraseña <span className="text-[#E24B4A]">*</span>
               </label>
               <div className="relative">
@@ -95,7 +113,7 @@ export function LoginView() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-clay-sm text-sm py-2.5 px-4 pr-10 outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all"
+                  className="w-full bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--border)] rounded-clay-sm text-sm py-2.5 px-4 pr-10 outline-none focus:border-[#7F77DD] focus:ring-2 focus:ring-[#7F77DD]/15 transition-all placeholder:text-[var(--text-muted)]"
                 />
                 <button
                   type="button"
@@ -127,7 +145,7 @@ export function LoginView() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-[#888780] mt-5">
+        <p className="text-center text-xs text-[var(--text-muted)] mt-5">
           ¿Problemas para acceder? Contactá al administrador de tu empresa.
         </p>
       </div>
