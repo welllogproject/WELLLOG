@@ -11,9 +11,11 @@ const QUERY_KEY = 'equipos'
 
 // Todos los equipos de la empresa (admin)
 export function useEquipos() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'lista'],
+    queryKey: [QUERY_KEY, 'lista', usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
       const { data, error } = await supabase
         .from('equipos')
         .select(`
@@ -21,12 +23,14 @@ export function useEquipos() {
           locacion:locaciones(id, codigo, nombre),
           operador:usuarios!operador_asignado_id(id, nombre_completo, email)
         `)
+        .eq('empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('nombre_equipo')
 
       if (error) throw error
       return (data ?? []) as Equipo[]
     },
+    enabled: !!usuario?.empresa_id,
   })
 }
 
@@ -55,9 +59,11 @@ export function useEquipo(equipoId: string | null) {
 
 // Equipos con conteo de personas dentro (para mapa)
 export function useEquiposConPersonas() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'mapa'],
+    queryKey: [QUERY_KEY, 'mapa', usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
       const { data, error } = await supabase
         .from('equipos')
         .select(`
@@ -65,12 +71,14 @@ export function useEquiposConPersonas() {
           locacion:locaciones(id, codigo, nombre),
           registros_activos:registros_acceso(count)
         `)
+        .eq('empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('nombre_equipo')
 
       if (error) throw error
       return (data ?? []) as Equipo[]
     },
+    enabled: !!usuario?.empresa_id,
     refetchInterval: 30000,
   })
 }
@@ -135,11 +143,13 @@ export interface EquipoForm {
 
 export function useCrearEquipo() {
   const qc = useQueryClient()
+  const { usuario } = useAuthStore()
   return useMutation({
     mutationFn: async (form: EquipoForm) => {
+      if (!usuario?.empresa_id) throw new Error('Sin empresa asignada')
       const { data, error } = await supabase
         .from('equipos')
-        .insert(form)
+        .insert({ ...form, empresa_contratista_id: usuario.empresa_id })
         .select()
         .single()
       if (error) throw error

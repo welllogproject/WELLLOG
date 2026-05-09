@@ -1,7 +1,88 @@
 # CLAUDE.md — FieldPass
 
-> Última actualización: Mayo 2026
+> Última actualización: Mayo 2026 — Kiro
 > Leer este archivo completo antes de tocar cualquier código.
+
+---
+
+## Estado del proyecto
+
+### ✅ Implementado y funcional
+
+**Base / Infraestructura**
+- Auth completo con Supabase + Zustand store (persistencia, rehidratación, guards por rol)
+- Router con guards por rol: operador, admin, auditor, superadmin
+- Offline store + sync queue (IndexedDB via Zustand)
+- Realtime subscriptions (Supabase channels) — query keys corregidos
+- Tema claro/oscuro (ThemeToggle)
+- PWA manifest + OfflineBanner
+
+**Operador (mobile-first / tablet)**
+- `OperadorHome` — lista personas dentro, búsqueda, stats rápidos
+- `NuevoIngreso` — flujo 4 pasos: DNI → datos → firma → éxito, con autocomplete historial
+- `MarcarSalida` — flujo egreso: lista → declaración incidente → [formulario incidente] → éxito
+- `ConfigEquipo` — setear coordenadas GPS del equipo desde la tablet
+- `DeclaracionIncidente` — columna NO / SÍ con firma (replica formulario físico Venver)
+- `FormIncidente` — detalle del incidente con firma del jefe de turno
+- `FirmaCanvas` — pad de firma SVG reutilizable
+
+**Admin (desktop)**
+- `AdminDashboard` — KPIs en tiempo real + actividad reciente + estado equipos
+- `Registros` — tabla con filtros (equipo, fecha, búsqueda), exportar Excel
+- `Incidentes` — lista con filtros de estado, modal para cerrar investigación
+- `MapaEquipos` — Leaflet con pins coloreados por estado + panel lateral
+- `EstadisticasHSE` — IF, IG, días sin incidente, gráficos 14/30 días
+- `Estadisticas` — operacional: ingresos, HH, top empresas, gráficos
+- `GestionEquipos` — CRUD completo con modal, filtros, asignación locación/operador
+- `GestionLocaciones` — CRUD con coordenadas GPS, toggle activa/inactiva
+- `GestionUsuarios` — CRUD usuarios de la empresa, toggle estado
+- `GestionEmpresas` — empresas visitantes habituales
+- `Auditores` — permisos de acceso para operadoras (YPF, etc.)
+- `Documentos` — ATS, inducciones, certificaciones con alertas de vencimiento
+- `Logs` — historial de auditoría del sistema
+
+**Auditor (desktop, solo lectura)**
+- `AuditorDashboard` — KPIs + lista equipos autorizados + accesos rápidos
+- `MapaAuditor` — mapa con coordenadas degradadas ±500m
+- `IncidentesAuditor` — tabla + modal detalle, solo lectura
+- `ReportesAuditor` — exportar CSV con filtros de fecha/equipo
+
+**Superadmin (plataforma completa)**
+- `SuperadminDashboard` — KPIs globales + empresas recientes
+- `GestionEmpresas` — CRUD contratistas y operadoras con plan
+- `GestionUsuarios` — todos los usuarios de la plataforma con filtros
+- `PermisosAcceso` — modelo multi-tenant: qué contratista comparte con qué operadora
+- `MetricasPlataforma` — gráficos globales: registros/día, incidentes/mes, distribuciones
+
+**Componentes compartidos**
+- `EquiposMap` — mapa Leaflet reutilizable (admin + auditor), soporta `degradarCoords`
+- Design system: Button, Card, Badge, Input, Select, Modal, Table, Skeleton, StatusDot, Logo
+
+**Migraciones SQL** (todas en `supabase/migrations/`)
+- 001_extensions, 002_schema_base, 003_schema_hse, 004_rls_policies, 005_functions, 006_triggers, 007_seed
+
+### ⚠️ Pendiente / Conocido
+
+- **`useCrearUsuario`** — usa `supabase.from('usuarios').insert()` directamente. La invitación real por email requiere una Edge Function con service role key. Pendiente: `supabase/functions/invite-user/`.
+- **Geofence** — feature flag `VITE_FEATURE_GEOFENCE=false`. Hook `useGeofence.ts` no implementado.
+- **QR Scanner** — feature flag `VITE_FEATURE_QR=false`. Componente `QRScanner.tsx` no implementado.
+- **Panel de emergencia** — feature flag `VITE_FEATURE_EMERGENCIA=true`. Componente `EmergencyPanel.tsx` no implementado.
+- **Edge Functions** — `alert-incidente` y `generate-report-hse` no implementadas.
+- **`useMetricas.ts`** — hook mencionado en CLAUDE.md, no existe. Las métricas se consultan inline en las vistas.
+- **`useGeofence.ts`** — no existe todavía.
+- **`AutocompleteDNI.tsx`** — la lógica está inline en `NuevoIngreso.tsx`, no como componente separado.
+- **`RecoverPasswordView.tsx`** — no implementada.
+
+### 🐛 Bugs corregidos (Mayo 2026)
+
+- `useEquipos` / `useEquiposConPersonas` — ahora filtran por `empresa_contratista_id` del usuario logueado
+- `useRegistrosAdmin` — ahora filtra por empresa via JOIN con equipos
+- `useLocaciones` — ahora filtra por `empresa_id` del usuario logueado
+- `useCrearLocacion` — ahora incluye `empresa_id` en el insert
+- `useCrearEquipo` — ahora incluye `empresa_contratista_id` en el insert
+- `useTodosUsuarios` — ahora filtra por empresa para admin/supervisor; superadmin ve todos
+- `useRealtimeEquipo` — query key corregido a `['registros', 'dentro', equipoId]`
+- `GestionEmpresas` (admin) — excluye la propia empresa del listado de visitantes
 
 ---
 

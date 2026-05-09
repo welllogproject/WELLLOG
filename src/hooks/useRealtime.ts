@@ -17,8 +17,9 @@ export function useRealtimeEquipo(equipoId: string | null) {
         table: 'registros_acceso',
         filter: `equipo_id=eq.${equipoId}`,
       }, () => {
-        qc.invalidateQueries({ queryKey: ['personas-dentro', equipoId] })
-        qc.invalidateQueries({ queryKey: ['registros'] })
+        // Query key correcto: ['registros', 'dentro', equipoId]
+        qc.invalidateQueries({ queryKey: ['registros', 'dentro', equipoId] })
+        qc.invalidateQueries({ queryKey: ['registros', 'historial', equipoId] })
       })
       .subscribe()
 

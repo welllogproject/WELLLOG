@@ -25,14 +25,19 @@ function useEmpresasVisitantes() {
   return useQuery({
     queryKey: ['empresas-visitantes', empresaId],
     queryFn: async () => {
+      if (!empresaId) return []
+      // Traemos empresas visitantes que aparecen en registros de esta empresa
+      // O empresas marcadas como visitantes habituales (tipo contratista, distintas a la propia)
       const { data, error } = await supabase
         .from('empresas')
         .select('id, nombre, cuit, email_contacto, telefono, activa, created_at')
         .eq('tipo', 'contratista')
+        .neq('id', empresaId)
         .order('nombre')
       if (error) throw error
       return (data ?? []) as EmpresaVisitante[]
     },
+    enabled: !!empresaId,
   })
 }
 

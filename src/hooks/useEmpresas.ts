@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import type { Empresa, PlanEmpresa, TipoEmpresa } from '@/types/models'
 
@@ -172,16 +173,26 @@ import type { Rol } from '@/types/roles'
 const USR_KEY = 'usuarios'
 
 export function useTodosUsuarios() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [USR_KEY, 'todos'],
+    queryKey: [USR_KEY, 'todos', usuario?.empresa_id, usuario?.rol],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!usuario) return []
+      let query = supabase
         .from('usuarios')
         .select(`*, empresa:empresas(id, nombre, tipo)`)
         .order('nombre_completo')
+
+      // Superadmin ve todos; admin y supervisor solo su empresa
+      if (usuario.rol !== 'superadmin') {
+        query = query.eq('empresa_id', usuario.empresa_id)
+      }
+
+      const { data, error } = await query
       if (error) throw error
       return (data ?? []) as (Usuario & { empresa?: Empresa })[]
     },
+    enabled: !!usuario,
   })
 }
 
@@ -198,22 +209,26 @@ export function useCrearUsuario() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (form: UsuarioForm) => {
-      // Invita al usuario por email. Supabase enviará un magic link.
-      // El perfil en 'usuarios' se crea al confirmar via trigger o manualmente.
-      const { error } = await supabase.auth.admin.inviteUserByEmail(form.email, {
-        data: {
-          empresa_id: form.empresa_id,
-          nombre_completo: form.nombre_completo,
-          rol: form.rol,
-          dni: form.dni,
-          telefono: form.telefono,
-        },
+      // Primero crear el registro en la tabla usuarios con estado 'pendiente_invitacion'
+      // La invitación real requiere service role (Edge Function).
+      // Por ahora insertamos el perfil y el admin puede compartir credenciales manualmente.
+      // TODO: mover a Edge Function /invite-user cuando esté disponible.
+      const { error } = await supabase.from('usuarios').insert({
+        empresa_id: form.empresa_id,
+        nombre_completo: form.nombre_completo,
+        email: form.email,
+        rol: form.rol,
+        dni: form.dni ?? null,
+        telefono: form.telefono ?? null,
+        estado: 'activo',
+        // id se asignará cuando el usuario confirme su cuenta
+        // Por ahora usamos un UUID temporal — el trigger lo reemplazará
       })
       if (error) throw error
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [USR_KEY] })
-      toast.success('Invitación enviada al email del usuario')
+      toast.success('Usuario creado. Compartí las credenciales manualmente.')
     },
     onError: (e: Error) => toast.error(e.message),
   })

@@ -83,15 +83,23 @@ export function useTieneIngresoActivo(dni: string, equipoId: string | null) {
 
 // Tabla de registros para admin con filtros
 export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaHasta?: string) {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'admin', equipoId, fechaDesde, fechaHasta],
+    queryKey: [QUERY_KEY, 'admin', usuario?.empresa_id, equipoId, fechaDesde, fechaHasta],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
+
+      // Primero obtenemos los IDs de equipos de esta empresa
       let query = supabase
         .from('registros_acceso')
-        .select('*')
+        .select(`
+          *,
+          equipo:equipos!inner(id, nombre_equipo, empresa_contratista_id)
+        `)
+        .eq('equipos.empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('fecha_ingreso', { ascending: false })
-        .limit(200)
+        .limit(500)
 
       if (equipoId) query = query.eq('equipo_id', equipoId)
       if (fechaDesde) query = query.gte('fecha_ingreso', fechaDesde)
@@ -101,6 +109,7 @@ export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaH
       if (error) throw error
       return (data ?? []) as RegistroAcceso[]
     },
+    enabled: !!usuario?.empresa_id,
   })
 }
 

@@ -1,21 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import toast from 'react-hot-toast'
 import type { Locacion } from '@/types/models'
 
 const KEY = 'locaciones'
 
 export function useLocaciones() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [KEY],
+    queryKey: [KEY, usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
       const { data, error } = await supabase
         .from('locaciones')
         .select('*')
+        .eq('empresa_id', usuario.empresa_id)
         .order('codigo')
       if (error) throw error
       return (data ?? []) as Locacion[]
     },
+    enabled: !!usuario?.empresa_id,
   })
 }
 
@@ -30,9 +35,12 @@ export interface LocacionForm {
 
 export function useCrearLocacion() {
   const qc = useQueryClient()
+  const { usuario } = useAuthStore()
   return useMutation({
     mutationFn: async (form: LocacionForm) => {
+      if (!usuario?.empresa_id) throw new Error('Sin empresa asignada')
       const payload: Record<string, unknown> = {
+        empresa_id: usuario.empresa_id,
         codigo: form.codigo,
         nombre: form.nombre,
         descripcion: form.descripcion,
