@@ -38,49 +38,45 @@ export function useAuth() {
 
 // Inicialización de sesión — llamar una sola vez en App.tsx
 export function useAuthInit() {
-  const { usuario, setUsuario, setLoading } = useAuthStore()
+  const { setUsuario, setLoading } = useAuthStore()
 
   useEffect(() => {
     let mounted = true
 
-    // Si ya tenemos usuario rehidratado del localStorage, ya estamos listos.
-    // El onAuthStateChange validará en background.
-    if (usuario) {
-      setLoading(false)
-    }
-
-    // Safety net por si onAuthStateChange no se dispara (cold start largo o red caída).
-    // Si no hay usuario rehidratado, esperamos hasta 12s antes de soltar el lock.
-    const safetyTimeout = setTimeout(() => {
-      if (mounted) {
-        console.warn('[WELL LOG] Auth init timeout — forcing ready state')
+    // 1) Chequeo sincrónico de la session almacenada por supabase-js.
+    //    Si no hay session valida (refresh token expirado), limpiar el usuario rehidratado
+    //    de localStorage para que el guard mande a /login.
+    supabase.auth.getSession().then(async ({ data, error }) => {
+      if (!mounted) return
+      if (error || !data.session?.user) {
+        setUsuario(null)
         setLoading(false)
+        return
       }
-    }, usuario ? 0 : 12000)
+      await cargarUsuario(data.session.user.id, setUsuario)
+      if (mounted) setLoading(false)
+    })
 
+    // 2) Suscripcion para futuros cambios (login, logout, refresh, expiracion).
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
 
-        if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
-          // Refresh en background — no bloquea si ya teníamos usuario rehidratado
+        if (event === 'SIGNED_IN' && session?.user) {
           await cargarUsuario(session.user.id, setUsuario)
         } else if (event === 'SIGNED_OUT') {
           setUsuario(null)
           queryClient.clear()
-        } else if (event === 'INITIAL_SESSION' && !session) {
-          // No hay sesión válida — limpiar usuario rehidratado si existe
+        } else if (event === 'TOKEN_REFRESHED' && !session) {
+          // Refresh fallido — sesion expirada
           setUsuario(null)
+          queryClient.clear()
         }
-
-        clearTimeout(safetyTimeout)
-        if (mounted) setLoading(false)
       }
     )
 
     return () => {
       mounted = false
-      clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

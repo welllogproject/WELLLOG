@@ -1293,3 +1293,13 @@ Bulk migration de colores con `sed -E` para cambiar `text-[#2C2C2A]`, `text-[#5F
 
 - `__supabase` está expuesto en `window` desde [src/lib/supabase.ts](src/lib/supabase.ts). En la consola del navegador podés hacer `await __supabase.from('equipos').select('*')` para inspeccionar respuestas.
 - `[DebugPanel](src/components/shared/DebugPanel.tsx)` se muestra cuando agregás `?debug=1` en la URL. Imprime usuario/rol/empresa_id y prueba count + sample de las 10 tablas principales para detectar rápido qué query devuelve 0 rows o un error específico de RLS.
+
+### Hotfix — desync entre usuario rehidratado y session de Supabase
+
+**Síntoma**: Tras F5, sidebar mostraba "Administrador Venver" (usuario logueado), pero todos los KPIs y todas las tablas (Equipos, Locaciones, Usuarios, Empresas, Documentos, Logs, Estadísticas, HSE) volvían vacías. Sólo Registros mostraba datos — pero eran cache vieja de TanStack Query.
+
+**Causa raíz**: El fix anterior persistía el usuario en localStorage para sobrevivir el cold start de Supabase. Pero el JWT de auth (manejado por supabase-js, no por nuestro store) tiene su propio ciclo de vida. Cuando el refresh token expiraba o se perdía, supabase-js no tenía session pero nuestro store seguía con el usuario rehidratado. Las queries salían como anónimas → RLS deniega → 0 filas en todo (sin error visible). Diagnóstico vía DebugPanel: `session: nada` con usuario presente fue la pista decisiva.
+
+**Fix**: reescribir [useAuthInit](src/hooks/useAuth.ts) para hacer `supabase.auth.getSession()` sincrónico al inicio. Si no hay session válida → `setUsuario(null)` y `setLoading(false)` → guard manda a /login. Eliminado el `safetyTimeout` arbitrario de 12s y la lógica de "soltar el lock con usuario rehidratado". También agregado handler para `TOKEN_REFRESHED` con session null (refresh fallido durante uso).
+
+**Regla a futuro**: la fuente de verdad de "estoy autenticado" es `supabase.auth.getSession()`, no el usuario en zustand. El usuario persistido es sólo un cache de los datos de la fila `usuarios` para no esperar el SELECT post-login. Si las dos cosas no concuerdan, gana supabase y se limpia el cache.
