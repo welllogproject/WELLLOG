@@ -16,12 +16,27 @@ export const supabase = createClient(
   {
     auth: {
       persistSession: true,
-      // DESHABILITADO: autoRefreshToken bloquea TODAS las queries en F5
-      // porque intenta refrescar el token antes de ejecutar cualquier request.
-      // El refresh se maneja manualmente en useAuthInit.
       autoRefreshToken: false,
       detectSessionInUrl: true,
       flowType: 'implicit',
+      // Deshabilitar el lock de navigator.locks que bloquea en F5
+      lock: 'no-op',
+      // Deshabilitar el lock de storage
+      storageKey: 'sb-lurltcetxvebyqwsswes-auth-token',
+      storage: {
+        getItem: (key: string) => {
+          if (typeof window === 'undefined') return null
+          return window.localStorage.getItem(key)
+        },
+        setItem: (key: string, value: string) => {
+          if (typeof window === 'undefined') return
+          window.localStorage.setItem(key, value)
+        },
+        removeItem: (key: string) => {
+          if (typeof window === 'undefined') return
+          window.localStorage.removeItem(key)
+        },
+      },
     },
     realtime: {
       params: {
