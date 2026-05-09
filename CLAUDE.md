@@ -12,66 +12,94 @@
 **Base / Infraestructura**
 - Auth completo con Supabase + Zustand store (persistencia, rehidratación, guards por rol)
 - Router con guards por rol: operador, admin, auditor, superadmin
-- Offline store + sync queue (IndexedDB via Zustand)
-- Realtime subscriptions (Supabase channels) — query keys corregidos
+- Offline store + sync queue (localStorage via Zustand, hasta 200 registros)
+- PWA con Service Worker (vite-plugin-pwa) — app carga sin internet después del primer uso
+- Realtime subscriptions (Supabase channels)
 - Tema claro/oscuro (ThemeToggle)
-- PWA manifest + OfflineBanner
+- Recuperar contraseña (`/recover`) via Supabase resetPasswordForEmail
 
 **Operador (mobile-first / tablet)**
 - `OperadorHome` — lista personas dentro, búsqueda, stats rápidos
-- `NuevoIngreso` — flujo 4 pasos: DNI → datos → firma → éxito, con autocomplete historial
-- `MarcarSalida` — flujo egreso: lista → declaración incidente → [formulario incidente] → éxito
+- `NuevoIngreso` — flujo 4 pasos: DNI → datos → firma → éxito, autocomplete historial, GPS guardado
+- `MarcarSalida` — búsqueda por lista o numpad DNI, declaración con resumen del registro (replica formulario físico Venver), auto-navigate
 - `ConfigEquipo` — setear coordenadas GPS del equipo desde la tablet
-- `DeclaracionIncidente` — columna NO / SÍ con firma (replica formulario físico Venver)
+- `DeclaracionIncidente` — muestra resumen completo del registro + columnas NO/SÍ con texto exacto del formulario físico
 - `FormIncidente` — detalle del incidente con firma del jefe de turno
 - `FirmaCanvas` — pad de firma SVG reutilizable
+- Egreso funciona offline (encola en localStorage, sync al reconectar)
 
 **Admin (desktop)**
-- `AdminDashboard` — KPIs en tiempo real + actividad reciente + estado equipos
-- `Registros` — tabla con filtros (equipo, fecha, búsqueda), exportar Excel
+- `AdminDashboard` — KPIs en tiempo real filtrados por empresa + actividad reciente
+- `Registros` — tabla 7 días default, filtros, exportar Excel, descargar PDF por registro
 - `Incidentes` — lista con filtros de estado, modal para cerrar investigación
-- `MapaEquipos` — Leaflet con pins coloreados por estado + panel lateral
-- `EstadisticasHSE` — IF, IG, días sin incidente, gráficos 14/30 días
+- `MapaEquipos` — Leaflet con pins coloreados, panel lateral con personas dentro real
+- `EstadisticasHSE` — IF, IG real (días perdidos de tabla incidentes), días sin lesión
 - `Estadisticas` — operacional: ingresos, HH, top empresas, gráficos
 - `GestionEquipos` — CRUD completo con modal, filtros, asignación locación/operador
 - `GestionLocaciones` — CRUD con coordenadas GPS, toggle activa/inactiva
-- `GestionUsuarios` — CRUD usuarios de la empresa, toggle estado
+- `GestionUsuarios` — invitación real via Edge Function, link de activación como fallback
 - `GestionEmpresas` — empresas visitantes habituales
 - `Auditores` — permisos de acceso para operadoras (YPF, etc.)
 - `Documentos` — ATS, inducciones, certificaciones con alertas de vencimiento
-- `Logs` — historial de auditoría del sistema
+- `Logs` — historial de auditoría filtrado por empresa
 
 **Auditor (desktop, solo lectura)**
-- `AuditorDashboard` — KPIs + lista equipos autorizados + accesos rápidos
-- `MapaAuditor` — mapa con coordenadas degradadas ±500m
-- `IncidentesAuditor` — tabla + modal detalle, solo lectura
-- `ReportesAuditor` — exportar CSV con filtros de fecha/equipo
+- `AuditorDashboard` — KPIs + equipos autorizados via permisos_acceso con fecha_fin check
+- `MapaAuditor` — coordenadas degradadas ±500m, personas_dentro real (estado='dentro')
+- `IncidentesAuditor` — solo equipos con permiso puede_ver_incidentes
+- `ReportesAuditor` — exportar CSV filtrado por permisos autorizados
 
 **Superadmin (plataforma completa)**
 - `SuperadminDashboard` — KPIs globales + empresas recientes
 - `GestionEmpresas` — CRUD contratistas y operadoras con plan
-- `GestionUsuarios` — todos los usuarios de la plataforma con filtros
+- `GestionUsuarios` — todos los usuarios con filtros por empresa/rol
 - `PermisosAcceso` — modelo multi-tenant: qué contratista comparte con qué operadora
 - `MetricasPlataforma` — gráficos globales: registros/día, incidentes/mes, distribuciones
+- `ConfiguracionPlataforma` — ver env vars, feature flags, estado de Supabase
+- `SoportePlataforma` — health check DB/Auth/Realtime, actividad por empresa
+- `LogsGlobales` — logs de toda la plataforma con filtros y exportar CSV
 
 **Componentes compartidos**
-- `EquiposMap` — mapa Leaflet reutilizable (admin + auditor), soporta `degradarCoords`
-- Design system: Button, Card, Badge, Input, Select, Modal, Table, Skeleton, StatusDot, Logo
+- `SupportButton` — WhatsApp + Email, variant fab (tablet) y icon (desktop)
+- `RegistroPDF` — replica exacta del formulario físico de Venver con firmas
+- `EquiposMap` — mapa Leaflet reutilizable, íconos locales (funciona offline)
+- Design system completo: Button, Card, Badge, Input, Select, Modal, Table, Skeleton, StatusDot, Logo
 
-**Migraciones SQL** (todas en `supabase/migrations/`)
-- 001_extensions, 002_schema_base, 003_schema_hse, 004_rls_policies, 005_functions, 006_triggers, 007_seed
+**Edge Functions (deployadas en Supabase)**
+- `invite-user` — crea usuario en auth.users + tabla usuarios, envía email via Resend, fallback con link de activación
+- `alert-incidente` — email HTML al admin cuando hay incidente, via Resend API
 
-### ⚠️ Pendiente / Conocido
+**Infraestructura / DevOps**
+- Migraciones SQL completas (001–007) en `supabase/migrations/`
+- SMTP configurado: Resend (smtp.resend.com:465)
+- Secrets en Supabase: RESEND_API_KEY, SITE_URL
+- PWA: Service Worker con precache de assets, NetworkFirst para Supabase API, CacheFirst para tiles OSM (500 tiles, 30 días)
+- Code splitting: leaflet, recharts, xlsx, react, supabase en chunks separados
+- Leaflet icons locales en `/public/icons/` (funciona offline)
 
-- **`useCrearUsuario`** — usa `supabase.from('usuarios').insert()` directamente. La invitación real por email requiere una Edge Function con service role key. Pendiente: `supabase/functions/invite-user/`.
-- **Geofence** — feature flag `VITE_FEATURE_GEOFENCE=false`. Hook `useGeofence.ts` no implementado.
-- **QR Scanner** — feature flag `VITE_FEATURE_QR=false`. Componente `QRScanner.tsx` no implementado.
-- **Panel de emergencia** — feature flag `VITE_FEATURE_EMERGENCIA=true`. Componente `EmergencyPanel.tsx` no implementado.
-- **Edge Functions** — `alert-incidente` y `generate-report-hse` no implementadas.
-- **`useMetricas.ts`** — hook mencionado en CLAUDE.md, no existe. Las métricas se consultan inline en las vistas.
-- **`useGeofence.ts`** — no existe todavía.
-- **`AutocompleteDNI.tsx`** — la lógica está inline en `NuevoIngreso.tsx`, no como componente separado.
-- **`RecoverPasswordView.tsx`** — no implementada.
+### ⚠️ Pendiente
+
+- **Email de invitación** — funciona pero llega desde `onboarding@resend.dev`. Para que llegue desde dominio propio: verificar dominio en Resend → actualizar sender en Edge Function → redeploy
+- **Geofence** — feature flag `VITE_FEATURE_GEOFENCE=false`. Hook `useGeofence.ts` no implementado
+- **EmergencyPanel** — feature flag `VITE_FEATURE_EMERGENCIA=true`. Componente no implementado
+- **Impersonar empresa** — UI lista en SoportePlataforma, Edge Function pendiente
+- **Paginación en Registros** — límite actual 500 filas
+- **`@react-pdf/renderer`** — instalado, `RegistroPDF.tsx` creado, pero no testeado en build de Vercel (puede requerir ajustes de SSR)
+
+### 👥 Usuarios de prueba (Mayo 2026)
+
+| Email | Password | Rol | Empresa |
+|-------|----------|-----|---------|
+| welllogsupport@gmail.com | $uperAdmin | superadmin | Venver |
+| admin@venver.com.ar | Admin#Venver1 | admin | Venver |
+| operador.v51@venver.com.ar | Op#V51campo | operador | Venver |
+| operador.v10@venver.com.ar | Op#V10campo | operador | Venver |
+| auditor@ypf.com | Audit#YPF1 | auditor | YPF |
+
+**Pendiente para que los operadores funcionen:**
+- Asignar `operador.v51` al equipo VS1 desde `/admin/equipos`
+- Asignar `operador.v10` al equipo Venver 10 desde `/admin/equipos`
+- Crear permiso para YPF desde `/admin/auditores` (para que el auditor vea datos)
 
 ### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
