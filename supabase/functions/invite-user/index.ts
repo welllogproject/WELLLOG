@@ -83,21 +83,18 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+    // 3. Crear el usuario en auth.users con service role
+    // Usamos createUser + generateLink en vez de inviteUserByEmail
+    // para evitar dependencia del SMTP en el momento de creación
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      {
-        data: {
-          nombre_completo,
-          empresa_id,
-          rol,
-        },
-        redirectTo: `${Deno.env.get('SITE_URL') ?? 'https://fieldpass.vercel.app'}/login`,
-      }
-    )
+      email_confirm: false, // Requiere confirmación via link
+      user_metadata: { nombre_completo, empresa_id, rol },
+    })
 
     if (createError) {
-      // Si el usuario ya existe en auth, intentar solo crear el perfil
-      if (createError.message.includes('already been registered')) {
+      if (createError.message.includes('already been registered') ||
+          createError.message.includes('already exists')) {
         return new Response(JSON.stringify({ error: 'Este email ya está registrado en el sistema' }), {
           status: 409,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -106,11 +103,13 @@ Deno.serve(async (req) => {
       throw createError
     }
 
+    const userId = newUser.user!.id
+
     // 4. Crear el perfil en tabla usuarios
     const { error: profileError } = await supabaseAdmin
       .from('usuarios')
       .insert({
-        id: newUser.user!.id,
+        id: userId,
         empresa_id,
         email,
         nombre_completo,
@@ -121,16 +120,76 @@ Deno.serve(async (req) => {
       })
 
     if (profileError) {
-      // Si falla el perfil, eliminar el usuario de auth para no dejar inconsistencias
-      await supabaseAdmin.auth.admin.deleteUser(newUser.user!.id)
+      await supabaseAdmin.auth.admin.deleteUser(userId)
       throw profileError
+    }
+
+    // 5. Generar link de activación
+    const siteUrl = Deno.env.get('SITE_URL') ?? 'https://wlogproject.vercel.app'
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'invite',
+      email,
+      options: { redirectTo: `${siteUrl}/login` },
+    })
+
+    const activationLink = linkData?.properties?.action_link ?? null
+
+    // 6. Intentar enviar email via Resend directamente (más confiable que SMTP de Supabase)
+    let emailSent = false
+    const resendKey = Deno.env.get('RESEND_API_KEY')
+    if (resendKey && activationLink) {
+      try {
+        const emailRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'WELL LOG <onboarding@resend.dev>',
+            to: email,
+            subject: 'Invitación a WELL LOG',
+            html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: Inter, system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; color: #1A1A18;">
+  <div style="background: linear-gradient(135deg, #7F77DD, #534AB7); border-radius: 14px; padding: 24px; margin-bottom: 28px; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 600;">WELL LOG</h1>
+    <p style="color: rgba(255,255,255,0.8); margin: 6px 0 0; font-size: 14px;">Control de acceso en campo</p>
+  </div>
+  <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Hola, ${nombre_completo}</h2>
+  <p style="color: #3D3D3A; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+    Fuiste invitado a WELL LOG como <strong>${rol}</strong>. 
+    Hacé click en el botón para activar tu cuenta y elegir tu contraseña.
+  </p>
+  <a href="${activationLink}" 
+     style="display: inline-block; background: linear-gradient(135deg, #7F77DD, #534AB7); color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-size: 15px; font-weight: 500;">
+    Activar mi cuenta →
+  </a>
+  <p style="margin-top: 24px; font-size: 12px; color: #9A9894;">
+    Este link expira en 24 horas. Si no esperabas esta invitación, ignorá este email.
+  </p>
+</body>
+</html>`,
+          }),
+        })
+        emailSent = emailRes.ok
+      } catch (_) {
+        // Email falla silenciosamente — el link de activación sigue disponible
+      }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Invitación enviada a ${email}`,
-        user_id: newUser.user!.id,
+        message: emailSent
+          ? `Invitación enviada a ${email}`
+          : `Usuario creado. El email no pudo enviarse — compartí el link de activación manualmente.`,
+        user_id: userId,
+        email_sent: emailSent,
+        // Link de activación siempre disponible como fallback
+        activation_link: activationLink,
       }),
       {
         status: 200,

@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              from: 'WELL LOG <alertas@welllog.app>',
+              from: 'WELL LOG <onboarding@resend.dev>',
               to: admin.email,
               subject,
               html: htmlBody,
