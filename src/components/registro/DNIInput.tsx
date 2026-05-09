@@ -32,10 +32,23 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
   }
 
   const handleKeyboard = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && value.length >= 7) onConfirm?.()
-    if (e.key === 'Backspace') onChange(value.slice(0, -1))
-    if (/^\d$/.test(e.key) && value.length < 9) onChange(value + e.key)
-    e.preventDefault()
+    // Solo interceptar teclas relevantes — no bloquear Tab ni otras teclas de accesibilidad
+    if (e.key === 'Enter') {
+      if (value.length >= 7) onConfirm?.()
+      e.preventDefault()
+      return
+    }
+    if (e.key === 'Backspace') {
+      onChange(value.slice(0, -1))
+      e.preventDefault()
+      return
+    }
+    if (/^\d$/.test(e.key) && value.length < 9) {
+      onChange(value + e.key)
+      e.preventDefault()
+      return
+    }
+    // Dejar pasar Tab, Escape, flechas, etc.
   }
 
   return (
@@ -81,7 +94,7 @@ export function DNIInput({ value, onChange, onConfirm, error, isLoading }: DNIIn
             key={key}
             type="button"
             onClick={() => handleKey(key)}
-            disabled={isLoading}
+            disabled={isLoading || (key === '✓' && value.length < 7)}
             className={[
               'h-16 rounded-clay text-xl font-medium transition-all duration-100 select-none',
               'active:scale-95',

@@ -61,6 +61,8 @@ export function MarcarSalida() {
         firma_declaracion_data: result.firma,
       })
       setPaso('exito')
+      // Auto-volver al inicio en 2 segundos
+      setTimeout(() => navigate('/operador'), 2000)
     }
   }
 

@@ -4,7 +4,6 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
 import { useEquipo } from '@/hooks/useEquipos'
 import { usePersonasDentro } from '@/hooks/useRegistros'
 import { TabletLayout } from '@/components/layout/TabletLayout'

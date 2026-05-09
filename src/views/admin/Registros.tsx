@@ -8,13 +8,16 @@ import { PageLayout } from '@/components/layout/PageLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { SkeletonRow } from '@/components/ui/Skeleton'
-import { Search, Download, Filter } from 'lucide-react'
+import { Search, Download } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import * as XLSX from 'xlsx'
 
+const hace7dias = new Date()
+hace7dias.setDate(hace7dias.getDate() - 6)
+
 export function Registros() {
   const [equipoId, setEquipoId] = useState('')
-  const [fechaDesde, setFechaDesde] = useState(new Date().toISOString().split('T')[0])
+  const [fechaDesde, setFechaDesde] = useState(hace7dias.toISOString().split('T')[0])
   const [fechaHasta, setFechaHasta] = useState(new Date().toISOString().split('T')[0])
   const [search, setSearch] = useState('')
 

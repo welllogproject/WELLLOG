@@ -283,6 +283,10 @@ export interface FormIngresoData {
   motivo_visita: string
   vehiculo_patente?: string
   firma_data: string
+  // GPS opcional — capturado desde la tablet
+  ubicacion_lat?: number
+  ubicacion_lng?: number
+  precision_metros?: number
 }
 
 export interface FormSalidaData {

@@ -4,7 +4,6 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { Equipo } from '@/types/models'
 import { Badge } from '@/components/ui/Badge'
-import { Link } from 'react-router-dom'
 import { parseGeoPoint, offsetCoords } from '@/lib/geo'
 
 // Fix Leaflet default icons with Vite
@@ -46,6 +45,8 @@ const ESTADO_COLOR: Record<string, string> = {
 // Componente para centrar el mapa cuando cambian los equipos
 function AutoCenter({ puntos }: { puntos: [number, number][] }) {
   const map = useMap()
+  // Serializar puntos para detectar cambios reales de coordenadas
+  const puntosKey = puntos.map((p) => `${p[0].toFixed(4)},${p[1].toFixed(4)}`).join('|')
   useEffect(() => {
     if (puntos.length === 0) return
     if (puntos.length === 1) {
@@ -58,7 +59,8 @@ function AutoCenter({ puntos }: { puntos: [number, number][] }) {
       [Math.min(...lats), Math.min(...lngs)],
       [Math.max(...lats), Math.max(...lngs)],
     ], { padding: [40, 40] })
-  }, [puntos.length, map])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puntosKey, map])
   return null
 }
 

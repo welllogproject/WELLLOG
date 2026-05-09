@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Button } from '@/components/ui/Button'
 import { Input, Select } from '@/components/ui/Input'
@@ -8,10 +9,33 @@ import { Badge } from '@/components/ui/Badge'
 import { Download, FileSpreadsheet } from 'lucide-react'
 
 function useRegistrosExport(equipo_id: string, fecha_desde: string, fecha_hasta: string) {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: ['auditor', 'registros-export', equipo_id, fecha_desde, fecha_hasta],
+    queryKey: ['auditor', 'registros-export', usuario?.empresa_id, equipo_id, fecha_desde, fecha_hasta],
     queryFn: async () => {
-      if (!fecha_desde || !fecha_hasta) return []
+      if (!fecha_desde || !fecha_hasta || !usuario?.empresa_id) return []
+
+      // Obtener equipos autorizados
+      const { data: permisos } = await supabase
+        .from('permisos_acceso')
+        .select('equipo_id')
+        .eq('empresa_auditora_id', usuario.empresa_id)
+        .eq('activo', true)
+        .lte('fecha_inicio', new Date().toISOString().split('T')[0])
+
+      const autorizados = (permisos ?? [])
+        .filter((p) => p.equipo_id)
+        .map((p) => p.equipo_id as string)
+
+      if (autorizados.length === 0) return []
+
+      // Si se especificó un equipo, verificar que está autorizado
+      const filtroEquipos = equipo_id
+        ? (autorizados.includes(equipo_id) ? [equipo_id] : [])
+        : autorizados
+
+      if (filtroEquipos.length === 0) return []
+
       let q = supabase
         .from('registros_acceso')
         .select(`
@@ -21,30 +45,49 @@ function useRegistrosExport(equipo_id: string, fecha_desde: string, fecha_hasta:
           equipo:equipos(nombre_equipo),
           locacion:locaciones(codigo)
         `)
+        .in('equipo_id', filtroEquipos)
         .gte('fecha_ingreso', `${fecha_desde}T00:00:00`)
         .lte('fecha_ingreso', `${fecha_hasta}T23:59:59`)
         .is('deleted_at', null)
         .order('fecha_ingreso', { ascending: false })
-      if (equipo_id) q = q.eq('equipo_id', equipo_id)
+
       const { data, error } = await q
       if (error) throw error
       return data ?? []
     },
-    enabled: !!fecha_desde && !!fecha_hasta,
+    enabled: !!fecha_desde && !!fecha_hasta && !!usuario?.empresa_id,
   })
 }
 
 function useEquiposAuditor() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: ['auditor', 'equipos-lista'],
+    queryKey: ['auditor', 'equipos-lista', usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
+
+      const { data: permisos } = await supabase
+        .from('permisos_acceso')
+        .select('equipo_id')
+        .eq('empresa_auditora_id', usuario.empresa_id)
+        .eq('activo', true)
+        .lte('fecha_inicio', new Date().toISOString().split('T')[0])
+
+      const ids = (permisos ?? [])
+        .filter((p) => p.equipo_id)
+        .map((p) => p.equipo_id as string)
+
+      if (ids.length === 0) return []
+
       const { data } = await supabase
         .from('equipos')
         .select('id, nombre_equipo')
+        .in('id', ids)
         .is('deleted_at', null)
         .order('nombre_equipo')
       return data ?? []
     },
+    enabled: !!usuario?.empresa_id,
   })
 }
 
@@ -77,8 +120,11 @@ function exportCSV(rows: any[], filename: string) {
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = url; a.download = filename; a.click()
-  URL.revokeObjectURL(url)
+  a.href = url
+  a.download = filename
+  a.click()
+  // Revocar después de un tick para que el browser complete la descarga
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 const HOY = new Date().toISOString().split('T')[0]

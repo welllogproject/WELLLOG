@@ -86,14 +86,14 @@ export function AdminDashboard() {
     refetchInterval: 60000,
   })
 
-  // Registros recientes (solo equipos de esta empresa)
+  // Registros recientes (solo equipos de esta empresa) — sin firmas para no traer base64
   const { data: registrosRecientes } = useQuery({
     queryKey: ['kpi', 'recientes', empresaId],
     queryFn: async () => {
       if (!tieneEquipos) return []
       const { data } = await supabase
         .from('registros_acceso')
-        .select('*')
+        .select('id, nombre_completo, dni, empresa_visitante_nombre, estado, fecha_ingreso, motivo_visita')
         .in('equipo_id', equipoIds)
         .is('deleted_at', null)
         .order('fecha_ingreso', { ascending: false })

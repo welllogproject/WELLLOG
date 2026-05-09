@@ -73,16 +73,41 @@
 - **`AutocompleteDNI.tsx`** — la lógica está inline en `NuevoIngreso.tsx`, no como componente separado.
 - **`RecoverPasswordView.tsx`** — no implementada.
 
-### 🐛 Bugs corregidos (Mayo 2026)
+### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
 - `useEquipos` / `useEquiposConPersonas` — ahora filtran por `empresa_contratista_id` del usuario logueado
-- `useRegistrosAdmin` — ahora filtra por empresa via JOIN con equipos
+- `useRegistrosAdmin` — reemplazado JOIN silencioso por two-step query correcta
 - `useLocaciones` — ahora filtra por `empresa_id` del usuario logueado
 - `useCrearLocacion` — ahora incluye `empresa_id` en el insert
 - `useCrearEquipo` — ahora incluye `empresa_contratista_id` en el insert
 - `useTodosUsuarios` — ahora filtra por empresa para admin/supervisor; superadmin ve todos
 - `useRealtimeEquipo` — query key corregido a `['registros', 'dentro', equipoId]`
 - `GestionEmpresas` (admin) — excluye la propia empresa del listado de visitantes
+
+### 🐛 Bugs corregidos (Mayo 2026 — sesión 2)
+
+- `useIncidentes` — ahora filtra por empresa del usuario (evita data leak entre tenants)
+- `useIncidentesPendientes` — ahora filtra por equipos de la empresa
+- `useNuevoIngreso` — GPS ahora se guarda en `ubicacion_ingreso` en la DB
+- `MarcarSalida` — auto-navigate al inicio en el caso sin incidente (estaba faltando)
+- `MapaEquipos` panel — `personas_dentro` ya no muestra `—` hardcodeado
+- `MapaAuditor` — `personas_dentro` filtra solo `estado='dentro'`; permisos verifican `fecha_fin`
+- `IncidentesAuditor` — import de `useAuthStore` faltante agregado; filtro por permisos
+- `ReportesAuditor` — `revokeObjectURL` con delay; filtro por permisos
+- `AuditorDashboard` — ahora consulta `permisos_acceso` para mostrar solo equipos autorizados
+- `EstadisticasHSE` — IG calcula `dias_perdidos` reales desde `incidentes`; días sin incidente cuenta solo lesiones
+- `AdminDashboard` — query de recientes ya no trae firmas base64
+- `Registros` — default de fechas últimos 7 días; import muerto `Filter` removido
+- `EquiposMap` — import muerto `Link` removido; `AutoCenter` detecta cambios de coordenadas reales
+- `OperadorHome` — import muerto `useAuth` removido
+- `DNIInput` — `disabled` como atributo HTML en botón ✓; `handleKeyboard` no bloquea Tab/Escape
+- `DebugPanel` — protegido: solo dev o superadmin; queries en paralelo
+- `Logo` — gradient id usa `useId()` para evitar colisiones
+- `Button` — `type="button"` por defecto; `active:scale-98` funcional
+- `tailwind.config.js` — `scale-98` agregado; sombras actualizadas
+- `vite.config.ts` — code splitting para leaflet, recharts, xlsx, react, supabase
+- `index.css` — variables modo claro con más contraste; `card-clay` con `border: 1px`
+- `Sidebar` — grupos con separadores; iconos más pequeños; colores consistentes
 
 ---
 

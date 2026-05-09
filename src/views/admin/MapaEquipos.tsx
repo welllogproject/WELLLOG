@@ -71,7 +71,9 @@ function PanelEquipo() {
               <Users size={15} className="text-[var(--text-muted)]" />
               <span className="text-sm text-[var(--text-secondary)]">Personas dentro</span>
             </div>
-            <span className="text-lg font-medium text-[var(--text-primary)]">—</span>
+            <span className="text-lg font-medium text-[var(--text-primary)]">
+              {equipoSeleccionado.personas_dentro ?? 0}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-[var(--text-secondary)]">Estado</span>

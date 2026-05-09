@@ -15,27 +15,27 @@
   --estado-inactivo: #888780;
   --estado-incidente: #E24B4A;
 
-  /* UI base */
+  /* UI base — modo claro con bordes más definidos */
   --card-bg: #FFFFFF;
-  --page-bg: #F8F8F6;
+  --page-bg: #F4F4F2;
   --hover-bg: rgba(0, 0, 0, 0.04);
-  --input-bg: #F8F8F6;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.12);
-  --divider: rgba(0, 0, 0, 0.05);
+  --input-bg: #F4F4F2;
+  --border: rgba(0, 0, 0, 0.10);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --divider: rgba(0, 0, 0, 0.07);
 
   /* Texto en 4 niveles */
-  --text-primary: #2C2C2A;
-  --text-secondary: #4A4A47;
-  --text-muted: #6F6E6A;
-  --text-faded: #95938F;
+  --text-primary: #1A1A18;
+  --text-secondary: #3D3D3A;
+  --text-muted: #6B6A66;
+  --text-faded: #9A9894;
 
   /* Skeleton */
-  --skeleton: #E8E8E5;
+  --skeleton: #E4E4E1;
 
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-lg:   0 4px 24px rgba(0,0,0,0.10), 0 8px 40px rgba(0,0,0,0.08);
 
   /* Transiciones */
   --transition: all 150ms ease;
@@ -146,7 +146,7 @@ h1, h2, h3, h4, h5, h6 {
 
   .card-clay {
     background: var(--card-bg);
-    border: 0.5px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow: var(--shadow-sm);
   }

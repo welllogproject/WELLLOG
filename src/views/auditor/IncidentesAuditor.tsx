@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
@@ -23,9 +24,27 @@ const ESTADO_LABELS: Record<string, string> = {
 }
 
 function useIncidentesAuditor() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: ['auditor', 'incidentes'],
+    queryKey: ['auditor', 'incidentes', usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario?.empresa_id) return []
+
+      // Obtener equipos autorizados con permiso de ver incidentes
+      const { data: permisos } = await supabase
+        .from('permisos_acceso')
+        .select('equipo_id')
+        .eq('empresa_auditora_id', usuario.empresa_id)
+        .eq('activo', true)
+        .eq('puede_ver_incidentes', true)
+        .lte('fecha_inicio', new Date().toISOString().split('T')[0])
+
+      const equipoIds = (permisos ?? [])
+        .filter((p) => p.equipo_id)
+        .map((p) => p.equipo_id as string)
+
+      if (equipoIds.length === 0) return []
+
       const { data, error } = await supabase
         .from('incidentes')
         .select(`
@@ -34,10 +53,12 @@ function useIncidentesAuditor() {
           equipo:equipos(id, nombre_equipo),
           locacion:locaciones(id, codigo, nombre)
         `)
+        .in('equipo_id', equipoIds)
         .order('fecha_incidente', { ascending: false })
       if (error) throw error
       return (data ?? []) as any[]
     },
+    enabled: !!usuario?.empresa_id,
     refetchInterval: 60_000,
   })
 }

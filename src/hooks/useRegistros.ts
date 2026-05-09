@@ -85,23 +85,47 @@ export function useTieneIngresoActivo(dni: string, equipoId: string | null) {
 export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaHasta?: string) {
   const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'admin', usuario?.empresa_id, equipoId, fechaDesde, fechaHasta],
+    queryKey: [QUERY_KEY, 'admin', usuario?.empresa_id, usuario?.rol, equipoId, fechaDesde, fechaHasta],
     queryFn: async () => {
-      if (!usuario?.empresa_id) return []
+      if (!usuario) return []
 
-      // Primero obtenemos los IDs de equipos de esta empresa
+      // Superadmin: ve todos los registros
+      // Admin/supervisor: solo registros de equipos de su empresa
+      let equipoIds: string[] | null = null
+
+      if (usuario.rol !== 'superadmin') {
+        const { data: equipos, error: eqErr } = await supabase
+          .from('equipos')
+          .select('id')
+          .eq('empresa_contratista_id', usuario.empresa_id)
+          .is('deleted_at', null)
+
+        if (eqErr) throw eqErr
+        equipoIds = (equipos ?? []).map((e) => e.id)
+        // Si no hay equipos, no hay registros
+        if (equipoIds.length === 0) return []
+      }
+
       let query = supabase
         .from('registros_acceso')
-        .select(`
-          *,
-          equipo:equipos!inner(id, nombre_equipo, empresa_contratista_id)
-        `)
-        .eq('equipos.empresa_contratista_id', usuario.empresa_id)
+        .select('*')
         .is('deleted_at', null)
         .order('fecha_ingreso', { ascending: false })
         .limit(500)
 
-      if (equipoId) query = query.eq('equipo_id', equipoId)
+      // Filtrar por equipos de la empresa (si no es superadmin)
+      if (equipoIds !== null) {
+        // Si se especificó un equipo concreto, verificar que pertenece a la empresa
+        if (equipoId) {
+          if (!equipoIds.includes(equipoId)) return []
+          query = query.eq('equipo_id', equipoId)
+        } else {
+          query = query.in('equipo_id', equipoIds)
+        }
+      } else if (equipoId) {
+        query = query.eq('equipo_id', equipoId)
+      }
+
       if (fechaDesde) query = query.gte('fecha_ingreso', fechaDesde)
       if (fechaHasta) query = query.lte('fecha_ingreso', fechaHasta)
 
@@ -109,7 +133,7 @@ export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaH
       if (error) throw error
       return (data ?? []) as RegistroAcceso[]
     },
-    enabled: !!usuario?.empresa_id,
+    enabled: !!usuario,
   })
 }
 
@@ -136,6 +160,13 @@ export function useNuevoIngreso() {
         estado: 'dentro' as const,
         registrado_por_usuario_id: usuario.id,
         created_at_local: new Date().toISOString(),
+        // GPS — guardado como PostGIS POINT si está disponible
+        ...(form.ubicacion_lat !== undefined && form.ubicacion_lng !== undefined
+          ? {
+              ubicacion_ingreso: `POINT(${form.ubicacion_lng} ${form.ubicacion_lat})`,
+              precision_metros_ingreso: form.precision_metros ?? null,
+            }
+          : {}),
       }
 
       if (!isOnline) {

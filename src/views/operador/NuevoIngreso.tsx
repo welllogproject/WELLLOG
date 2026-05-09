@@ -84,8 +84,6 @@ export function NuevoIngreso() {
       toast.error('Seleccioná el motivo de visita')
       return
     }
-    // Capturar GPS en silencio
-    capturarGPS()
     setPaso('firma')
   }
 
@@ -94,6 +92,9 @@ export function NuevoIngreso() {
       toast.error('La firma es requerida')
       return
     }
+
+    // Capturar GPS antes de guardar (silencioso, no bloquea)
+    const gps = await capturarGPS()
 
     await nuevoIngreso.mutateAsync({
       dni,
@@ -104,6 +105,9 @@ export function NuevoIngreso() {
       motivo_visita: datos.motivo,
       vehiculo_patente: datos.patente || undefined,
       firma_data: firma,
+      ubicacion_lat: gps?.lat,
+      ubicacion_lng: gps?.lng,
+      precision_metros: gps?.precision,
     })
 
     setPaso('exito')

@@ -9,15 +9,30 @@ import type { Incidente, FormIncidenteData } from '@/types/models'
 
 const QUERY_KEY = 'incidentes'
 
+// Admin: incidentes de sus propios equipos
+// Operador: incidentes de su equipo asignado
+// Superadmin: todos
 export function useIncidentes(equipoId?: string, estado?: string) {
+  const { usuario } = useAuthStore()
+
   return useQuery({
-    queryKey: [QUERY_KEY, equipoId, estado],
+    queryKey: [QUERY_KEY, usuario?.empresa_id, usuario?.rol, equipoId, estado],
     queryFn: async () => {
+      if (!usuario) return []
+
       let query = supabase
         .from('incidentes')
-        .select('*, equipo:equipos(nombre_equipo, locacion:locaciones(codigo))')
+        .select(`
+          *,
+          equipo:equipos!inner(id, nombre_equipo, empresa_contratista_id, locacion:locaciones(codigo))
+        `)
         .order('fecha_incidente', { ascending: false })
         .limit(100)
+
+      // Superadmin ve todo; admin/supervisor/operador solo su empresa
+      if (usuario.rol !== 'superadmin') {
+        query = query.eq('equipos.empresa_contratista_id', usuario.empresa_id)
+      }
 
       if (equipoId) query = query.eq('equipo_id', equipoId)
       if (estado) query = query.eq('estado', estado)
@@ -26,21 +41,48 @@ export function useIncidentes(equipoId?: string, estado?: string) {
       if (error) throw error
       return (data ?? []) as Incidente[]
     },
+    enabled: !!usuario,
   })
 }
 
+// Conteo de incidentes pendientes — solo de la empresa del usuario
 export function useIncidentesPendientes() {
+  const { usuario } = useAuthStore()
+
   return useQuery({
-    queryKey: [QUERY_KEY, 'pendientes'],
+    queryKey: [QUERY_KEY, 'pendientes', usuario?.empresa_id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!usuario) return 0
+
+      if (usuario.rol === 'superadmin') {
+        const { count, error } = await supabase
+          .from('incidentes')
+          .select('*', { count: 'exact', head: true })
+          .eq('estado', 'pendiente')
+        if (error) throw error
+        return count ?? 0
+      }
+
+      // Para otros roles: filtrar por equipos de la empresa
+      const { data: equipos } = await supabase
+        .from('equipos')
+        .select('id')
+        .eq('empresa_contratista_id', usuario.empresa_id)
+        .is('deleted_at', null)
+
+      const ids = (equipos ?? []).map((e) => e.id)
+      if (ids.length === 0) return 0
+
+      const { count, error } = await supabase
         .from('incidentes')
-        .select('count', { count: 'exact', head: true })
+        .select('*', { count: 'exact', head: true })
+        .in('equipo_id', ids)
         .eq('estado', 'pendiente')
 
       if (error) throw error
-      return data
+      return count ?? 0
     },
+    enabled: !!usuario,
   })
 }
 
@@ -132,5 +174,6 @@ export function useCerrarIncidente() {
       qc.invalidateQueries({ queryKey: [QUERY_KEY] })
       toast.success('Incidente cerrado')
     },
+    onError: (e: Error) => toast.error(e.message),
   })
 }
