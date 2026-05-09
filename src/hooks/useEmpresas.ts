@@ -235,22 +235,12 @@ export function useCrearUsuario() {
     },
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: [USR_KEY] })
-      if (data.activation_link) {
-        // El email no pudo enviarse (límite de dominio Resend) — mostrar link manual
-        toast(
-          (t) => (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium">Usuario creado ✓</p>
-              <p className="text-xs opacity-80">El email no pudo enviarse. Compartí este link de activación:</p>
-              <button
-                onClick={() => { navigator.clipboard.writeText(data.activation_link); toast.dismiss(t.id) }}
-                className="text-xs bg-white/20 rounded px-2 py-1 hover:bg-white/30 transition-colors text-left truncate"
-              >
-                📋 Copiar link de activación
-              </button>
-            </div>
-          ),
-          { duration: 15000, style: { background: '#534AB7', color: 'white' } }
+      if (data?.activation_link) {
+        // El email no pudo enviarse — copiar link al portapapeles automáticamente
+        navigator.clipboard.writeText(data.activation_link).catch(() => {})
+        toast.success(
+          'Usuario creado. Link de activación copiado al portapapeles — compartilo con el usuario.',
+          { duration: 10000 }
         )
       } else {
         toast.success('Invitación enviada — el usuario recibirá un email para activar su cuenta')
