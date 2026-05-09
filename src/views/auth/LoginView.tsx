@@ -35,6 +35,8 @@ export function LoginView() {
 
     setLoading(true)
     try {
+      // Clear any stale session before signing in
+      await supabase.auth.signOut()
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,

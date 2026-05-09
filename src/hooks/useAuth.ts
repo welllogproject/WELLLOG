@@ -38,53 +38,41 @@ export function useAuth() {
 
 // Inicialización de sesión — llamar una sola vez en App.tsx
 export function useAuthInit() {
-  const { setUsuario, setLoading, setEquipoId } = useAuthStore()
+  const { setUsuario, setLoading } = useAuthStore()
 
   useEffect(() => {
     let mounted = true
 
-    // Safety net: never leave the app stuck in loading state
+    // Safety net: if onAuthStateChange never fires (network issue), unblock the app
     const safetyTimeout = setTimeout(() => {
       if (mounted) {
         console.warn('[WELL LOG] Auth init timeout — forcing ready state')
         setLoading(false)
       }
-    }, 6000)
-
-    const init = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user && mounted) {
-          await cargarUsuario(session.user.id, setUsuario)
-        }
-      } catch (err) {
-        console.error('[WELL LOG] Error inicializando sesión:', err)
-      } finally {
-        clearTimeout(safetyTimeout)
-        if (mounted) setLoading(false)
-      }
-    }
-
-    init()
+    }, 5000)
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
-        if (event === 'SIGNED_IN' && session?.user) {
+
+        if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session?.user) {
           await cargarUsuario(session.user.id, setUsuario)
         } else if (event === 'SIGNED_OUT') {
           setUsuario(null)
           queryClient.clear()
         }
-        setLoading(false)
+
+        clearTimeout(safetyTimeout)
+        if (mounted) setLoading(false)
       }
     )
 
     return () => {
       mounted = false
+      clearTimeout(safetyTimeout)
       subscription.unsubscribe()
     }
-  }, [setUsuario, setLoading, setEquipoId])
+  }, [setUsuario, setLoading])
 }
 
 async function cargarUsuario(
