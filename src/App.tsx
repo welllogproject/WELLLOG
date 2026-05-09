@@ -19,9 +19,12 @@ function GlobalHooks() {
 export function App() {
   const { isLoading, _hydrated, usuario } = useAuthStore()
 
-  // Spinner solo mientras Zustand no terminó de rehidratar
-  // O si no hay usuario y Supabase aún verifica la sesión
   const showSpinner = !_hydrated || (isLoading && !usuario)
+
+  // Log de diagnóstico — visible en consola del navegador
+  if (import.meta.env.DEV || true) {
+    console.log('[App] _hydrated:', _hydrated, '| isLoading:', isLoading, '| usuario:', usuario?.email ?? null, '| showSpinner:', showSpinner)
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

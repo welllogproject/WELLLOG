@@ -48,23 +48,19 @@ export function useAuthInit() {
   useEffect(() => {
     let mounted = true
 
-    // onAuthStateChange es la fuente de verdad. Se dispara:
-    // - INITIAL_SESSION: al montar, con la sesión actual (o null si no hay)
-    // - SIGNED_IN: al hacer login
-    // - SIGNED_OUT: al hacer logout o expirar
-    // - TOKEN_REFRESHED: al renovar el token
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
 
+        console.log('[useAuthInit] event:', event, '| session user:', session?.user?.email ?? null)
+
         if (event === 'INITIAL_SESSION') {
           if (!session?.user) {
-            // No hay sesión válida — limpiar cualquier usuario rehidratado
+            console.log('[useAuthInit] INITIAL_SESSION sin sesión → limpiar usuario')
             setUsuario(null)
             setLoading(false)
           } else {
-            // Hay sesión válida — cargar/actualizar perfil en background
-            // Si ya tenemos usuario rehidratado, no bloqueamos la UI
+            console.log('[useAuthInit] INITIAL_SESSION con sesión → cargar perfil')
             await cargarUsuario(session.user.id, setUsuario)
             if (mounted) setLoading(false)
           }
