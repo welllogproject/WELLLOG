@@ -5,94 +5,79 @@ interface LogoProps {
   className?: string
 }
 
-// Derrick (torre de perforación) — logo oficial WELL LOG
+// Torre de perforación (derrick) — logo WELL LOG
+// Diseño más limpio: estructura triangular con travesaños y cabezal
 export function Logo({ size = 32, className = '' }: LogoProps) {
   const uid = useId().replace(/:/g, '')
-  const gradId = `logo-grad-${uid}`
+  const g1 = `lg1-${uid}`
+  const g2 = `lg2-${uid}`
 
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-label="WELL LOG"
     >
       <defs>
-        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#7F77DD" />
-          <stop offset="100%" stopColor="#534AB7" />
+        {/* Fondo: gradiente violeta */}
+        <linearGradient id={g1} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#8B83E8" />
+          <stop offset="100%" stopColor="#4F46B8" />
+        </linearGradient>
+        {/* Brillo sutil en la torre */}
+        <linearGradient id={g2} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="white" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="white" stopOpacity="0.6" />
         </linearGradient>
       </defs>
 
-      {/* Fondo cuadrado redondeado */}
-      <rect x="2" y="2" width="28" height="28" rx="7" fill={`url(#${gradId})`} />
+      {/* Fondo redondeado */}
+      <rect width="40" height="40" rx="10" fill={`url(#${g1})`} />
 
-      {/* Crown block (cabezal de la torre) */}
-      <rect x="13.5" y="5" width="5" height="2.2" rx="0.5" fill="white" />
+      {/* Sombra interna sutil */}
+      <rect width="40" height="40" rx="10" fill="black" fillOpacity="0.06" />
 
-      {/* Patas de la torre (tapered legs) */}
+      {/* ── TORRE DE PERFORACIÓN ── */}
+
+      {/* Patas externas (A-frame) */}
       <path
-        d="M10 25 L14 7.5 M22 25 L18 7.5"
-        stroke="white"
-        strokeWidth="1.5"
+        d="M9 33 L20 7 L31 33"
+        stroke={`url(#${g2})`}
+        strokeWidth="2.2"
         strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
       />
 
-      {/* Travesaños horizontales */}
-      <line x1="13" y1="12" x2="19" y2="12" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="12" y1="17" x2="20" y2="17" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="11" y1="22" x2="21" y2="22" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Travesaño 1 (alto) */}
+      <line x1="14.5" y1="16" x2="25.5" y2="16" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeOpacity="0.9" />
 
-      {/* Cruzados X en cada panel */}
-      <path d="M13.4 12 L19.6 17 M18.6 12 L12.4 17" stroke="white" strokeWidth="1" opacity="0.65" strokeLinecap="round" />
-      <path d="M12.2 17 L20.8 22 M19.8 17 L11.2 22" stroke="white" strokeWidth="1" opacity="0.65" strokeLinecap="round" />
+      {/* Travesaño 2 (medio) */}
+      <line x1="12.5" y1="22" x2="27.5" y2="22" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeOpacity="0.9" />
 
-      {/* Piso del equipo */}
-      <rect x="9" y="24.8" width="14" height="1.8" rx="0.5" fill="white" />
-    </svg>
-  )
-}
+      {/* Travesaño 3 (bajo) */}
+      <line x1="10.5" y1="28" x2="29.5" y2="28" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeOpacity="0.9" />
 
-      {/* Fondo cuadrado redondeado */}
-      <rect x="2" y="2" width="28" height="28" rx="7" fill={`url(#logo-grad-${size})`} />
+      {/* Diagonales panel superior (X) */}
+      <line x1="14.5" y1="16" x2="25.5" y2="22" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.45" />
+      <line x1="25.5" y1="16" x2="14.5" y2="22" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.45" />
 
-      {/* Crown block (cabezal de la torre) */}
-      <rect x="13.5" y="5" width="5" height="2.2" rx="0.5" fill="white" />
+      {/* Diagonales panel inferior (X) */}
+      <line x1="12.5" y1="22" x2="29.5" y2="28" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.45" />
+      <line x1="27.5" y1="22" x2="10.5" y2="28" stroke="white" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.45" />
 
-      {/* Patas de la torre (tapered legs) */}
-      <path
-        d="M10 25 L14 7.5 M22 25 L18 7.5"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      {/* Crown block (cabezal) — rectángulo en el vértice */}
+      <rect x="17" y="5.5" width="6" height="2.5" rx="1" fill="white" fillOpacity="0.95" />
 
-      {/* Travesaños horizontales */}
-      <line x1="13" y1="12" x2="19" y2="12" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="12" y1="17" x2="20" y2="17" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="11" y1="22" x2="21" y2="22" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Plataforma base */}
+      <rect x="8" y="32" width="24" height="2.5" rx="1.2" fill="white" fillOpacity="0.85" />
 
-      {/* Cruzados X en cada panel */}
-      <path
-        d="M13.4 12 L19.6 17 M18.6 12 L12.4 17"
-        stroke="white"
-        strokeWidth="1"
-        opacity="0.65"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12.2 17 L20.8 22 M19.8 17 L11.2 22"
-        stroke="white"
-        strokeWidth="1"
-        opacity="0.65"
-        strokeLinecap="round"
-      />
-
-      {/* Piso del equipo */}
-      <rect x="9" y="24.8" width="14" height="1.8" rx="0.5" fill="white" />
+      {/* Punto central del crown (polea) */}
+      <circle cx="20" cy="6.75" r="1" fill={`url(#${g1})`} />
     </svg>
   )
 }

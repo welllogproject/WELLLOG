@@ -197,7 +197,7 @@ export function useNuevoIngreso() {
 export function useMarcarEgreso() {
   const qc = useQueryClient()
   const { usuario } = useAuthStore()
-  const { isOnline } = useOfflineStore()
+  const { isOnline, encolar } = useOfflineStore()
 
   return useMutation({
     mutationFn: async (data: FormSalidaData & { firma_egreso_data?: string }) => {
@@ -210,6 +210,16 @@ export function useMarcarEgreso() {
         firma_egreso_data: data.firma_egreso_data || null,
         estado: 'afuera' as const,
         actualizado_por_usuario_id: usuario.id,
+      }
+
+      if (!isOnline) {
+        // Encolar el egreso para sync posterior
+        encolar({
+          tipo: 'update_egreso',
+          tabla: 'registros_acceso',
+          datos: { id: data.registro_id, ...payload },
+        })
+        return { offline: true }
       }
 
       const { error } = await supabase

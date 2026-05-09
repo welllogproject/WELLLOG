@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Badge } from '@/components/ui/Badge'
 import { Search, BookOpen } from 'lucide-react'
@@ -13,10 +14,13 @@ const ACCION_CONFIG: Record<string, { label: string; color: string }> = {
 }
 
 function useLogsAdmin() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: ['logs', 'admin'],
+    queryKey: ['logs', 'admin', usuario?.empresa_id, usuario?.rol],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!usuario) return []
+
+      let query = supabase
         .from('logs_sistema')
         .select(`
           id, accion, tabla_afectada, registro_id,
@@ -24,10 +28,25 @@ function useLogsAdmin() {
           usuario:usuarios(nombre_completo, email, rol)
         `)
         .order('created_at', { ascending: false })
-        .limit(200)
+        .limit(300)
+
+      // Superadmin ve todos; admin solo logs de su empresa
+      if (usuario.rol !== 'superadmin') {
+        // Filtrar por usuario_id de la empresa
+        const { data: uids } = await supabase
+          .from('usuarios')
+          .select('id')
+          .eq('empresa_id', usuario.empresa_id)
+        const ids = (uids ?? []).map((u) => u.id)
+        if (ids.length === 0) return []
+        query = query.in('usuario_id', ids)
+      }
+
+      const { data, error } = await query
       if (error) throw error
       return (data ?? []) as any[]
     },
+    enabled: !!usuario,
     refetchInterval: 60_000,
   })
 }

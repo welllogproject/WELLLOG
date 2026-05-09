@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useQueryClient } from '@tanstack/react-query'
+import { useAuthStore } from '@/stores/authStore'
 
 // Suscripción realtime para el dashboard del operador
 export function useRealtimeEquipo(equipoId: string | null) {
@@ -17,7 +18,6 @@ export function useRealtimeEquipo(equipoId: string | null) {
         table: 'registros_acceso',
         filter: `equipo_id=eq.${equipoId}`,
       }, () => {
-        // Query key correcto: ['registros', 'dentro', equipoId]
         qc.invalidateQueries({ queryKey: ['registros', 'dentro', equipoId] })
         qc.invalidateQueries({ queryKey: ['registros', 'historial', equipoId] })
       })
@@ -27,9 +27,10 @@ export function useRealtimeEquipo(equipoId: string | null) {
   }, [equipoId, qc])
 }
 
-// Suscripción realtime para el mapa admin (todos los equipos)
+// Suscripción realtime para el mapa admin
 export function useRealtimeMapa() {
   const qc = useQueryClient()
+  const { usuario } = useAuthStore()
 
   useEffect(() => {
     const channel = supabase
@@ -40,7 +41,7 @@ export function useRealtimeMapa() {
         table: 'registros_acceso',
       }, () => {
         qc.invalidateQueries({ queryKey: ['equipos'] })
-        qc.invalidateQueries({ queryKey: ['kpi'] })
+        qc.invalidateQueries({ queryKey: ['kpi', 'personas-dentro', usuario?.empresa_id] })
       })
       .on('postgres_changes', {
         event: '*',
@@ -53,12 +54,13 @@ export function useRealtimeMapa() {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [qc])
+  }, [qc, usuario?.empresa_id])
 }
 
 // Suscripción realtime para el dashboard admin
 export function useRealtimeDashboard() {
   const qc = useQueryClient()
+  const { usuario } = useAuthStore()
 
   useEffect(() => {
     const channel = supabase
@@ -68,7 +70,10 @@ export function useRealtimeDashboard() {
         schema: 'public',
         table: 'registros_acceso',
       }, () => {
-        qc.invalidateQueries({ queryKey: ['kpi'] })
+        // Invalidar KPIs con el empresaId correcto
+        qc.invalidateQueries({ queryKey: ['kpi', 'personas-dentro', usuario?.empresa_id] })
+        qc.invalidateQueries({ queryKey: ['kpi', 'ingresos-hoy', usuario?.empresa_id] })
+        qc.invalidateQueries({ queryKey: ['kpi', 'recientes', usuario?.empresa_id] })
         qc.invalidateQueries({ queryKey: ['equipos'] })
       })
       .on('postgres_changes', {
@@ -76,11 +81,12 @@ export function useRealtimeDashboard() {
         schema: 'public',
         table: 'registros_acceso',
       }, () => {
-        qc.invalidateQueries({ queryKey: ['kpi'] })
+        qc.invalidateQueries({ queryKey: ['kpi', 'personas-dentro', usuario?.empresa_id] })
+        qc.invalidateQueries({ queryKey: ['kpi', 'recientes', usuario?.empresa_id] })
         qc.invalidateQueries({ queryKey: ['equipos'] })
       })
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [qc])
+  }, [qc, usuario?.empresa_id])
 }
