@@ -52,15 +52,11 @@ export function useAuthInit() {
       async (event, session) => {
         if (!mounted) return
 
-        console.log('[useAuthInit] event:', event, '| session user:', session?.user?.email ?? null)
-
         if (event === 'INITIAL_SESSION') {
           if (!session?.user) {
-            console.log('[useAuthInit] INITIAL_SESSION sin sesión → limpiar usuario')
             setUsuario(null)
             setLoading(false)
           } else {
-            console.log('[useAuthInit] INITIAL_SESSION con sesión → cargar perfil')
             await cargarUsuario(session.user.id, setUsuario)
             if (mounted) setLoading(false)
           }

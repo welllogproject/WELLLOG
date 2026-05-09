@@ -1,6 +1,4 @@
 // src/stores/authStore.ts
-// Estado de autenticación global (Zustand)
-
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Usuario } from '@/types/models'
@@ -9,18 +7,16 @@ import { PERMISOS } from '@/types/roles'
 
 interface AuthState {
   usuario: Usuario | null
-  equipoId: string | null         // Solo para operadores — persistido
+  equipoId: string | null
   isLoading: boolean
-  _hydrated: boolean              // true una vez que Zustand terminó de rehidratar
+  _hydrated: boolean
 
-  // Actions
   setUsuario: (usuario: Usuario | null) => void
   setEquipoId: (id: string | null) => void
   setLoading: (loading: boolean) => void
   setHydrated: (v: boolean) => void
   logout: () => void
 
-  // Helpers derivados
   isAuthenticated: () => boolean
   rol: () => Rol | null
   empresaId: () => string | null
@@ -40,10 +36,7 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (loading) => set({ isLoading: loading }),
       setHydrated: (v) => set({ _hydrated: v }),
 
-      logout: () => set({
-        usuario: null,
-        // NO limpiar equipoId — la tablet sigue siendo del mismo equipo
-      }),
+      logout: () => set({ usuario: null }),
 
       isAuthenticated: () => !!get().usuario,
       rol: () => get().usuario?.rol ?? null,
@@ -59,18 +52,12 @@ export const useAuthStore = create<AuthState>()(
       name: 'fieldpass-auth',
       partialize: (state) => ({
         equipoId: state.equipoId,
-        // Persistimos el usuario para sobrevivir F5 sin esperar el cold start
-        // de Supabase. Se revalida en background con onAuthStateChange.
         usuario: state.usuario,
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return
-        // Marcar como hidratado
         state._hydrated = true
-        // Si hay usuario persistido, no bloquear la UI con loading
-        if (state.usuario) {
-          state.isLoading = false
-        }
+        if (state.usuario) state.isLoading = false
       },
     }
   )
