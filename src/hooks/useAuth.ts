@@ -35,61 +35,63 @@ export function useAuth() {
 }
 
 export function useAuthInit() {
-  const { setUsuario, setLoading } = useAuthStore()
+  const { setUsuario, setLoading, usuario } = useAuthStore()
 
   useEffect(() => {
     let mounted = true
 
-    // Estrategia dual:
-    // 1. getSession() inmediato — no espera eventos, funciona aunque el SW
-    //    haya limpiado el localStorage (Supabase guarda la sesión en cookies también)
-    // 2. onAuthStateChange — para cambios futuros (login, logout, refresh)
+    // Si ya tenemos usuario rehidratado de localStorage,
+    // quitamos el loading INMEDIATAMENTE para que las queries arranquen.
+    // Supabase verifica la sesión en background sin bloquear la UI.
+    if (usuario) {
+      setLoading(false)
+    }
 
     const init = async () => {
       try {
-        console.log('[WELL LOG] Iniciando getSession...')
-
-        // Timeout de 4 segundos — si getSession tarda más, algo está bloqueado
+        // Timeout de 3 segundos — getSession puede bloquearse en F5
+        // por el lock interno de Supabase en localStorage
         const sessionPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000))
+        const timeoutPromise = new Promise<null>(
+          (resolve) => setTimeout(() => resolve(null), 3000)
+        )
 
         const result = await Promise.race([sessionPromise, timeoutPromise])
 
         if (!mounted) return
 
-        // Si ganó el timeout, result es null
         if (result === null) {
-          console.warn('[WELL LOG] getSession timeout — usando usuario de localStorage si existe')
-          // El usuario de Zustand ya está rehidratado desde localStorage
-          // Solo quitamos el loading para que la UI cargue
-          if (mounted) setLoading(false)
+          // Timeout — si hay usuario en Zustand, confiar en él
+          // Si no hay usuario, mandarlo al login
+          if (!usuario) {
+            setUsuario(null)
+          }
+          setLoading(false)
           return
         }
 
         const { data: { session }, error } = result
-        console.log('[WELL LOG] getSession result:', { session: session?.user?.email ?? null, error: error?.message ?? null })
 
         if (error || !session?.user) {
-          console.log('[WELL LOG] Sin sesión válida → setUsuario(null)')
+          // Sin sesión válida en Supabase — limpiar
           setUsuario(null)
           setLoading(false)
           return
         }
 
-        console.log('[WELL LOG] Sesión válida → cargando perfil para', session.user.id)
+        // Sesión válida — actualizar perfil en background
         await cargarUsuario(session.user.id, setUsuario)
         if (mounted) setLoading(false)
+
       } catch (err) {
         console.error('[WELL LOG] init exception:', err)
-        if (mounted) {
-          setLoading(false)
-        }
+        if (mounted) setLoading(false)
       }
     }
 
     init()
 
-    // Listener para cambios futuros
+    // Listener para cambios futuros (login, logout, refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
@@ -107,12 +109,10 @@ export function useAuthInit() {
           return
         }
 
-        if (event === 'TOKEN_REFRESHED') {
-          if (!session?.user) {
-            setUsuario(null)
-            setLoading(false)
-            queryClient.clear()
-          }
+        if (event === 'TOKEN_REFRESHED' && !session?.user) {
+          setUsuario(null)
+          setLoading(false)
+          queryClient.clear()
           return
         }
       }

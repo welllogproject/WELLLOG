@@ -33,9 +33,9 @@ function GlobalHooks() {
 export function App() {
   const { isLoading, _hydrated, usuario } = useAuthStore()
 
-  // Mostrar spinner mientras:
-  // - Zustand no terminó de rehidratar, O
-  // - No hay usuario en localStorage Y Supabase aún verifica la sesión
+  // Spinner SOLO si Zustand no rehidrató Y no hay usuario.
+  // Si hay usuario en localStorage → app carga inmediatamente,
+  // Supabase verifica en background.
   const showSpinner = !_hydrated || (isLoading && !usuario)
 
   return (
