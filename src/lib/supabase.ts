@@ -27,4 +27,9 @@ export const supabase = createClient(
   }
 )
 
+// Helper de diagnostico — accesible desde DevTools console como `__supabase`
+if (typeof window !== 'undefined') {
+  ;(window as unknown as { __supabase: typeof supabase }).__supabase = supabase
+}
+
 export type SupabaseClient = typeof supabase

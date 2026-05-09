@@ -8,6 +8,7 @@ import { router } from '@/router'
 import { useAuthInit } from '@/hooks/useAuth'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useAuthStore } from '@/stores/authStore'
+import { DebugPanel } from '@/components/shared/DebugPanel'
 
 // Componente para inicializar hooks globales dentro del contexto
 function GlobalHooks() {
@@ -55,6 +56,7 @@ export function App() {
         }}
       />
       <ReactQueryDevtools initialIsOpen={false} />
+      <DebugPanel />
     </QueryClientProvider>
   )
 }

@@ -1288,3 +1288,8 @@ Bulk migration de colores con `sed -E` para cambiar `text-[#2C2C2A]`, `text-[#5F
 - [ConfigEquipo.tsx](src/views/operador/ConfigEquipo.tsx) — display de coord actual
 
 **Regla a futuro**: NUNCA acceder a `ubicacion_punto.lat`/`.lng` directo. Siempre `parseGeoPoint(ubicacion_punto)`. El tipo en `models.ts` queda como está (mentiroso) por compat, pero el util es la única fuente de verdad para extraer coordenadas.
+
+### Debug helper
+
+- `__supabase` está expuesto en `window` desde [src/lib/supabase.ts](src/lib/supabase.ts). En la consola del navegador podés hacer `await __supabase.from('equipos').select('*')` para inspeccionar respuestas.
+- `[DebugPanel](src/components/shared/DebugPanel.tsx)` se muestra cuando agregás `?debug=1` en la URL. Imprime usuario/rol/empresa_id y prueba count + sample de las 10 tablas principales para detectar rápido qué query devuelve 0 rows o un error específico de RLS.
