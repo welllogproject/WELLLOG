@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { useLocaciones, useCrearLocacion, useActualizarLocacion, type LocacionForm } from '@/hooks/useLocaciones'
 import type { Locacion } from '@/types/models'
 import { Plus, Pencil, ToggleLeft, ToggleRight, MapPin, Search } from 'lucide-react'
+import { parseGeoPoint } from '@/lib/geo'
 
 const EMPTY: LocacionForm = { codigo: '', nombre: '', descripcion: '', activa: true }
 
@@ -91,9 +92,12 @@ export function GestionLocaciones() {
           { key: 'descripcion', header: 'Descripción', render: (l) => <span className="text-[var(--text-muted)] text-xs">{l.descripcion ?? '—'}</span> },
           {
             key: 'ubicacion', header: 'Coordenadas',
-            render: (l) => l.ubicacion_punto
-              ? <span className="font-mono text-xs text-[#534AB7]">{(l.ubicacion_punto as any).lat?.toFixed(4)}, {(l.ubicacion_punto as any).lng?.toFixed(4)}</span>
-              : <span className="text-xs text-[var(--text-muted)]">Sin coordenadas</span>,
+            render: (l) => {
+              const c = parseGeoPoint(l.ubicacion_punto)
+              return c
+                ? <span className="font-mono text-xs text-[#534AB7]">{c[0].toFixed(4)}, {c[1].toFixed(4)}</span>
+                : <span className="text-xs text-[var(--text-muted)]">Sin coordenadas</span>
+            },
           },
           {
             key: 'activa', header: 'Estado',

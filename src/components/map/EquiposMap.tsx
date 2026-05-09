@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import type { Equipo } from '@/types/models'
 import { Badge } from '@/components/ui/Badge'
 import { Link } from 'react-router-dom'
+import { parseGeoPoint, offsetCoords } from '@/lib/geo'
 
 // Fix Leaflet default icons with Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -43,23 +44,21 @@ const ESTADO_COLOR: Record<string, string> = {
 }
 
 // Componente para centrar el mapa cuando cambian los equipos
-function AutoCenter({ equipos }: { equipos: Equipo[] }) {
+function AutoCenter({ puntos }: { puntos: [number, number][] }) {
   const map = useMap()
   useEffect(() => {
-    const conCoords = equipos.filter((e) => e.ubicacion_punto)
-    if (conCoords.length === 0) return
-    if (conCoords.length === 1) {
-      const p = conCoords[0].ubicacion_punto as any
-      map.setView([p.lat ?? p.coordinates?.[1], p.lng ?? p.coordinates?.[0]], 11)
+    if (puntos.length === 0) return
+    if (puntos.length === 1) {
+      map.setView(puntos[0], 11)
       return
     }
-    const lats = conCoords.map((e) => (e.ubicacion_punto as any).lat ?? (e.ubicacion_punto as any).coordinates?.[1] ?? 0)
-    const lngs = conCoords.map((e) => (e.ubicacion_punto as any).lng ?? (e.ubicacion_punto as any).coordinates?.[0] ?? 0)
+    const lats = puntos.map((p) => p[0])
+    const lngs = puntos.map((p) => p[1])
     map.fitBounds([
       [Math.min(...lats), Math.min(...lngs)],
       [Math.max(...lats), Math.max(...lngs)],
     ], { padding: [40, 40] })
-  }, [equipos.length])
+  }, [puntos.length, map])
   return null
 }
 
@@ -69,19 +68,10 @@ interface Props {
   linkBase?: string          // '/admin' | '/auditor'
 }
 
-function offsetCoords(lat: number, lng: number): [number, number] {
-  const delta = 0.0045 // ~500m
-  return [lat + (Math.random() - 0.5) * delta, lng + (Math.random() - 0.5) * delta]
-}
-
 function getLatLng(punto: unknown, degradar: boolean): [number, number] | null {
-  if (!punto) return null
-  const p = punto as any
-  let lat = p.lat ?? p.coordinates?.[1]
-  let lng = p.lng ?? p.coordinates?.[0]
-  if (lat == null || lng == null) return null
-  if (degradar) [lat, lng] = offsetCoords(lat, lng)
-  return [lat, lng]
+  const parsed = parseGeoPoint(punto)
+  if (!parsed) return null
+  return degradar ? offsetCoords(parsed[0], parsed[1]) : parsed
 }
 
 const ESTADO_LABELS: Record<string, string> = {
@@ -89,8 +79,11 @@ const ESTADO_LABELS: Record<string, string> = {
 }
 
 export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin' }: Props) {
-  const conCoords = equipos.filter((e) => e.ubicacion_punto)
-  const sinCoords = equipos.filter((e) => !e.ubicacion_punto)
+  const conCoords = equipos.filter((e) => parseGeoPoint(e.ubicacion_punto))
+  const sinCoords = equipos.filter((e) => !parseGeoPoint(e.ubicacion_punto))
+  const puntosBase = conCoords
+    .map((e) => parseGeoPoint(e.ubicacion_punto))
+    .filter((p): p is [number, number] => p !== null)
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -105,7 +98,7 @@ export function EquiposMap({ equipos, degradarCoords = false, linkBase = '/admin
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <AutoCenter equipos={conCoords} />
+          <AutoCenter puntos={puntosBase} />
 
           {conCoords.map((equipo) => {
             const coords = getLatLng(equipo.ubicacion_punto, degradarCoords)

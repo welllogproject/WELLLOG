@@ -7,6 +7,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEquiposConPersonas } from '@/hooks/useEquipos'
 import { useMapStore } from '@/stores/mapStore'
+import { parseGeoPoint } from '@/lib/geo'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Badge } from '@/components/ui/Badge'
 import { Card } from '@/components/ui/Card'
@@ -94,17 +95,13 @@ function PanelEquipo() {
 }
 
 // Componente para ajustar el mapa cuando hay equipos
-function MapaAutoZoom({ equipos }: { equipos: { ubicacion_punto?: { lat: number; lng: number } }[] }) {
+function MapaAutoZoom({ puntos }: { puntos: [number, number][] }) {
   const map = useMap()
   useEffect(() => {
-    const conUbicacion = equipos.filter((e) => e.ubicacion_punto)
-    if (conUbicacion.length > 0) {
-      const bounds = L.latLngBounds(
-        conUbicacion.map((e) => [e.ubicacion_punto!.lat, e.ubicacion_punto!.lng])
-      )
-      map.fitBounds(bounds, { padding: [40, 40] })
-    }
-  }, [equipos, map])
+    if (puntos.length === 0) return
+    const bounds = L.latLngBounds(puntos)
+    map.fitBounds(bounds, { padding: [40, 40] })
+  }, [puntos, map])
   return null
 }
 
@@ -112,9 +109,11 @@ export function MapaEquipos() {
   const { data: equipos, isLoading } = useEquiposConPersonas()
   const { seleccionarEquipo } = useMapStore()
 
-  // Equipos con coordenadas
-  const equiposConUbicacion = (equipos ?? []).filter((e) => e.ubicacion_punto)
-  const equiposSinUbicacion = (equipos ?? []).filter((e) => !e.ubicacion_punto)
+  // Resolver coords parseadas una sola vez por equipo
+  const equiposConCoords = (equipos ?? [])
+    .map((e) => ({ equipo: e, coords: parseGeoPoint(e.ubicacion_punto) }))
+    .filter((x): x is { equipo: typeof x.equipo; coords: [number, number] } => x.coords !== null)
+  const equiposSinUbicacion = (equipos ?? []).filter((e) => !parseGeoPoint(e.ubicacion_punto))
 
   // Centro de Argentina como fallback
   const centroArgentina: [number, number] = [-38.4161, -63.6167]
@@ -122,7 +121,7 @@ export function MapaEquipos() {
   return (
     <PageLayout
       title="Mapa de Equipos"
-      subtitle={`${equiposConUbicacion.length} equipo${equiposConUbicacion.length !== 1 ? 's' : ''} con ubicación`}
+      subtitle={`${equiposConCoords.length} equipo${equiposConCoords.length !== 1 ? 's' : ''} con ubicación`}
     >
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-180px)]">
         {/* Mapa principal */}
@@ -137,10 +136,10 @@ export function MapaEquipos() {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {equiposConUbicacion.map((equipo) => (
+            {equiposConCoords.map(({ equipo, coords }) => (
               <Marker
                 key={equipo.id}
-                position={[equipo.ubicacion_punto!.lat, equipo.ubicacion_punto!.lng]}
+                position={coords}
                 icon={crearIcono(
                   ESTADO_COLORES[equipo.estado] || '#888780',
                   equipo.personas_dentro ?? 0
@@ -156,8 +155,8 @@ export function MapaEquipos() {
               </Marker>
             ))}
 
-            {equiposConUbicacion.length > 0 && (
-              <MapaAutoZoom equipos={equiposConUbicacion} />
+            {equiposConCoords.length > 0 && (
+              <MapaAutoZoom puntos={equiposConCoords.map((x) => x.coords)} />
             )}
           </MapContainer>
 
@@ -203,7 +202,7 @@ export function MapaEquipos() {
                 <p className="text-xs text-[var(--text-muted)] ml-4">
                   {equipo.locacion?.codigo || 'Sin locación'}
                 </p>
-                {!equipo.ubicacion_punto && (
+                {!parseGeoPoint(equipo.ubicacion_punto) && (
                   <p className="text-[10px] text-[#BA7517] mt-1 flex items-center gap-1">
                     <MapPin size={9} /> Sin coordenadas
                   </p>

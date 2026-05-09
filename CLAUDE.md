@@ -1274,3 +1274,17 @@ tailwind.config.js                    ← darkMode: 'class'
 ```
 
 Bulk migration de colores con `sed -E` para cambiar `text-[#2C2C2A]`, `text-[#5F5E5A]`, etc. → `text-[var(--text-primary)]`, `text-[var(--text-secondary)]`. Hecho en ~80 archivos en una sola pasada. Si aparece un nuevo archivo con esos hex, usar el mismo enfoque.
+
+### Hotfix posterior — `parseGeoPoint` (mapa crash con LatLng undefined)
+
+**Síntoma**: `/admin/mapa` rompía con `Invalid LatLng object: (undefined, undefined)` y bloqueaba toda la app via error boundary. Tras F5 quedaba en la misma URL → crash en loop, parecía que "no cargaba data".
+
+**Causa**: Supabase devuelve columnas `GEOMETRY` como GeoJSON `{type: 'Point', coordinates: [lng, lat]}` (no como `{lat, lng}`). El tipo `Equipo.ubicacion_punto?: { lat: number; lng: number }` en `models.ts` está mintiendo. `MapaEquipos.tsx` (admin) accedía directo a `.lat`/`.lng` → undefined → Leaflet crashea al construir el LatLng. `EquiposMap.tsx` y `ConfigEquipo.tsx` ya manejaban `coordinates?.[1]` con fallback, pero `GestionLocaciones` también accedía mal.
+
+**Fix**: util compartido [src/lib/geo.ts](src/lib/geo.ts) con `parseGeoPoint(value): [number, number] | null` que retorna null si no parsea, y `offsetCoords` para auditor. Todos los consumidores ahora usan el util:
+- [MapaEquipos.tsx](src/views/admin/MapaEquipos.tsx) — usa `parseGeoPoint` antes de pasar position al Marker
+- [EquiposMap.tsx](src/components/map/EquiposMap.tsx) — `getLatLng` reescrito como wrapper de `parseGeoPoint`
+- [GestionLocaciones.tsx](src/views/admin/GestionLocaciones.tsx) — render de columna Coordenadas
+- [ConfigEquipo.tsx](src/views/operador/ConfigEquipo.tsx) — display de coord actual
+
+**Regla a futuro**: NUNCA acceder a `ubicacion_punto.lat`/`.lng` directo. Siempre `parseGeoPoint(ubicacion_punto)`. El tipo en `models.ts` queda como está (mentiroso) por compat, pero el util es la única fuente de verdad para extraer coordenadas.

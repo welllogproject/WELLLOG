@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { MapPin, Navigation, CheckCircle2, AlertTriangle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { parseGeoPoint } from '@/lib/geo'
 
 export function ConfigEquipo() {
   const { equipoId } = useAuthStore()
@@ -50,7 +51,7 @@ export function ConfigEquipo() {
     setTimeout(() => setGuardado(false), 3000)
   }
 
-  const coordActual = equipo?.ubicacion_punto as any
+  const coordActual = parseGeoPoint(equipo?.ubicacion_punto)
 
   return (
     <TabletLayout equipoNombre={equipo?.nombre_equipo} locacionCodigo={equipo?.locacion?.codigo}>
@@ -71,8 +72,7 @@ export function ConfigEquipo() {
             <div className="bg-[#1D9E75]/8 border border-[#1D9E75]/20 rounded-[12px] p-4 mb-5">
               <p className="text-xs font-medium text-[#0F6E56] mb-1">Ubicación actual</p>
               <p className="text-xs font-mono text-[#0F6E56]">
-                {(coordActual.lat ?? coordActual.coordinates?.[1])?.toFixed(5)},&nbsp;
-                {(coordActual.lng ?? coordActual.coordinates?.[0])?.toFixed(5)}
+                {coordActual[0].toFixed(5)},&nbsp;{coordActual[1].toFixed(5)}
               </p>
             </div>
           )}
