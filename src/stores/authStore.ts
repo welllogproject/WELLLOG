@@ -55,9 +55,14 @@ export const useAuthStore = create<AuthState>()(
         usuario: state.usuario,
       }),
       onRehydrateStorage: () => (state) => {
-        if (!state) return
-        state._hydrated = true
-        if (state.usuario) state.isLoading = false
+        // Siempre marcar como hidratado, con o sin datos
+        // Si el localStorage está vacío (SW lo limpió), _hydrated = true
+        // para que el spinner no quede colgado
+        if (state) {
+          state._hydrated = true
+          // Si hay usuario en localStorage, no bloquear la UI
+          if (state.usuario) state.isLoading = false
+        }
       },
     }
   )

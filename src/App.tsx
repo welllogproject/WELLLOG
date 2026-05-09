@@ -1,4 +1,5 @@
 // src/App.tsx
+import { useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -13,12 +14,28 @@ import { DebugPanel } from '@/components/shared/DebugPanel'
 function GlobalHooks() {
   useAuthInit()
   useOfflineSync()
+
+  // Fallback: si después de 500ms _hydrated sigue en false
+  // (localStorage vacío → onRehydrateStorage no se llamó),
+  // lo forzamos a true para que el spinner no quede colgado.
+  const { _hydrated, setHydrated } = useAuthStore()
+  useEffect(() => {
+    if (_hydrated) return
+    const t = setTimeout(() => {
+      setHydrated(true)
+    }, 500)
+    return () => clearTimeout(t)
+  }, [_hydrated, setHydrated])
+
   return null
 }
 
 export function App() {
   const { isLoading, _hydrated, usuario } = useAuthStore()
 
+  // Mostrar spinner mientras:
+  // - Zustand no terminó de rehidratar, O
+  // - No hay usuario en localStorage Y Supabase aún verifica la sesión
   const showSpinner = !_hydrated || (isLoading && !usuario)
 
   return (
@@ -26,8 +43,7 @@ export function App() {
       <GlobalHooks />
 
       {/* RouterProvider SIEMPRE montado — nunca se desmonta.
-          El spinner va encima como overlay para no perder el caché
-          ni desmontar los componentes al hacer F5. */}
+          El spinner es un overlay encima, no reemplaza el router. */}
       <RouterProvider router={router} />
 
       {showSpinner && (
@@ -43,13 +59,7 @@ export function App() {
         position="top-center"
         toastOptions={{
           duration: 4000,
-          style: {
-            background: '#333',
-            color: '#fff',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontFamily: 'Inter, sans-serif'
-          },
+          style: { background: '#333', color: '#fff', borderRadius: '12px', fontSize: '14px', fontFamily: 'Inter, sans-serif' },
           success: { style: { background: '#1D9E75' } },
           error:   { style: { background: '#E24B4A' }, duration: 6000 }
         }}
