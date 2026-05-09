@@ -48,10 +48,26 @@ export function useAuthInit() {
     const init = async () => {
       try {
         console.log('[WELL LOG] Iniciando getSession...')
-        const { data: { session }, error } = await supabase.auth.getSession()
-        console.log('[WELL LOG] getSession result:', { session: session?.user?.email ?? null, error: error?.message ?? null })
+
+        // Timeout de 4 segundos — si getSession tarda más, algo está bloqueado
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000))
+
+        const result = await Promise.race([sessionPromise, timeoutPromise])
 
         if (!mounted) return
+
+        // Si ganó el timeout, result es null
+        if (result === null) {
+          console.warn('[WELL LOG] getSession timeout — usando usuario de localStorage si existe')
+          // El usuario de Zustand ya está rehidratado desde localStorage
+          // Solo quitamos el loading para que la UI cargue
+          if (mounted) setLoading(false)
+          return
+        }
+
+        const { data: { session }, error } = result
+        console.log('[WELL LOG] getSession result:', { session: session?.user?.email ?? null, error: error?.message ?? null })
 
         if (error || !session?.user) {
           console.log('[WELL LOG] Sin sesión válida → setUsuario(null)')
@@ -66,7 +82,6 @@ export function useAuthInit() {
       } catch (err) {
         console.error('[WELL LOG] init exception:', err)
         if (mounted) {
-          setUsuario(null)
           setLoading(false)
         }
       }
