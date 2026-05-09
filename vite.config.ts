@@ -8,13 +8,9 @@ export default defineConfig({
     react(),
 
     VitePWA({
-      // Genera el SW automáticamente — no hay que mantener sw.js a mano
       registerType: 'autoUpdate',
-
-      // Incluir todos los assets del build en el precache
       includeAssets: ['favicon.svg', 'icons/*.png'],
 
-      // Manifest de la PWA
       manifest: {
         name: 'WELL LOG',
         short_name: 'WELL LOG',
@@ -29,96 +25,21 @@ export default defineConfig({
         ],
       },
 
+      // Service Worker deshabilitado temporalmente.
+      // El SW con CacheFirst estaba sirviendo toda la app desde caché
+      // después del F5, bloqueando las requests a Supabase (solo 1 request
+      // visible en la pestaña Red = todo viene del caché).
+      // Se reactiva cuando tengamos dominio propio y podamos testear
+      // el comportamiento offline en campo con la tablet real.
       workbox: {
-        // ── Estrategia de caché ──────────────────────────────────
-        //
-        // PROBLEMA DE CAMPO: la tablet puede estar días sin internet.
-        // Necesitamos que TODO funcione offline desde el primer uso.
-        //
-        // Estrategia:
-        //   - App shell (HTML/JS/CSS): CacheFirst — siempre sirve desde caché,
-        //     actualiza en background cuando hay conexión
-        //   - Supabase API: NetworkFirst con fallback — intenta red, si falla
-        //     sirve desde caché (datos del último fetch)
-        //   - Tiles de OpenStreetMap: CacheFirst con límite de 500 tiles
-        //     (los mapas de la zona quedan cacheados después del primer uso)
-
-        // Precachear todos los assets del build (JS, CSS, HTML)
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-
-        // Rutas que van a NetworkFirst (datos en tiempo real)
-        runtimeCaching: [
-          // Supabase REST API — NetworkFirst: intenta red, fallback a caché
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-api',
-              networkTimeoutSeconds: 8,
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24, // 24 horas
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-
-          // Supabase Auth — NetworkFirst (sesión siempre fresca si hay red)
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-auth',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60, // 1 hora
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-
-          // Tiles de OpenStreetMap — CacheFirst (mapa disponible offline)
-          {
-            urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'osm-tiles',
-              expiration: {
-                maxEntries: 500,   // ~500 tiles cubre bien una zona de campo
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-
-          // Leaflet icons desde unpkg — CacheFirst
-          {
-            urlPattern: /^https:\/\/unpkg\.com\/leaflet.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'leaflet-assets',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 90, // 90 días
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
-
-        // Skipear el waiting — actualiza el SW inmediatamente
-        skipWaiting: true,
-        clientsClaim: true,
+        globPatterns: [],
+        runtimeCaching: [],
+        skipWaiting: false,
+        clientsClaim: false,
+        navigateFallback: undefined,
       },
+      // No registrar el SW en el cliente
+      injectRegister: null,
     }),
   ],
 
