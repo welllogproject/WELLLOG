@@ -262,9 +262,29 @@ h1, h2, h3, h4, h5, h6 {
   body {
     font-size: 16px; /* Previene zoom automático en iOS */
   }
+
+  /* Padding reducido en móvil */
+  main {
+    padding: 1rem;
+  }
+
+  /* Tablas scrolleables horizontalmente en móvil */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Cards con menos padding en móvil */
+  .card-clay {
+    border-radius: 12px;
+  }
 }
 
 /* Evitar doble-tap zoom en tablet */
 button, a, input, select {
   touch-action: manipulation;
+}
+
+/* Sidebar transition suave */
+aside {
+  will-change: transform;
 }

@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Map, ClipboardList, AlertTriangle,
   BarChart3, Users, LogOut, ShieldCheck, FileText,
   Building2, BookOpen, Globe, Lock, Settings, TrendingUp,
-  HelpCircle,
+  HelpCircle, X,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { StatusDot } from '@/components/ui/StatusDot'
@@ -95,7 +95,12 @@ const ROL_LABELS: Record<string, string> = {
   operador: 'Operador',
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean
+  onClose: () => void
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const { usuario, rol, logout } = useAuth()
   const location = useLocation()
 
@@ -115,96 +120,130 @@ export function Sidebar() {
     : rol === 'auditor'  ? '#0F6E56'
     : '#534AB7'
 
+  const handleNavClick = () => {
+    // En móvil, cerrar el sidebar al navegar
+    if (window.innerWidth < 1024) onClose()
+  }
+
   return (
-    <aside className="w-56 flex-shrink-0 h-screen bg-[var(--card-bg)] border-r border-[var(--border)] flex flex-col transition-colors duration-200">
-      {/* Logo */}
-      <div className="px-4 py-3.5 border-b border-[var(--border)]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Logo size={26} />
-            <div>
-              <span className="font-semibold text-[var(--text-primary)] text-sm tracking-tight block leading-tight">
-                WELL LOG
-              </span>
-              {rol === 'superadmin' && (
-                <span className="text-[10px] text-[#7F77DD] font-medium">Plataforma</span>
+    <>
+      {/* Backdrop móvil */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={[
+          // Desktop: siempre visible, fijo
+          'lg:relative lg:translate-x-0 lg:flex',
+          // Móvil: drawer desde la izquierda
+          'fixed inset-y-0 left-0 z-40 lg:z-auto',
+          'w-64 lg:w-56 flex-shrink-0 h-screen',
+          'bg-[var(--card-bg)] border-r border-[var(--border)]',
+          'flex flex-col transition-all duration-300 ease-in-out',
+          open ? 'translate-x-0 shadow-clay-lg' : '-translate-x-full lg:translate-x-0',
+        ].join(' ')}
+      >
+        {/* Logo */}
+        <div className="px-4 py-3.5 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Logo size={26} />
+              <div>
+                <span className="font-semibold text-[var(--text-primary)] text-sm tracking-tight block leading-tight">
+                  WELL LOG
+                </span>
+                {rol === 'superadmin' && (
+                  <span className="text-[10px] text-[#7F77DD] font-medium">Plataforma</span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              {/* Botón cerrar — solo en móvil */}
+              <button
+                onClick={onClose}
+                className="lg:hidden p-1.5 rounded-lg hover:bg-[var(--hover-bg)] text-[var(--text-muted)]"
+                aria-label="Cerrar menú"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-2 px-2">
+          {groups.map((group, gi) => (
+            <div key={gi} className={gi > 0 ? 'mt-1 pt-1 border-t border-[var(--divider)]' : ''}>
+              {group.label && (
+                <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-faded)]">
+                  {group.label}
+                </p>
               )}
+              <ul className="space-y-0.5">
+                {group.items.map((item) => {
+                  const active = isActive(item.to)
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        onClick={handleNavClick}
+                        className={[
+                          'flex items-center gap-2.5 px-3 py-2.5 lg:py-2 rounded-[9px] text-sm transition-all duration-100',
+                          active
+                            ? 'font-medium'
+                            : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]',
+                        ].join(' ')}
+                        style={active ? { background: `${accentColor}14`, color: accentColor } : {}}
+                      >
+                        <span className={active ? '' : 'opacity-60'}>
+                          {item.icon}
+                        </span>
+                        {item.label}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
             </div>
-          </div>
-          <ThemeToggle />
-        </div>
-      </div>
+          ))}
+        </nav>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2">
-        {groups.map((group, gi) => (
-          <div key={gi} className={gi > 0 ? 'mt-1 pt-1 border-t border-[var(--divider)]' : ''}>
-            {group.label && (
-              <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-faded)]">
-                {group.label}
+        {/* Usuario */}
+        <div className="p-2 border-t border-[var(--border)]">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] transition-colors">
+            <div className="relative flex-shrink-0">
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+                style={{ background: `${accentColor}18`, color: accentColor }}
+              >
+                {usuario?.nombre_completo.charAt(0).toUpperCase()}
+              </div>
+              <StatusDot color="green" size="sm" className="absolute -bottom-0.5 -right-0.5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-[var(--text-primary)] truncate leading-tight">
+                {usuario?.nombre_completo}
               </p>
-            )}
-            <ul className="space-y-0.5">
-              {group.items.map((item) => {
-                const active = isActive(item.to)
-                return (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className={[
-                        'flex items-center gap-2.5 px-3 py-2 rounded-[9px] text-sm transition-all duration-100',
-                        active
-                          ? 'font-medium'
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] hover:text-[var(--text-primary)]',
-                      ].join(' ')}
-                      style={
-                        active
-                          ? { background: `${accentColor}14`, color: accentColor }
-                          : {}
-                      }
-                    >
-                      <span className={active ? '' : 'opacity-60'}>
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        ))}
-      </nav>
-
-      {/* Usuario */}
-      <div className="p-2 border-t border-[var(--border)]">
-        <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] transition-colors">
-          <div className="relative flex-shrink-0">
-            <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold"
-              style={{ background: `${accentColor}18`, color: accentColor }}
-            >
-              {usuario?.nombre_completo.charAt(0).toUpperCase()}
+              <p className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">
+                {ROL_LABELS[rol ?? ''] ?? rol}
+              </p>
             </div>
-            <StatusDot color="green" size="sm" className="absolute -bottom-0.5 -right-0.5" />
+            <button
+              onClick={logout}
+              className="p-1.5 rounded-lg hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors flex-shrink-0"
+              title="Cerrar sesión"
+            >
+              <LogOut size={14} />
+            </button>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[var(--text-primary)] truncate leading-tight">
-              {usuario?.nombre_completo}
-            </p>
-            <p className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">
-              {ROL_LABELS[rol ?? ''] ?? rol}
-            </p>
-          </div>
-          <button
-            onClick={logout}
-            className="p-1.5 rounded-lg hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors flex-shrink-0"
-            title="Cerrar sesión"
-          >
-            <LogOut size={14} />
-          </button>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }
