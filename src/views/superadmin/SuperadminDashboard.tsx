@@ -37,6 +37,7 @@ function usePlatformStats() {
   return useQuery({
     queryKey: ['superadmin', 'stats'],
     queryFn: async () => {
+      console.log('[SuperadminDashboard] Ejecutando usePlatformStats queryFn...')
       const [empresasRes, usuariosRes, equiposRes, registrosHoyRes, incidentesRes] = await Promise.all([
         supabase.from('empresas').select('tipo, activa'),
         supabase.from('usuarios').select('estado'),
@@ -87,7 +88,9 @@ const PLAN_VARIANT: Record<string, 'neutral' | 'info' | 'dentro'> = {
 }
 
 export function SuperadminDashboard() {
+  console.log('[SuperadminDashboard] Componente montado')
   const { data: stats, isLoading } = usePlatformStats()
+  console.log('[SuperadminDashboard] stats:', stats, 'isLoading:', isLoading)
   const { data: empresas, isLoading: loadingEmpresas } = useUltimasEmpresas()
 
   return (
