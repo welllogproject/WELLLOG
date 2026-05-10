@@ -121,13 +121,13 @@ export function FormIncidente({ onSubmit, isLoading }: FormIncidenteProps) {
             type="button"
             onClick={() => setInformoJefe(!informoJefe)}
             className={[
-              'relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0',
+              'relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 border-2 border-transparent focus:outline-none focus:border-[#7F77DD]',
               informoJefe ? 'bg-[#1D9E75]' : 'bg-[#D1D0CE]',
             ].join(' ')}
           >
             <span className={[
-              'absolute top-0.5 w-5 h-5 bg-[var(--card-bg)] rounded-full shadow transition-transform duration-200',
-              informoJefe ? 'translate-x-5' : 'translate-x-0.5',
+              'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200',
+              informoJefe ? 'translate-x-5' : 'translate-x-0',
             ].join(' ')} />
           </button>
           <label className="text-sm font-medium text-[var(--text-primary)]">

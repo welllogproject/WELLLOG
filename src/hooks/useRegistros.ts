@@ -147,6 +147,22 @@ export function useNuevoIngreso() {
     mutationFn: async (form: FormIngresoData) => {
       if (!equipoId || !usuario) throw new Error('Sin equipo o usuario asignado')
 
+      // Validación extra: verificar que no haya ingreso activo para este DNI
+      if (isOnline) {
+        const { data: activo } = await supabase
+          .from('registros_acceso')
+          .select('id, nombre_completo')
+          .eq('equipo_id', equipoId)
+          .eq('dni', form.dni)
+          .eq('estado', 'dentro')
+          .is('deleted_at', null)
+          .maybeSingle()
+
+        if (activo) {
+          throw new Error(`${activo.nombre_completo} ya está registrado como DENTRO. Primero marcá su salida.`)
+        }
+      }
+
       const payload = {
         equipo_id: equipoId,
         dni: form.dni,
