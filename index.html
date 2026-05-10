@@ -12,24 +12,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Desregistrar Service Workers ANTES de que React cargue.
-         El SW anterior con CacheFirst bloqueaba todas las requests a Supabase.
-         Este script inline corre sincrónicamente antes del bundle de React. -->
+    <!-- Desregistrar Service Workers y limpiar cachés viejos.
+         También fuerza recarga si hay una nueva versión deployada. -->
     <script>
-      if ('serviceWorker' in navigator) {
-        // Desregistrar todos los SW registrados
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for (var i = 0; i < registrations.length; i++) {
-            registrations[i].unregister();
-          }
-        });
-        // Limpiar todos los cachés de Workbox
+      (function() {
+        // Versión actual del deploy — se actualiza con cada build de Vite
+        // (el hash del chunk JS cambia en cada deploy)
+        var APP_VERSION = '2026.05.10';
+
+        // 1. Desregistrar Service Workers
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (var i = 0; i < registrations.length; i++) {
+              registrations[i].unregister();
+            }
+          });
+        }
+
+        // 2. Limpiar cachés de Workbox
         if ('caches' in window) {
           caches.keys().then(function(keys) {
             keys.forEach(function(key) { caches.delete(key); });
           });
         }
-      }
+
+        // 3. Verificar versión — si cambió, limpiar datos obsoletos
+        var storedVersion = localStorage.getItem('welllog_app_version');
+        if (storedVersion && storedVersion !== APP_VERSION) {
+          // Nueva versión deployada — limpiar caché de queries
+          // NO limpiar la sesión de auth ni el equipoId
+          var authData = localStorage.getItem('fieldpass-auth');
+          var supabaseAuth = null;
+          // Buscar la key de Supabase auth (empieza con sb-)
+          for (var i = 0; i < localStorage.length; i++) {
+            var key = localStorage.key(i);
+            if (key && key.startsWith('sb-')) {
+              supabaseAuth = { key: key, value: localStorage.getItem(key) };
+            }
+          }
+
+          // Limpiar todo excepto auth
+          localStorage.clear();
+
+          // Restaurar auth
+          if (authData) localStorage.setItem('fieldpass-auth', authData);
+          if (supabaseAuth) localStorage.setItem(supabaseAuth.key, supabaseAuth.value);
+        }
+        localStorage.setItem('welllog_app_version', APP_VERSION);
+      })();
     </script>
   </head>
   <body>
