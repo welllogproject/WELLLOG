@@ -2,17 +2,19 @@
 // Vista principal del operador — lista "dentro" + botones principales
 // Máximo 2 botones visibles. Diseño mobile-first para tablet.
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEquipo } from '@/hooks/useEquipos'
 import { usePersonasDentro } from '@/hooks/useRegistros'
 import { TabletLayout } from '@/components/layout/TabletLayout'
 import { OfflineBanner } from '@/components/shared/OfflineBanner'
 import { SkeletonRow } from '@/components/ui/Skeleton'
-import { UserCheck, LogIn, Clock, Building2, Briefcase } from 'lucide-react'
+import { UserCheck, LogIn, Clock, Building2, Briefcase, LogOut } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useAuthStore } from '@/stores/authStore'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 
 function formatTiempo(fechaIngreso: string): string {
   try {
@@ -24,10 +26,32 @@ function formatTiempo(fechaIngreso: string): string {
 
 export function OperadorHome() {
   const navigate = useNavigate()
-  const { equipoId } = useAuthStore()
+  const { equipoId, usuario, setEquipoId } = useAuthStore()
+  const { logout } = useAuth()
   const { data: equipo } = useEquipo(equipoId)
   const { data: personas, isLoading } = usePersonasDentro(equipoId)
   const [search, setSearch] = useState('')
+
+  // Auto-detectar equipo asignado desde la DB si no hay equipoId en el store
+  useEffect(() => {
+    if (equipoId || !usuario) return
+
+    const detectarEquipo = async () => {
+      const { data } = await supabase
+        .from('equipos')
+        .select('id')
+        .eq('operador_asignado_id', usuario.id)
+        .is('deleted_at', null)
+        .limit(1)
+        .maybeSingle()
+
+      if (data?.id) {
+        setEquipoId(data.id)
+      }
+    }
+
+    detectarEquipo()
+  }, [equipoId, usuario, setEquipoId])
 
   const personasFiltradas = (personas ?? []).filter((p) =>
     search.length === 0 ||
@@ -47,10 +71,23 @@ export function OperadorHome() {
           <p className="text-sm text-[var(--text-secondary)] max-w-xs">
             Esta tablet no tiene un equipo asignado. Contactá al administrador para vincularla.
           </p>
-          <div className="mt-2 px-4 py-2 bg-[#F0EFED] rounded-full">
-            <p className="text-xs text-[var(--text-muted)] font-mono">
-              ID: {navigator.userAgent.slice(0, 20)}...
-            </p>
+          <p className="text-xs text-[var(--text-muted)] mt-2">
+            Si ya te asignaron un equipo, recargá la página.
+          </p>
+          <div className="flex gap-3 mt-4">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2.5 text-sm font-medium rounded-clay bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors"
+            >
+              Recargar
+            </button>
+            <button
+              onClick={logout}
+              className="px-4 py-2.5 text-sm font-medium rounded-clay bg-[#E24B4A]/10 text-[#E24B4A] hover:bg-[#E24B4A]/20 transition-colors flex items-center gap-2"
+            >
+              <LogOut size={14} />
+              Cerrar sesión
+            </button>
           </div>
         </div>
       </TabletLayout>
