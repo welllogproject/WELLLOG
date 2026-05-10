@@ -233,10 +233,15 @@ h1, h2, h3, h4, h5, h6 {
 .firma-canvas {
   border: 2px dashed var(--border-strong);
   border-radius: 12px;
-  background: var(--input-bg);
+  background: #FFFFFF;
   touch-action: none;
   cursor: crosshair;
   display: block;
+  /* Fondo siempre blanco para que la firma sea visible en ambos modos */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+}
+.dark .firma-canvas {
+  border-color: rgba(255,255,255,0.2);
 }
 .firma-canvas:hover {
   border-color: #7F77DD;

@@ -74,8 +74,8 @@ export function FirmaCanvas({ onFirma, label = 'Firma', height = 180, required }
           }}
           onBegin={handleBegin}
           onEnd={handleEnd}
-          penColor="#2C2C2A"
-          backgroundColor="transparent"
+          penColor="#1A1A18"
+          backgroundColor="#FFFFFF"
           dotSize={2}
           minWidth={1.5}
           maxWidth={3}
