@@ -37,38 +37,27 @@ function usePlatformStats() {
   return useQuery({
     queryKey: ['superadmin', 'stats'],
     queryFn: async () => {
-      console.log('[SuperadminDashboard] Ejecutando usePlatformStats queryFn...')
-      console.log('[SuperadminDashboard] supabase URL:', import.meta.env.VITE_SUPABASE_URL)
+      const [empresasRes, usuariosRes, equiposRes, registrosHoyRes, incidentesRes] = await Promise.all([
+        supabase.from('empresas').select('tipo, activa'),
+        supabase.from('usuarios').select('estado'),
+        supabase.from('equipos').select('estado').is('deleted_at', null),
+        supabase.from('registros_acceso').select('id', { count: 'exact', head: true })
+          .gte('fecha_ingreso', new Date().toISOString().split('T')[0]),
+        supabase.from('incidentes').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente'),
+      ])
 
-      try {
-        console.log('[SuperadminDashboard] Haciendo fetch a empresas...')
-        const empresasRes = await supabase.from('empresas').select('tipo, activa')
-        console.log('[SuperadminDashboard] empresas result:', empresasRes.error?.message ?? `${empresasRes.data?.length} rows`)
+      const empresas = empresasRes.data ?? []
+      const usuarios = usuariosRes.data ?? []
+      const equipos = equiposRes.data ?? []
 
-        console.log('[SuperadminDashboard] Haciendo fetch a usuarios...')
-        const usuariosRes = await supabase.from('usuarios').select('estado')
-        console.log('[SuperadminDashboard] usuarios result:', usuariosRes.error?.message ?? `${usuariosRes.data?.length} rows`)
-
-        const equiposRes = await supabase.from('equipos').select('estado').is('deleted_at', null)
-        const registrosHoyRes = await supabase.from('registros_acceso').select('id', { count: 'exact', head: true }).gte('fecha_ingreso', new Date().toISOString().split('T')[0])
-        const incidentesRes = await supabase.from('incidentes').select('id', { count: 'exact', head: true }).eq('estado', 'pendiente')
-
-        const empresas = empresasRes.data ?? []
-        const usuarios = usuariosRes.data ?? []
-        const equipos = equiposRes.data ?? []
-
-        return {
-          contratistasActivas: empresas.filter((e) => e.tipo === 'contratista' && e.activa).length,
-          operadorasActivas: empresas.filter((e) => e.tipo === 'operadora' && e.activa).length,
-          totalEmpresas: empresas.length,
-          usuariosActivos: usuarios.filter((u) => u.estado === 'activo').length,
-          equiposActivos: equipos.filter((e) => e.estado === 'activo').length,
-          registrosHoy: registrosHoyRes.count ?? 0,
-          incidentesPendientes: incidentesRes.count ?? 0,
-        }
-      } catch (err) {
-        console.error('[SuperadminDashboard] queryFn EXCEPTION:', err)
-        throw err
+      return {
+        contratistasActivas: empresas.filter((e) => e.tipo === 'contratista' && e.activa).length,
+        operadorasActivas: empresas.filter((e) => e.tipo === 'operadora' && e.activa).length,
+        totalEmpresas: empresas.length,
+        usuariosActivos: usuarios.filter((u) => u.estado === 'activo').length,
+        equiposActivos: equipos.filter((e) => e.estado === 'activo').length,
+        registrosHoy: registrosHoyRes.count ?? 0,
+        incidentesPendientes: incidentesRes.count ?? 0,
       }
     },
     refetchInterval: 60_000,
@@ -98,9 +87,7 @@ const PLAN_VARIANT: Record<string, 'neutral' | 'info' | 'dentro'> = {
 }
 
 export function SuperadminDashboard() {
-  console.log('[SuperadminDashboard] Componente montado')
   const { data: stats, isLoading } = usePlatformStats()
-  console.log('[SuperadminDashboard] stats:', stats, 'isLoading:', isLoading)
   const { data: empresas, isLoading: loadingEmpresas } = useUltimasEmpresas()
 
   return (
