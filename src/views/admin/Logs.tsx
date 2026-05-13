@@ -25,7 +25,7 @@ function useLogsAdmin() {
         .select(`
           id, accion, tabla_afectada, registro_id,
           cambios_antes, cambios_despues, ip_origen, created_at,
-          usuario:usuarios(nombre_completo, email, rol)
+          usuario:usuarios!logs_sistema_usuario_id_fkey(nombre_completo, email, rol)
         `)
         .order('created_at', { ascending: false })
         .limit(300)
@@ -33,17 +33,44 @@ function useLogsAdmin() {
       // Superadmin ve todos; admin solo logs de su empresa
       if (usuario.rol !== 'superadmin') {
         // Filtrar por usuario_id de la empresa
-        const { data: uids } = await supabase
+        const { data: uids, error: uidErr } = await supabase
           .from('usuarios')
           .select('id')
           .eq('empresa_id', usuario.empresa_id)
+        
+        if (uidErr) {
+          console.warn('[Logs] Error al obtener usuarios:', uidErr.message)
+          return []
+        }
         const ids = (uids ?? []).map((u) => u.id)
         if (ids.length === 0) return []
         query = query.in('usuario_id', ids)
       }
 
       const { data, error } = await query
-      if (error) throw error
+      if (error) {
+        // Si el join falla, intentar sin join
+        console.warn('[Logs] Error con join, intentando sin usuario:', error.message)
+        let fallbackQuery = supabase
+          .from('logs_sistema')
+          .select('id, accion, tabla_afectada, registro_id, cambios_antes, cambios_despues, ip_origen, created_at, usuario_id')
+          .order('created_at', { ascending: false })
+          .limit(300)
+        
+        if (usuario.rol !== 'superadmin') {
+          const { data: uids } = await supabase
+            .from('usuarios')
+            .select('id')
+            .eq('empresa_id', usuario.empresa_id)
+          const ids = (uids ?? []).map((u) => u.id)
+          if (ids.length === 0) return []
+          fallbackQuery = fallbackQuery.in('usuario_id', ids)
+        }
+        
+        const { data: fallbackData, error: err2 } = await fallbackQuery
+        if (err2) throw err2
+        return (fallbackData ?? []) as any[]
+      }
       return (data ?? []) as any[]
     },
     enabled: !!usuario,

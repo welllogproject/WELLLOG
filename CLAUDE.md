@@ -101,6 +101,24 @@
 - Asignar `operador.v10` al equipo Venver 10 desde `/admin/equipos`
 - Crear permiso para YPF desde `/admin/auditores` (para que el auditor vea datos)
 
+### 🐛 Bugs corregidos (Mayo 2026 — sesión 3, Kiro)
+
+**Problema raíz: páginas vacías o que nunca terminan de cargar**
+- Dashboard vacío, Equipos/Auditores/Empresas/Documentos/Logs nunca terminaban de cargar
+- Causa: combinación de `autoRefreshToken: false` (tokens expiraban sin renovarse), queries sin `enabled` guard (se disparaban antes de tener sesión), y retry config que mataba permanentemente queries con cualquier error PGRST
+
+**Fixes aplicados:**
+- `supabase.ts` — `autoRefreshToken: true` (antes `false`). Supabase ahora renueva tokens automáticamente
+- `useAuth.ts` — simplificado: ya no hace `refreshSession()` manual (Supabase lo maneja). Agregado handler para `TOKEN_REFRESHED && !session` (token expiró irrecuperablemente)
+- `queryClient.ts` — retry logic más granular: solo mata queries en 401/JWT, 403, PGRST116 (not found), PGRST200/204 (schema errors). Otros errores PGRST ahora reintentan 2 veces
+- `useEmpresas.ts` — `useTodasEmpresas`, `useContratistas`, `useOperadoras`, `usePermisosAcceso` ahora tienen `enabled: !!usuario`
+- `Documentos.tsx` — `useDocumentos()` ahora tiene `enabled: !!empresaId` (antes se disparaba con `empresaId!` = undefined)
+- `GestionEmpresas.tsx` — `useEmpresasVisitantes()` ahora tiene `enabled: !!empresaId && !!usuario` + error handling graceful
+- `useEquipos.ts` — `useEquipos()` ahora tiene fallback: si el join con `operador` falla (FK no existe), reintenta sin ese join
+- `useIncidentes.ts` — removido `!inner` join que causaba 0 resultados si el FK fallaba. Ahora usa two-step: primero obtiene equipoIds, luego filtra con `.in()`
+- `Logs.tsx` — `useLogsAdmin()` ahora tiene fallback si el join con `usuarios` falla + error handling en la primera query
+- `AdminDashboard.tsx` — query keys de KPIs ahora incluyen `equipoIds` para invalidación correcta
+
 ### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
 - `useEquipos` / `useEquiposConPersonas` — ahora filtran por `empresa_contratista_id` del usuario logueado

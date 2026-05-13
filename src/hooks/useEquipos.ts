@@ -21,13 +21,27 @@ export function useEquipos() {
         .select(`
           *,
           locacion:locaciones(id, codigo, nombre),
-          operador:usuarios!operador_asignado_id(id, nombre_completo, email)
+          operador:usuarios!equipos_operador_asignado_id_fkey(id, nombre_completo, email)
         `)
         .eq('empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('nombre_equipo')
 
-      if (error) throw error
+      if (error) {
+        // Fallback: si el join falla (FK no existe), intentar sin el join de operador
+        console.warn('[useEquipos] Error con join completo, intentando sin operador:', error.message)
+        const { data: fallback, error: err2 } = await supabase
+          .from('equipos')
+          .select(`
+            *,
+            locacion:locaciones(id, codigo, nombre)
+          `)
+          .eq('empresa_contratista_id', usuario.empresa_id)
+          .is('deleted_at', null)
+          .order('nombre_equipo')
+        if (err2) throw err2
+        return (fallback ?? []) as Equipo[]
+      }
       return (data ?? []) as Equipo[]
     },
     enabled: !!usuario?.empresa_id,

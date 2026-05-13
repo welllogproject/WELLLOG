@@ -53,7 +53,7 @@ export function AdminDashboard() {
 
   // KPI: personas actualmente dentro (solo equipos de esta empresa)
   const { data: personasDentro } = useQuery({
-    queryKey: ['kpi', 'personas-dentro', empresaId],
+    queryKey: ['kpi', 'personas-dentro', empresaId, equipoIds],
     queryFn: async () => {
       if (!tieneEquipos) return 0
       const { count } = await supabase
@@ -70,7 +70,7 @@ export function AdminDashboard() {
 
   // KPI: ingresos de hoy (solo equipos de esta empresa)
   const { data: ingresosHoy } = useQuery({
-    queryKey: ['kpi', 'ingresos-hoy', empresaId],
+    queryKey: ['kpi', 'ingresos-hoy', empresaId, equipoIds],
     queryFn: async () => {
       if (!tieneEquipos) return 0
       const hoy = new Date().toISOString().split('T')[0]
@@ -88,7 +88,7 @@ export function AdminDashboard() {
 
   // Registros recientes (solo equipos de esta empresa) — sin firmas para no traer base64
   const { data: registrosRecientes } = useQuery({
-    queryKey: ['kpi', 'recientes', empresaId],
+    queryKey: ['kpi', 'recientes', empresaId, equipoIds],
     queryFn: async () => {
       if (!tieneEquipos) return []
       const { data } = await supabase

@@ -20,18 +20,30 @@ export function useIncidentes(equipoId?: string, estado?: string) {
     queryFn: async () => {
       if (!usuario) return []
 
+      // Primero obtener los IDs de equipos de la empresa
+      let equipoIds: string[] = []
+      if (usuario.rol !== 'superadmin') {
+        const { data: eqs } = await supabase
+          .from('equipos')
+          .select('id')
+          .eq('empresa_contratista_id', usuario.empresa_id)
+          .is('deleted_at', null)
+        equipoIds = (eqs ?? []).map((e) => e.id)
+        if (equipoIds.length === 0) return []
+      }
+
       let query = supabase
         .from('incidentes')
         .select(`
           *,
-          equipo:equipos!inner(id, nombre_equipo, empresa_contratista_id, locacion:locaciones(codigo))
+          equipo:equipos(id, nombre_equipo, empresa_contratista_id, locacion:locaciones(codigo))
         `)
         .order('fecha_incidente', { ascending: false })
         .limit(100)
 
-      // Superadmin ve todo; admin/supervisor/operador solo su empresa
+      // Filtrar por equipos de la empresa (no usar !inner que puede fallar)
       if (usuario.rol !== 'superadmin') {
-        query = query.eq('equipos.empresa_contratista_id', usuario.empresa_id)
+        query = query.in('equipo_id', equipoIds)
       }
 
       if (equipoId) query = query.eq('equipo_id', equipoId)

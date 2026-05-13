@@ -7,6 +7,7 @@ import type { Empresa, PlanEmpresa, TipoEmpresa } from '@/types/models'
 const KEY = 'empresas'
 
 export function useTodasEmpresas() {
+  const { usuario } = useAuthStore()
   return useQuery({
     queryKey: [KEY, 'todas'],
     queryFn: async () => {
@@ -17,10 +18,12 @@ export function useTodasEmpresas() {
       if (error) throw error
       return (data ?? []) as Empresa[]
     },
+    enabled: !!usuario,
   })
 }
 
 export function useContratistas() {
+  const { usuario } = useAuthStore()
   return useQuery({
     queryKey: [KEY, 'contratistas'],
     queryFn: async () => {
@@ -32,10 +35,12 @@ export function useContratistas() {
       if (error) throw error
       return (data ?? []) as Empresa[]
     },
+    enabled: !!usuario,
   })
 }
 
 export function useOperadoras() {
+  const { usuario } = useAuthStore()
   return useQuery({
     queryKey: [KEY, 'operadoras'],
     queryFn: async () => {
@@ -47,6 +52,7 @@ export function useOperadoras() {
       if (error) throw error
       return (data ?? []) as Empresa[]
     },
+    enabled: !!usuario,
   })
 }
 
@@ -105,9 +111,11 @@ import type { PermisoAcceso, TipoAcceso } from '@/types/models'
 const PERM_KEY = 'permisos_acceso'
 
 export function usePermisosAcceso() {
+  const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [PERM_KEY],
+    queryKey: [PERM_KEY, usuario?.empresa_id],
     queryFn: async () => {
+      if (!usuario) return []
       const { data, error } = await supabase
         .from('permisos_acceso')
         .select(`
@@ -120,6 +128,7 @@ export function usePermisosAcceso() {
       if (error) throw error
       return (data ?? []) as PermisoAcceso[]
     },
+    enabled: !!usuario,
   })
 }
 

@@ -26,14 +26,16 @@ function useDocumentos() {
   return useQuery({
     queryKey: ['documentos', empresaId],
     queryFn: async () => {
+      if (!empresaId) return []
       const { data, error } = await supabase
         .from('documentos_seguridad')
         .select('*')
-        .eq('empresa_id', empresaId!)
+        .eq('empresa_id', empresaId)
         .order('fecha_vencimiento', { ascending: true })
       if (error) throw error
       return (data ?? []) as any[]
     },
+    enabled: !!empresaId,
   })
 }
 

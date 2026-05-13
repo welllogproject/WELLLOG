@@ -40,39 +40,31 @@ export function useAuthInit() {
   useEffect(() => {
     let mounted = true
 
-    // ESTRATEGIA DEFINITIVA:
+    // ESTRATEGIA:
     // 1. Si hay usuario en Zustand (localStorage) → quitar loading INMEDIATO
     //    Las queries arrancan de inmediato con el usuario disponible.
-    // 2. En background, intentar refrescar la sesión de Supabase.
-    //    Si falla o tarda → no importa, las queries ya están corriendo.
-    //    Solo limpiar el usuario si Supabase dice explícitamente que no hay sesión
-    //    Y el usuario no tiene token (primera vez o logout real).
+    // 2. Verificar sesión con Supabase en background.
+    //    autoRefreshToken: true se encarga del refresh automático.
+    //    Solo limpiar si Supabase confirma que no hay sesión válida.
 
     if (usuario) {
       // Usuario en localStorage → UI carga inmediatamente
       setLoading(false)
 
-      // Intentar refrescar el token en background sin bloquear
-      supabase.auth.refreshSession().then(({ data, error }) => {
+      // Verificar que la sesión sigue siendo válida
+      supabase.auth.getSession().then(({ data: { session } }) => {
         if (!mounted) return
-        if (error) {
-          // Si el refresh falla, intentar con getSession como fallback
-          supabase.auth.getSession().then(({ data: sd }) => {
-            if (!mounted) return
-            if (!sd.session?.user) {
-              // Sesión realmente expirada — limpiar y mandar al login
-              setUsuario(null)
-              queryClient.clear()
-            }
-          }).catch(() => {
-            // Error de red — mantener el usuario, las queries van a fallar
-            // individualmente y el usuario puede recargar
-          })
+        if (!session?.user) {
+          // Sesión realmente expirada — limpiar y mandar al login
+          setUsuario(null)
+          queryClient.clear()
+        } else if (session.user.id !== usuario.id) {
+          // Sesión de otro usuario — recargar perfil
+          cargarUsuario(session.user.id, setUsuario)
         }
-        // Si el refresh fue exitoso, el cliente de Supabase ya tiene el nuevo token
-        // No necesitamos hacer nada más
       }).catch(() => {
-        // Error de red en el refresh — mantener el usuario
+        // Error de red — mantener el usuario, las queries van a fallar
+        // individualmente y el usuario puede recargar
       })
 
     } else {
@@ -107,8 +99,16 @@ export function useAuthInit() {
         }
 
         if (event === 'TOKEN_REFRESHED' && session?.user) {
-          // Token refrescado exitosamente — actualizar perfil si cambió
+          // Token refrescado exitosamente — todo bien
           if (mounted) setLoading(false)
+          return
+        }
+
+        // TOKEN_REFRESHED sin session = token expiró y no se pudo refrescar
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          setUsuario(null)
+          setLoading(false)
+          queryClient.clear()
           return
         }
       }

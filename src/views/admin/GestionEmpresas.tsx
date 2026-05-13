@@ -22,6 +22,7 @@ interface EmpresaVisitante {
 
 function useEmpresasVisitantes() {
   const empresaId = useAuthStore((s) => s.empresaId())
+  const { usuario } = useAuthStore()
   return useQuery({
     queryKey: ['empresas-visitantes', empresaId],
     queryFn: async () => {
@@ -34,10 +35,13 @@ function useEmpresasVisitantes() {
         .eq('tipo', 'contratista')
         .neq('id', empresaId)
         .order('nombre')
-      if (error) throw error
+      if (error) {
+        console.warn('[GestionEmpresas] Error al cargar empresas:', error.message)
+        return []
+      }
       return (data ?? []) as EmpresaVisitante[]
     },
-    enabled: !!empresaId,
+    enabled: !!empresaId && !!usuario,
   })
 }
 

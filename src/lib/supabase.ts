@@ -16,7 +16,7 @@ export const supabase = createClient(
   {
     auth: {
       persistSession: true,
-      autoRefreshToken: false,
+      autoRefreshToken: true,
       detectSessionInUrl: true,
       flowType: 'implicit',
       // Deshabilitar el lock que bloquea en F5
