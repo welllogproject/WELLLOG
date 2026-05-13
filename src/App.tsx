@@ -8,6 +8,7 @@ import { queryClient } from '@/lib/queryClient'
 import { router } from '@/router'
 import { useAuthInit } from '@/hooks/useAuth'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
+import { useHeartbeat } from '@/hooks/useHeartbeat'
 import { useAuthStore } from '@/stores/authStore'
 import { DebugPanel } from '@/components/shared/DebugPanel'
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
@@ -15,6 +16,7 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 function GlobalHooks() {
   useAuthInit()
   useOfflineSync()
+  useHeartbeat()
 
   // Fallback: si después de 500ms _hydrated sigue en false
   // (localStorage vacío → onRehydrateStorage no se llamó),

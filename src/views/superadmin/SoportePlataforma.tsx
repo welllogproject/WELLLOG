@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import {
   Activity, CheckCircle2, XCircle, AlertTriangle,
-  Eye, RefreshCw, Database, Wifi, Clock, Download, HardDrive,
+  Eye, RefreshCw, Database, Wifi, Clock, Download, HardDrive, Smartphone,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -138,6 +138,26 @@ function useActividadEmpresas() {
   })
 }
 
+// ── Estado de dispositivos/operadores ─────────────────────
+function useDispositivosEstado() {
+  return useQuery({
+    queryKey: ['superadmin', 'dispositivos'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('dispositivos_estado')
+        .select(`
+          *,
+          usuario:usuarios(nombre_completo, email, rol),
+          equipo:equipos(nombre_equipo)
+        `)
+        .order('ultima_actividad', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as any[]
+    },
+    refetchInterval: 30_000,
+  })
+}
+
 // ── Últimos errores de sync offline ───────────────────────
 function useErroresSync() {
   return useQuery({
@@ -158,6 +178,7 @@ export function SoportePlataforma() {
   const { data: health, isLoading: loadingHealth, refetch: refetchHealth } = useHealthCheck()
   const { data: actividad = [], isLoading: loadingActividad } = useActividadEmpresas()
   const { data: errores = [] } = useErroresSync()
+  const { data: dispositivos = [], isLoading: loadingDispositivos } = useDispositivosEstado()
   const { data: empresas = [] } = useTodasEmpresas()
   const { data: backups = [], refetch: refetchBackups } = useBackups()
   const ejecutarBackup = useEjecutarBackup()
@@ -288,6 +309,70 @@ export function SoportePlataforma() {
                 <Badge variant="info" size="sm">{a.registros} registros</Badge>
               </div>
             ))}
+          </div>
+        )}
+      </Card>
+
+      {/* ── Estado de dispositivos ── */}
+      <Card className="mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-[var(--text-primary)] flex items-center gap-2">
+            <Smartphone size={15} className="text-[var(--text-muted)]" />
+            Estado de dispositivos
+          </h3>
+          <span className="text-xs text-[var(--text-muted)]">
+            {dispositivos.length} dispositivo{dispositivos.length !== 1 ? 's' : ''} registrado{dispositivos.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        {loadingDispositivos ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map(i => <div key={i} className="h-12 bg-[var(--skeleton)] rounded-[8px] animate-pulse" />)}
+          </div>
+        ) : dispositivos.length === 0 ? (
+          <p className="text-sm text-[var(--text-muted)] text-center py-6">
+            Sin dispositivos registrados. Los operadores aparecerán aquí cuando usen la app.
+          </p>
+        ) : (
+          <div className="space-y-1">
+            {dispositivos.map((d: any) => {
+              const ahora = Date.now()
+              const ultima = new Date(d.ultima_actividad).getTime()
+              const diffMin = Math.floor((ahora - ultima) / 60000)
+              const activo = diffMin < 5
+              const reciente = diffMin < 30
+
+              return (
+                <div key={d.id} className="flex items-center justify-between px-3 py-2.5 rounded-[10px] hover:bg-[var(--hover-bg)] transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-8 h-8 rounded-full bg-[#7F77DD]/10 flex items-center justify-center">
+                        <Smartphone size={14} className="text-[#534AB7]" />
+                      </div>
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[var(--card-bg)] ${activo ? 'bg-[#1D9E75]' : reciente ? 'bg-[#BA7517]' : 'bg-[#888780]'}`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
+                        {d.usuario?.nombre_completo ?? '—'}
+                      </p>
+                      <p className="text-[10px] text-[var(--text-muted)]">
+                        {d.equipo?.nombre_equipo ?? 'Sin equipo'} · {d.usuario?.rol ?? '—'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge
+                      variant={activo ? 'activo' : reciente ? 'warning' : 'inactivo'}
+                      size="sm"
+                    >
+                      {activo ? 'Activo' : reciente ? `Hace ${diffMin}min` : diffMin < 1440 ? `Hace ${Math.floor(diffMin / 60)}h` : `Hace ${Math.floor(diffMin / 1440)}d`}
+                    </Badge>
+                    {!d.online && (
+                      <p className="text-[10px] text-[#BA7517] mt-0.5">Offline</p>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </Card>
