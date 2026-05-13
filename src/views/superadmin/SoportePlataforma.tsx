@@ -27,22 +27,20 @@ function useHealthCheck() {
         supabase.from('empresas').select('id', { count: 'exact', head: true }),
         // Auth: sesión activa
         supabase.auth.getSession(),
-        // Realtime: intentar conectar un canal temporal para verificar
+        // Realtime: verificar si está habilitado intentando una suscripción rápida
         new Promise<boolean>((resolve) => {
-          // Si ya hay canales activos, verificar conexión
-          const channels = supabase.getChannels()
-          if (channels.length > 0) {
-            resolve(true)
-            return
-          }
-          // Simplemente verificar si el realtime socket está conectado
-          // No crear canales temporales (causa stack overflow al destruirlos)
-          try {
-            const connected = supabase.realtime.isConnected()
-            resolve(connected)
-          } catch {
-            resolve(false)
-          }
+          // Realtime está habilitado si hay canales activos O si el socket está conectado
+          // En páginas sin suscripciones activas, verificamos creando una suscripción efímera
+          const ch = supabase.channel('health-probe-' + Date.now())
+          const t = setTimeout(() => { resolve(false); supabase.removeChannel(ch) }, 4000)
+          ch.on('system', { event: '*' } as any, () => {})
+            .subscribe((status) => {
+              clearTimeout(t)
+              const ok = status === 'SUBSCRIBED'
+              // Dar tiempo a que se estabilice antes de remover
+              setTimeout(() => supabase.removeChannel(ch), 500)
+              resolve(ok)
+            })
         }),
       ])
 
