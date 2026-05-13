@@ -137,6 +137,33 @@
 - Click en cualquier fila de Registros abre el drawer
 - Botón ojo (ver detalle) + botón PDF (descargar) en cada fila
 
+### ✨ Mejoras (Mayo 2026 — sesión 3b, Kiro)
+
+**Mapa — personas dentro real + interacción mejorada**
+- `useEquiposConPersonas` — conteo real con `estado='dentro'` (antes el count no filtraba, siempre daba 0)
+- Seleccionar equipo en panel lateral centra el mapa automáticamente
+- Equipo seleccionado se resalta visualmente (icono más grande + borde en lista)
+- Link "Ver equipo completo" en el popup del mapa
+- Personas dentro se muestra como badge en la lista lateral
+
+**Auditor — permisos corregidos**
+- `equipo_id = null` en permisos ahora carga TODOS los equipos de la empresa propietaria (antes se ignoraba)
+- `fecha_fin` se verifica correctamente (permisos vencidos no dan acceso)
+- El auditor ahora ve datos si el admin creó un permiso desde `/admin/auditores`
+
+**Documentos de seguridad — integrado con flujo de ingreso**
+- `useVerificarDocumentos` hook: verifica docs vencidos por DNI al registrar ingreso
+- `NuevoIngreso`: alerta roja bloqueante si doc vencido + alerta amarilla si próximo a vencer (7 días)
+- Botón "Continuar" se deshabilita si hay documentos bloqueantes vencidos
+- El admin carga docs desde `/admin/documentos`, el operador ve las alertas automáticamente
+
+**Drawer detalle registro — auditoría legible**
+- Sección auditoría ahora muestra nombres de usuario en vez de UUIDs crudos
+- Resuelve nombres via query a tabla `usuarios`
+
+**Realtime health check**
+- `SoportePlataforma`: test real de conexión Realtime (crea canal temporal en vez de solo verificar `isConnected`)
+
 ### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
 - `useEquipos` / `useEquiposConPersonas` — ahora filtran por `empresa_contratista_id` del usuario logueado
