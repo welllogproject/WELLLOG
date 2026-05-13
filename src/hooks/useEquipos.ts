@@ -9,42 +9,49 @@ import type { Equipo, EstadoEquipo, TipoEquipo } from '@/types/models'
 
 const QUERY_KEY = 'equipos'
 
-// Todos los equipos de la empresa (admin)
+// Todos los equipos de la empresa (admin) o todos (superadmin)
 export function useEquipos() {
   const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'lista', usuario?.empresa_id],
+    queryKey: [QUERY_KEY, 'lista', usuario?.empresa_id, usuario?.rol],
     queryFn: async () => {
-      if (!usuario?.empresa_id) return []
-      const { data, error } = await supabase
+      if (!usuario) return []
+
+      let query = supabase
         .from('equipos')
         .select(`
           *,
           locacion:locaciones(id, codigo, nombre),
           operador:usuarios!equipos_operador_asignado_id_fkey(id, nombre_completo, email)
         `)
-        .eq('empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('nombre_equipo')
 
+      // Superadmin ve todos; admin/supervisor solo su empresa
+      if (usuario.rol !== 'superadmin') {
+        if (!usuario.empresa_id) return []
+        query = query.eq('empresa_contratista_id', usuario.empresa_id)
+      }
+
+      const { data, error } = await query
+
       if (error) {
-        // Fallback: si el join falla (FK no existe), intentar sin el join de operador
-        console.warn('[useEquipos] Error con join completo, intentando sin operador:', error.message)
-        const { data: fallback, error: err2 } = await supabase
+        console.warn('[useEquipos] Error con join, intentando sin operador:', error.message)
+        let fb = supabase
           .from('equipos')
-          .select(`
-            *,
-            locacion:locaciones(id, codigo, nombre)
-          `)
-          .eq('empresa_contratista_id', usuario.empresa_id)
+          .select(`*, locacion:locaciones(id, codigo, nombre)`)
           .is('deleted_at', null)
           .order('nombre_equipo')
+        if (usuario.rol !== 'superadmin' && usuario.empresa_id) {
+          fb = fb.eq('empresa_contratista_id', usuario.empresa_id)
+        }
+        const { data: fallback, error: err2 } = await fb
         if (err2) throw err2
         return (fallback ?? []) as Equipo[]
       }
       return (data ?? []) as Equipo[]
     },
-    enabled: !!usuario?.empresa_id,
+    enabled: !!usuario,
   })
 }
 

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useTodasEmpresas } from '@/hooks/useEmpresas'
+import { useEquipos } from '@/hooks/useEquipos'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { Table } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
@@ -85,6 +86,7 @@ const EMPTY_FORM = {
 export function InventarioTablets() {
   const { data: tablets = [], isLoading } = useTablets()
   const { data: empresas = [] } = useTodasEmpresas()
+  const { data: equipos = [] } = useEquipos()
   const qc = useQueryClient()
 
   const [search, setSearch] = useState('')
@@ -238,8 +240,10 @@ export function InventarioTablets() {
           <Input label="Marca" value={form.marca} onChange={(e) => setForm({ ...form, marca: e.target.value })} placeholder="Ej: Cubot" />
           <Input label="Modelo" value={form.modelo} onChange={(e) => setForm({ ...form, modelo: e.target.value })} placeholder="Ej: Tab 65" />
           <Input label="Sistema operativo" value={form.sistema_operativo} onChange={(e) => setForm({ ...form, sistema_operativo: e.target.value })} placeholder="Ej: Android 15" />
-          <Select label="Empresa asignada" value={form.empresa_id} onChange={(e) => setForm({ ...form, empresa_id: e.target.value })}
+          <Select label="Empresa asignada" value={form.empresa_id} onChange={(e) => setForm({ ...form, empresa_id: e.target.value, equipo_id: '' })}
             options={empresas.map((emp) => ({ value: emp.id, label: emp.nombre }))} placeholder="Sin asignar" />
+          <Select label="Equipo asignado" value={form.equipo_id} onChange={(e) => setForm({ ...form, equipo_id: e.target.value })}
+            options={equipos.filter((eq) => !form.empresa_id || eq.empresa_contratista_id === form.empresa_id).map((eq) => ({ value: eq.id, label: eq.nombre_equipo }))} placeholder="Sin asignar" />
           <Select label="Estado" value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value as any })}
             options={[
               { value: 'activo', label: 'Activo' },

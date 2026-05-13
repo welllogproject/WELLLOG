@@ -35,17 +35,14 @@ function useHealthCheck() {
             resolve(true)
             return
           }
-          // Si no hay canales, crear uno temporal para probar
-          const testChannel = supabase.channel('health-check-test')
-          const timeout = setTimeout(() => {
-            supabase.removeChannel(testChannel)
+          // Simplemente verificar si el realtime socket está conectado
+          // No crear canales temporales (causa stack overflow al destruirlos)
+          try {
+            const connected = supabase.realtime.isConnected()
+            resolve(connected)
+          } catch {
             resolve(false)
-          }, 3000)
-          testChannel.subscribe((status) => {
-            clearTimeout(timeout)
-            supabase.removeChannel(testChannel)
-            resolve(status === 'SUBSCRIBED')
-          })
+          }
         }),
       ])
 
