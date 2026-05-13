@@ -70,11 +70,26 @@ Deno.serve(async (req) => {
     }
 
     // Admin solo puede crear usuarios de su propia empresa
+    // EXCEPCIÓN: puede crear auditores en empresas operadoras (flujo de invitar auditor externo)
     if (caller.rol === 'admin' && empresa_id !== caller.empresa_id) {
-      return new Response(JSON.stringify({ error: 'Solo podés crear usuarios de tu empresa' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      if (rol !== 'auditor') {
+        return new Response(JSON.stringify({ error: 'Solo podés crear usuarios de tu empresa' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      // Verificar que la empresa destino es operadora (no puede crear usuarios en otra contratista)
+      const { data: empresaDestino } = await supabaseUser
+        .from('empresas')
+        .select('tipo')
+        .eq('id', empresa_id)
+        .single()
+      if (!empresaDestino || empresaDestino.tipo !== 'operadora') {
+        return new Response(JSON.stringify({ error: 'Solo podés invitar auditores a empresas operadoras' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
     }
 
     // 3. Crear el usuario en auth.users con service role
