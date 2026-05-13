@@ -218,6 +218,12 @@ h1, h2, h3, h4, h5, h6 {
 .animate-fade-in   { animation: fadeIn 0.15s ease-out; }
 .animate-scale-in  { animation: scaleIn 0.15s ease-out; }
 .animate-pulse-green { animation: pulse-green 2s ease-in-out infinite; }
+.animate-slide-in-right { animation: slideInRight 0.25s ease-out; }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
 
 /* ── LEAFLET OVERRIDES ──────────────────────────────────── */
 .leaflet-container {

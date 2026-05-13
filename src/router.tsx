@@ -1,67 +1,96 @@
+import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom'
 import { useRequireAuth } from '@/hooks/useAuth'
 
-// Auth
+// Auth — se carga siempre (es la primera pantalla)
 import { LoginView } from '@/views/auth/LoginView'
 import { RecoverPasswordView } from '@/views/auth/RecoverPasswordView'
 
+// ── Lazy imports ────────────────────────────────────────
+
 // Operador
-import { OperadorHome } from '@/views/operador/OperadorHome'
-import { NuevoIngreso } from '@/views/operador/NuevoIngreso'
-import { MarcarSalida } from '@/views/operador/MarcarSalida'
-import { ConfigEquipo } from '@/views/operador/ConfigEquipo'
+const OperadorHome = lazy(() => import('@/views/operador/OperadorHome').then(m => ({ default: m.OperadorHome })))
+const NuevoIngreso = lazy(() => import('@/views/operador/NuevoIngreso').then(m => ({ default: m.NuevoIngreso })))
+const MarcarSalida = lazy(() => import('@/views/operador/MarcarSalida').then(m => ({ default: m.MarcarSalida })))
+const ConfigEquipo = lazy(() => import('@/views/operador/ConfigEquipo').then(m => ({ default: m.ConfigEquipo })))
 
 // Admin
-import { AdminDashboard } from '@/views/admin/AdminDashboard'
-import { Registros } from '@/views/admin/Registros'
-import { Incidentes } from '@/views/admin/Incidentes'
-import { MapaEquipos } from '@/views/admin/MapaEquipos'
-import { EstadisticasHSE } from '@/views/admin/EstadisticasHSE'
-import { GestionEquipos } from '@/views/admin/GestionEquipos'
-import { GestionLocaciones } from '@/views/admin/GestionLocaciones'
-import { GestionUsuarios as AdminGestionUsuarios } from '@/views/admin/GestionUsuarios'
-import { Auditores } from '@/views/admin/Auditores'
-import { Estadisticas } from '@/views/admin/Estadisticas'
-import { Logs } from '@/views/admin/Logs'
-import { GestionEmpresas as AdminGestionEmpresas } from '@/views/admin/GestionEmpresas'
-import { Documentos } from '@/views/admin/Documentos'
+const AdminDashboard = lazy(() => import('@/views/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })))
+const Registros = lazy(() => import('@/views/admin/Registros').then(m => ({ default: m.Registros })))
+const Incidentes = lazy(() => import('@/views/admin/Incidentes').then(m => ({ default: m.Incidentes })))
+const MapaEquipos = lazy(() => import('@/views/admin/MapaEquipos').then(m => ({ default: m.MapaEquipos })))
+const EstadisticasHSE = lazy(() => import('@/views/admin/EstadisticasHSE').then(m => ({ default: m.EstadisticasHSE })))
+const GestionEquipos = lazy(() => import('@/views/admin/GestionEquipos').then(m => ({ default: m.GestionEquipos })))
+const GestionLocaciones = lazy(() => import('@/views/admin/GestionLocaciones').then(m => ({ default: m.GestionLocaciones })))
+const AdminGestionUsuarios = lazy(() => import('@/views/admin/GestionUsuarios').then(m => ({ default: m.GestionUsuarios })))
+const Auditores = lazy(() => import('@/views/admin/Auditores').then(m => ({ default: m.Auditores })))
+const Estadisticas = lazy(() => import('@/views/admin/Estadisticas').then(m => ({ default: m.Estadisticas })))
+const Logs = lazy(() => import('@/views/admin/Logs').then(m => ({ default: m.Logs })))
+const AdminGestionEmpresas = lazy(() => import('@/views/admin/GestionEmpresas').then(m => ({ default: m.GestionEmpresas })))
+const Documentos = lazy(() => import('@/views/admin/Documentos').then(m => ({ default: m.Documentos })))
 
 // Auditor
-import { AuditorDashboard } from '@/views/auditor/AuditorDashboard'
-import { MapaAuditor } from '@/views/auditor/MapaAuditor'
-import { IncidentesAuditor } from '@/views/auditor/IncidentesAuditor'
-import { ReportesAuditor } from '@/views/auditor/ReportesAuditor'
+const AuditorDashboard = lazy(() => import('@/views/auditor/AuditorDashboard').then(m => ({ default: m.AuditorDashboard })))
+const MapaAuditor = lazy(() => import('@/views/auditor/MapaAuditor').then(m => ({ default: m.MapaAuditor })))
+const IncidentesAuditor = lazy(() => import('@/views/auditor/IncidentesAuditor').then(m => ({ default: m.IncidentesAuditor })))
+const ReportesAuditor = lazy(() => import('@/views/auditor/ReportesAuditor').then(m => ({ default: m.ReportesAuditor })))
 
 // Superadmin
-import { SuperadminDashboard } from '@/views/superadmin/SuperadminDashboard'
-import { GestionEmpresas } from '@/views/superadmin/GestionEmpresas'
-import { GestionUsuarios } from '@/views/superadmin/GestionUsuarios'
-import { PermisosAcceso } from '@/views/superadmin/PermisosAcceso'
-import { MetricasPlataforma } from '@/views/superadmin/MetricasPlataforma'
-import { ConfiguracionPlataforma } from '@/views/superadmin/ConfiguracionPlataforma'
-import { SoportePlataforma } from '@/views/superadmin/SoportePlataforma'
-import { LogsGlobales } from '@/views/superadmin/LogsGlobales'
+const SuperadminDashboard = lazy(() => import('@/views/superadmin/SuperadminDashboard').then(m => ({ default: m.SuperadminDashboard })))
+const GestionEmpresas = lazy(() => import('@/views/superadmin/GestionEmpresas').then(m => ({ default: m.GestionEmpresas })))
+const GestionUsuarios = lazy(() => import('@/views/superadmin/GestionUsuarios').then(m => ({ default: m.GestionUsuarios })))
+const PermisosAcceso = lazy(() => import('@/views/superadmin/PermisosAcceso').then(m => ({ default: m.PermisosAcceso })))
+const MetricasPlataforma = lazy(() => import('@/views/superadmin/MetricasPlataforma').then(m => ({ default: m.MetricasPlataforma })))
+const ConfiguracionPlataforma = lazy(() => import('@/views/superadmin/ConfiguracionPlataforma').then(m => ({ default: m.ConfiguracionPlataforma })))
+const SoportePlataforma = lazy(() => import('@/views/superadmin/SoportePlataforma').then(m => ({ default: m.SoportePlataforma })))
+const LogsGlobales = lazy(() => import('@/views/superadmin/LogsGlobales').then(m => ({ default: m.LogsGlobales })))
 
-// Guards
+// ── Suspense fallback ───────────────────────────────────
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-[10px] bg-[#7F77DD]/20 flex items-center justify-center animate-pulse">
+          <span className="text-[#534AB7] text-xs font-semibold">WL</span>
+        </div>
+        <p className="text-xs text-[var(--text-muted)]">Cargando...</p>
+      </div>
+    </div>
+  )
+}
+
+function SuspenseWrapper() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Outlet />
+    </Suspense>
+  )
+}
+
+// ── Guards ──────────────────────────────────────────────
+
 function OperadorGuard() {
   useRequireAuth(['operador', 'admin', 'superadmin'])
-  return <Outlet />
+  return <SuspenseWrapper />
 }
 
 function AdminGuard() {
   useRequireAuth(['admin', 'superadmin'])
-  return <Outlet />
+  return <SuspenseWrapper />
 }
 
 function AuditorGuard() {
   useRequireAuth(['auditor', 'admin', 'superadmin'])
-  return <Outlet />
+  return <SuspenseWrapper />
 }
 
 function SuperadminGuard() {
   useRequireAuth(['superadmin'])
-  return <Outlet />
+  return <SuspenseWrapper />
 }
+
+// ── Router ──────────────────────────────────────────────
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginView /> },
@@ -131,19 +160,3 @@ export const router = createBrowserRouter([
 
   { path: '*', element: <Navigate to="/login" replace /> },
 ])
-
-import { PageLayout } from '@/components/layout/PageLayout'
-
-function PagePlaceholder({ title }: { title: string }) {
-  return (
-    <PageLayout title={title}>
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 rounded-full bg-[#1D9E75]/10 flex items-center justify-center mb-4 text-2xl">
-          🚧
-        </div>
-        <h2 className="text-xl font-medium text-[var(--text-primary)]">{title}</h2>
-        <p className="text-[var(--text-muted)] mt-2">Módulo en construcción</p>
-      </div>
-    </PageLayout>
-  )
-}

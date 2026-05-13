@@ -8,10 +8,9 @@ import { PageLayout } from '@/components/layout/PageLayout'
 import { Card } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { SkeletonRow } from '@/components/ui/Skeleton'
-import { Search, Download, FileText } from 'lucide-react'
+import { Search, Download, FileText, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import * as XLSX from 'xlsx'
-import { descargarRegistroPDF } from '@/components/registro/RegistroPDF'
+import { RegistroDetalle } from '@/components/registro/RegistroDetalle'
 import type { RegistroAcceso } from '@/types/models'
 
 const hace7dias = new Date()
@@ -22,6 +21,7 @@ export function Registros() {
   const [fechaDesde, setFechaDesde] = useState(hace7dias.toISOString().split('T')[0])
   const [fechaHasta, setFechaHasta] = useState(new Date().toISOString().split('T')[0])
   const [search, setSearch] = useState('')
+  const [registroSeleccionado, setRegistroSeleccionado] = useState<RegistroAcceso | null>(null)
 
   const { data: equipos } = useEquipos()
   const { data: registros, isLoading } = useRegistrosAdmin(
@@ -37,7 +37,8 @@ export function Registros() {
     (r.empresa_visitante_nombre || '').toLowerCase().includes(search.toLowerCase())
   )
 
-  const exportarExcel = () => {
+  const exportarExcel = async () => {
+    const XLSX = await import('xlsx')
     const data = registrosFiltrados.map((r) => ({
       'Fecha Ingreso': r.fecha_ingreso ? new Date(r.fecha_ingreso).toLocaleString('es-AR') : '',
       'Fecha Egreso': r.fecha_egreso ? new Date(r.fecha_egreso).toLocaleString('es-AR') : 'Aún dentro',
@@ -140,7 +141,7 @@ export function Registros() {
                 </tr>
               ) : (
                 registrosFiltrados.map((r) => (
-                  <tr key={r.id} className="hover:bg-[var(--hover-bg)] transition-colors">
+                  <tr key={r.id} className="hover:bg-[var(--hover-bg)] transition-colors cursor-pointer" onClick={() => setRegistroSeleccionado(r)}>
                     <td className="px-5 py-3">
                       <p className="font-medium text-[var(--text-primary)]">{r.nombre_completo}</p>
                       <p className="text-xs text-[var(--text-muted)]">DNI {r.dni}</p>
@@ -175,13 +176,26 @@ export function Registros() {
                       )}
                     </td>
                     <td className="px-3 py-3 text-right">
-                      <button
-                        onClick={() => descargarRegistroPDF(r as RegistroAcceso)}
-                        className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors"
-                        title="Descargar PDF"
-                      >
-                        <FileText size={14} />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setRegistroSeleccionado(r) }}
+                          className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors"
+                          title="Ver detalle"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            const { descargarRegistroPDF } = await import('@/components/registro/RegistroPDF')
+                            descargarRegistroPDF(r as RegistroAcceso)
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-muted)] hover:text-[#534AB7] transition-colors"
+                          title="Descargar PDF"
+                        >
+                          <FileText size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -190,6 +204,13 @@ export function Registros() {
           </table>
         </div>
       </Card>
+
+      {/* Drawer de detalle */}
+      <RegistroDetalle
+        registro={registroSeleccionado}
+        isOpen={!!registroSeleccionado}
+        onClose={() => setRegistroSeleccionado(null)}
+      />
     </PageLayout>
   )
 }

@@ -10,6 +10,7 @@ import { useAuthInit } from '@/hooks/useAuth'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { useAuthStore } from '@/stores/authStore'
 import { DebugPanel } from '@/components/shared/DebugPanel'
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary'
 
 function GlobalHooks() {
   useAuthInit()
@@ -44,7 +45,9 @@ export function App() {
 
       {/* RouterProvider SIEMPRE montado — nunca se desmonta.
           El spinner es un overlay encima, no reemplaza el router. */}
-      <RouterProvider router={router} />
+      <ErrorBoundary>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
 
       {showSpinner && (
         <div className="fixed inset-0 z-[9999] bg-[var(--input-bg)] flex flex-col items-center justify-center gap-4">
