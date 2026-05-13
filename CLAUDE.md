@@ -119,6 +119,24 @@
 - `Logs.tsx` — `useLogsAdmin()` ahora tiene fallback si el join con `usuarios` falla + error handling en la primera query
 - `AdminDashboard.tsx` — query keys de KPIs ahora incluyen `equipoIds` para invalidación correcta
 
+### ✨ Mejoras (Mayo 2026 — sesión 3, Kiro)
+
+**Performance — Lazy Loading (reducción 97.8% bundle inicial)**
+- `router.tsx` — todas las vistas cargan con `React.lazy()` + `Suspense`. Bundle inicial: 38KB (antes 1,750KB)
+- `Registros.tsx` — `xlsx` y `@react-pdf/renderer` se importan dinámicamente solo al exportar/descargar
+- Cada vista es un chunk independiente (~5-10KB cada uno)
+
+**Resiliencia — Error Boundary**
+- `ErrorBoundary.tsx` — detecta errores de chunk (nueva versión desplegada) y errores genéricos
+- Muestra botón "Recargar" para chunk errors, "Reintentar" para otros
+- Integrado en `App.tsx` envolviendo el `RouterProvider`
+
+**UX — Drawer de detalle de registro**
+- `Drawer.tsx` — componente panel lateral reutilizable con animación slide-in-right
+- `RegistroDetalle.tsx` — drawer completo con: datos personales, tiempos, firmas (miniaturas), declaración de incidente, GPS, auditoría
+- Click en cualquier fila de Registros abre el drawer
+- Botón ojo (ver detalle) + botón PDF (descargar) en cada fila
+
 ### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
 - `useEquipos` / `useEquiposConPersonas` — ahora filtran por `empresa_contratista_id` del usuario logueado
