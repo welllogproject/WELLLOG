@@ -291,3 +291,34 @@ export function useActualizarUsuario() {
     onError: (e: Error) => toast.error(e.message),
   })
 }
+
+export function useEliminarUsuario() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Sin sesión activa')
+
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/invite-user`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Error al eliminar usuario')
+      return data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: [USR_KEY] })
+      toast.success('Usuario eliminado')
+    },
+    onError: (e: Error) => toast.error(e.message),
+  })
+}

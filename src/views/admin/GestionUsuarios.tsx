@@ -5,11 +5,11 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Select } from '@/components/ui/Input'
-import { useTodosUsuarios, useCrearUsuario, useActualizarUsuario } from '@/hooks/useEmpresas'
+import { useTodosUsuarios, useCrearUsuario, useActualizarUsuario, useEliminarUsuario } from '@/hooks/useEmpresas'
 import { useAuthStore } from '@/stores/authStore'
 import type { Usuario, EstadoUsuario } from '@/types/models'
 import type { Rol } from '@/types/roles'
-import { Plus, Search, UserX, UserCheck } from 'lucide-react'
+import { Plus, Search, UserX, UserCheck, Trash2 } from 'lucide-react'
 
 type UsuarioRow = Usuario & { empresa?: { id: string; nombre: string; tipo: string } }
 
@@ -28,6 +28,7 @@ export function GestionUsuarios() {
   const { data: todos = [], isLoading } = useTodosUsuarios()
   const crear = useCrearUsuario()
   const actualizar = useActualizarUsuario()
+  const eliminar = useEliminarUsuario()
 
   // Admin solo ve usuarios de su empresa, excluye superadmin y auditores
   const usuarios = (todos as UsuarioRow[]).filter(
@@ -130,6 +131,9 @@ export function GestionUsuarios() {
                 <button onClick={() => abrirEditar(u)} className="px-2.5 py-1 text-xs rounded-lg hover:bg-[#7F77DD]/10 text-[var(--text-secondary)] hover:text-[#534AB7] transition-colors">Editar</button>
                 <button onClick={() => toggleEstado(u)} className={`p-1.5 rounded-lg transition-colors ${u.estado === 'activo' ? 'hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A]' : 'hover:bg-[#1D9E75]/10 text-[var(--text-muted)] hover:text-[#1D9E75]'}`}>
                   {u.estado === 'activo' ? <UserX size={14} /> : <UserCheck size={14} />}
+                </button>
+                <button onClick={() => { if (confirm(`¿Eliminar a ${u.nombre_completo}? Esta acción no se puede deshacer.`)) eliminar.mutate(u.id) }} className="p-1.5 rounded-lg hover:bg-[#E24B4A]/10 text-[var(--text-muted)] hover:text-[#E24B4A] transition-colors" title="Eliminar usuario">
+                  <Trash2 size={14} />
                 </button>
               </div>
             ),

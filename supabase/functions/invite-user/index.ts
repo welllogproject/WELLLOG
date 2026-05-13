@@ -52,13 +52,55 @@ Deno.serve(async (req) => {
       .single()
 
     if (!caller || !['admin', 'superadmin'].includes(caller.rol)) {
-      return new Response(JSON.stringify({ error: 'Sin permisos para crear usuarios' }), {
+      return new Response(JSON.stringify({ error: 'Sin permisos para gestionar usuarios' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    // 2. Parsear el body
+    // ── DELETE: eliminar usuario ──
+    if (req.method === 'DELETE') {
+      const { user_id } = await req.json()
+      if (!user_id) {
+        return new Response(JSON.stringify({ error: 'user_id requerido' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const supabaseAdmin = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      )
+
+      // Verificar que el usuario a eliminar pertenece a la empresa del caller (o es superadmin)
+      if (caller.rol !== 'superadmin') {
+        const { data: targetUser } = await supabaseAdmin
+          .from('usuarios')
+          .select('empresa_id, rol')
+          .eq('id', user_id)
+          .single()
+
+        // Admin puede eliminar usuarios de su empresa O auditores de operadoras
+        if (targetUser && targetUser.empresa_id !== caller.empresa_id && targetUser.rol !== 'auditor') {
+          return new Response(JSON.stringify({ error: 'No podés eliminar usuarios de otra empresa' }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+      }
+
+      // Eliminar de tabla usuarios
+      await supabaseAdmin.from('usuarios').delete().eq('id', user_id)
+      // Eliminar de auth.users
+      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user_id)
+      if (deleteError) throw deleteError
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Usuario eliminado' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // ── POST: crear/invitar usuario ──
     const body = await req.json()
     const { empresa_id, nombre_completo, email, rol, dni, telefono } = body
 
