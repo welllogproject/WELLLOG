@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'invite',
       email,
-      options: { redirectTo: `${siteUrl}/login` },
+      options: { redirectTo: `${siteUrl}/activate` },
     })
 
     const activationLink = linkData?.properties?.action_link ?? null

@@ -5,6 +5,7 @@ import { useRequireAuth } from '@/hooks/useAuth'
 // Auth — se carga siempre (es la primera pantalla)
 import { LoginView } from '@/views/auth/LoginView'
 import { RecoverPasswordView } from '@/views/auth/RecoverPasswordView'
+import { ActivateView } from '@/views/auth/ActivateView'
 
 // ── Lazy imports ────────────────────────────────────────
 
@@ -98,6 +99,7 @@ function SuperadminGuard() {
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginView /> },
   { path: '/recover', element: <RecoverPasswordView /> },
+  { path: '/activate', element: <ActivateView /> },
   { path: '/', element: <Navigate to="/login" replace /> },
 
   // ── OPERADOR (Mobile/Tablet) ──────────────────────────
