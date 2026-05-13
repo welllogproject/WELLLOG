@@ -78,19 +78,42 @@ export function useEquiposConPersonas() {
     queryKey: [QUERY_KEY, 'mapa', usuario?.empresa_id],
     queryFn: async () => {
       if (!usuario?.empresa_id) return []
-      const { data, error } = await supabase
+
+      // 1. Obtener equipos
+      const { data: equiposData, error } = await supabase
         .from('equipos')
         .select(`
           *,
-          locacion:locaciones(id, codigo, nombre),
-          registros_activos:registros_acceso(count)
+          locacion:locaciones(id, codigo, nombre)
         `)
         .eq('empresa_contratista_id', usuario.empresa_id)
         .is('deleted_at', null)
         .order('nombre_equipo')
 
       if (error) throw error
-      return (data ?? []) as Equipo[]
+      const equipos = equiposData ?? []
+      if (equipos.length === 0) return []
+
+      // 2. Contar personas dentro por equipo (estado='dentro' + deleted_at IS NULL)
+      const ids = equipos.map((e) => e.id)
+      const { data: conteos } = await supabase
+        .from('registros_acceso')
+        .select('equipo_id')
+        .in('equipo_id', ids)
+        .eq('estado', 'dentro')
+        .is('deleted_at', null)
+
+      // Agrupar conteos por equipo_id
+      const conteoPorEquipo: Record<string, number> = {}
+      ;(conteos ?? []).forEach((r: { equipo_id: string }) => {
+        conteoPorEquipo[r.equipo_id] = (conteoPorEquipo[r.equipo_id] ?? 0) + 1
+      })
+
+      // 3. Merge: agregar personas_dentro a cada equipo
+      return equipos.map((e) => ({
+        ...e,
+        personas_dentro: conteoPorEquipo[e.id] ?? 0,
+      })) as Equipo[]
     },
     enabled: !!usuario?.empresa_id,
     refetchInterval: 30000,

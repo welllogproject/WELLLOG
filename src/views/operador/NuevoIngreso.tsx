@@ -8,13 +8,14 @@ import { useAuthStore } from '@/stores/authStore'
 import { useHistorialDNI, useTieneIngresoActivo, useNuevoIngreso } from '@/hooks/useRegistros'
 import { useEquipo } from '@/hooks/useEquipos'
 import { useGPS } from '@/hooks/useGPS'
+import { useVerificarDocumentos } from '@/hooks/useDocumentos'
 import { TabletLayout } from '@/components/layout/TabletLayout'
 import { DNIInput } from '@/components/registro/DNIInput'
 import { FirmaCanvas } from '@/components/registro/FirmaCanvas'
 import { Select } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { MOTIVOS_VISITA, type MotivoVisita } from '@/types/roles'
-import { ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, AlertTriangle, ShieldAlert } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 type Paso = 'dni' | 'confirmar' | 'firma' | 'exito'
@@ -49,6 +50,11 @@ export function NuevoIngreso() {
 
   const { data: historial } = useHistorialDNI(equipoId)
   const { data: ingresoActivo } = useTieneIngresoActivo(dni, equipoId)
+  const { data: alertasDocumentos = [] } = useVerificarDocumentos(dni)
+
+  // Documentos bloqueantes impiden el ingreso
+  const docsBloqueantes = alertasDocumentos.filter((a) => a.bloqueante && a.dias_vencido < 0)
+  const docsAdvertencia = alertasDocumentos.filter((a) => !a.bloqueante || a.dias_vencido >= 0)
 
   // Autocomplete desde historial
   const autocompletar = (dniBuscado: string) => {
@@ -174,6 +180,42 @@ export function NuevoIngreso() {
               </div>
             )}
 
+            {/* Alertas de documentos vencidos */}
+            {docsBloqueantes.length > 0 && (
+              <div className="bg-[#E24B4A]/8 border border-[#E24B4A]/20 rounded-[12px] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <ShieldAlert size={16} className="text-[#E24B4A]" />
+                  <span className="text-sm font-medium text-[#b93332]">Ingreso bloqueado — documentación vencida</span>
+                </div>
+                <ul className="space-y-1">
+                  {docsBloqueantes.map((a) => (
+                    <li key={a.id} className="text-xs text-[#b93332]">
+                      • {a.tipo}{a.nombre_documento ? ` — ${a.nombre_documento}` : ''}: venció hace {Math.abs(a.dias_vencido)} día{Math.abs(a.dias_vencido) !== 1 ? 's' : ''}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[11px] text-[#b93332]/70 mt-2">
+                  Contactá al administrador para actualizar la documentación.
+                </p>
+              </div>
+            )}
+
+            {docsAdvertencia.length > 0 && (
+              <div className="bg-[#BA7517]/8 border border-[#BA7517]/20 rounded-[12px] p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle size={16} className="text-[#BA7517]" />
+                  <span className="text-sm font-medium text-[#7A4E0F]">Documentación próxima a vencer</span>
+                </div>
+                <ul className="space-y-1">
+                  {docsAdvertencia.map((a) => (
+                    <li key={a.id} className="text-xs text-[#7A4E0F]">
+                      • {a.tipo}{a.nombre_documento ? ` — ${a.nombre_documento}` : ''}: {a.dias_vencido < 0 ? `venció hace ${Math.abs(a.dias_vencido)} días` : a.dias_vencido === 0 ? 'vence hoy' : `vence en ${a.dias_vencido} días`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* DNI (readonly) */}
             <div>
               <label className="text-sm font-medium text-[var(--text-primary)] block mb-1">DNI</label>
@@ -240,8 +282,8 @@ export function NuevoIngreso() {
               />
             </div>
 
-            <Button onClick={handleConfirmarDatos} variant="ingreso" size="xl" fullWidth className="mt-2">
-              Datos Correctos — Continuar
+            <Button onClick={handleConfirmarDatos} variant="ingreso" size="xl" fullWidth className="mt-2" disabled={docsBloqueantes.length > 0}>
+              {docsBloqueantes.length > 0 ? 'Ingreso bloqueado — doc. vencida' : 'Datos Correctos — Continuar'}
             </Button>
           </div>
         )}

@@ -27,8 +27,26 @@ function useHealthCheck() {
         supabase.from('empresas').select('id', { count: 'exact', head: true }),
         // Auth: sesión activa
         supabase.auth.getSession(),
-        // Realtime: estado de la conexión
-        Promise.resolve(supabase.realtime.isConnected()),
+        // Realtime: intentar conectar un canal temporal para verificar
+        new Promise<boolean>((resolve) => {
+          // Si ya hay canales activos, verificar conexión
+          const channels = supabase.getChannels()
+          if (channels.length > 0) {
+            resolve(true)
+            return
+          }
+          // Si no hay canales, crear uno temporal para probar
+          const testChannel = supabase.channel('health-check-test')
+          const timeout = setTimeout(() => {
+            supabase.removeChannel(testChannel)
+            resolve(false)
+          }, 3000)
+          testChannel.subscribe((status) => {
+            clearTimeout(timeout)
+            supabase.removeChannel(testChannel)
+            resolve(status === 'SUBSCRIBED')
+          })
+        }),
       ])
 
       const latencia = Date.now() - start

@@ -1,12 +1,14 @@
 // src/components/registro/RegistroDetalle.tsx
 // Drawer lateral con el detalle completo de un registro de acceso
 
+import { useEffect, useState } from 'react'
 import { Drawer } from '@/components/ui/Drawer'
 import { Badge } from '@/components/ui/Badge'
+import { supabase } from '@/lib/supabase'
 import type { RegistroAcceso } from '@/types/models'
 import {
   User, Building2, Briefcase, MapPin, Clock, FileText,
-  Car, AlertTriangle, PenTool, Calendar,
+  Car, AlertTriangle, PenTool, Calendar, Shield,
 } from 'lucide-react'
 
 interface Props {
@@ -67,10 +69,45 @@ function calcularPermanencia(ingreso: string, egreso?: string | null): string {
   return `${horas}h ${minutos}min`
 }
 
+// Hook para resolver nombres de usuario a partir de UUIDs
+function useUsuarioNombres(ids: (string | undefined | null)[]) {
+  const [nombres, setNombres] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const idsValidos = ids.filter((id): id is string => !!id)
+    if (idsValidos.length === 0) return
+
+    // No re-fetch si ya tenemos todos los nombres
+    const faltantes = idsValidos.filter((id) => !nombres[id])
+    if (faltantes.length === 0) return
+
+    supabase
+      .from('usuarios')
+      .select('id, nombre_completo, email, rol')
+      .in('id', faltantes)
+      .then(({ data }) => {
+        if (!data) return
+        const mapa: Record<string, string> = { ...nombres }
+        data.forEach((u) => {
+          mapa[u.id] = `${u.nombre_completo} (${u.rol})`
+        })
+        setNombres(mapa)
+      })
+  }, [ids.join(',')]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return nombres
+}
+
 export function RegistroDetalle({ registro, isOpen, onClose }: Props) {
   if (!registro) return null
 
   const permanencia = calcularPermanencia(registro.fecha_ingreso, registro.fecha_egreso)
+
+  // Resolver nombres de los usuarios que registraron/actualizaron
+  const nombres = useUsuarioNombres([
+    registro.registrado_por_usuario_id,
+    registro.actualizado_por_usuario_id,
+  ])
 
   return (
     <Drawer
@@ -217,10 +254,10 @@ export function RegistroDetalle({ registro, isOpen, onClose }: Props) {
             Geolocalización
           </h3>
           <div className="card-clay p-4">
-            <p className="text-xs font-mono text-[var(--text-secondary)]">
-              📍 Ingreso capturado
+            <p className="text-xs text-[var(--text-secondary)]">
+              📍 Ubicación de ingreso capturada
               {registro.precision_metros_ingreso && (
-                <span className="text-[var(--text-muted)]"> (±{registro.precision_metros_ingreso}m)</span>
+                <span className="text-[var(--text-muted)]"> (precisión ±{registro.precision_metros_ingreso}m)</span>
               )}
             </p>
           </div>
@@ -232,17 +269,35 @@ export function RegistroDetalle({ registro, isOpen, onClose }: Props) {
         <h3 className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wide mb-2">
           Auditoría
         </h3>
-        <div className="card-clay p-4 text-xs text-[var(--text-muted)] space-y-1">
-          <p>ID: <span className="font-mono">{registro.id}</span></p>
-          <p>Registrado por: <span className="font-mono">{registro.registrado_por_usuario_id}</span></p>
+        <div className="card-clay p-4 space-y-0 divide-y divide-[var(--divider)]">
+          <InfoRow
+            icon={<Shield size={13} className="text-[var(--text-muted)]" />}
+            label="Registrado por"
+            value={nombres[registro.registrado_por_usuario_id] || 'Cargando...'}
+          />
           {registro.actualizado_por_usuario_id && (
-            <p>Actualizado por: <span className="font-mono">{registro.actualizado_por_usuario_id}</span></p>
+            <InfoRow
+              icon={<Shield size={13} className="text-[var(--text-muted)]" />}
+              label="Actualizado por"
+              value={nombres[registro.actualizado_por_usuario_id] || 'Cargando...'}
+            />
           )}
-          <p>Creado: {formatFecha(registro.created_at)}</p>
+          <InfoRow
+            icon={<Calendar size={13} className="text-[var(--text-muted)]" />}
+            label="Fecha de creación"
+            value={formatFecha(registro.created_at)}
+          />
           {registro.motivo_anulacion && (
-            <p className="text-[#E24B4A]">Motivo anulación: {registro.motivo_anulacion}</p>
+            <InfoRow
+              icon={<AlertTriangle size={13} className="text-[#E24B4A]" />}
+              label="Motivo de anulación"
+              value={<span className="text-[#E24B4A]">{registro.motivo_anulacion}</span>}
+            />
           )}
         </div>
+        <p className="text-[10px] text-[var(--text-faded)] mt-2 font-mono">
+          ID: {registro.id}
+        </p>
       </section>
     </Drawer>
   )

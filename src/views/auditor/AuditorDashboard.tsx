@@ -16,43 +16,67 @@ function useAuditorStats() {
     queryFn: async () => {
       if (!usuario?.empresa_id) return { equipos: [], personasDentro: 0, incidentesPendientes: 0 }
 
-      // 1. Obtener equipos autorizados via permisos_acceso
+      const hoy = new Date().toISOString().split('T')[0]
+
+      // 1. Obtener permisos activos para esta empresa auditora
       const { data: permisos } = await supabase
         .from('permisos_acceso')
-        .select('equipo_id, puede_ver_incidentes')
+        .select('equipo_id, empresa_propietaria_id, puede_ver_incidentes, fecha_fin')
         .eq('empresa_auditora_id', usuario.empresa_id)
         .eq('activo', true)
-        .lte('fecha_inicio', new Date().toISOString().split('T')[0])
+        .lte('fecha_inicio', hoy)
 
-      const permisosActivos = permisos ?? []
+      // Filtrar permisos vencidos (fecha_fin pasada)
+      const permisosActivos = (permisos ?? []).filter((p) => !p.fecha_fin || p.fecha_fin >= hoy)
 
-      // equipo_id null = acceso a todos los equipos de esa empresa propietaria
-      // Por ahora filtramos solo los que tienen equipo_id explícito
-      const equipoIds = permisosActivos
-        .filter((p) => p.equipo_id)
-        .map((p) => p.equipo_id as string)
+      if (permisosActivos.length === 0) {
+        return { equipos: [], personasDentro: 0, incidentesPendientes: 0 }
+      }
 
       const puedeVerIncidentes = permisosActivos.some((p) => p.puede_ver_incidentes)
+
+      // 2. Resolver equipos autorizados
+      // equipo_id null = acceso a TODOS los equipos de esa empresa propietaria
+      let equipoIds: string[] = []
+
+      const permisosConEquipo = permisosActivos.filter((p) => p.equipo_id)
+      const permisosTodos = permisosActivos.filter((p) => !p.equipo_id)
+
+      // Agregar equipos explícitos
+      equipoIds = permisosConEquipo.map((p) => p.equipo_id as string)
+
+      // Para permisos sin equipo_id, cargar todos los equipos de esas empresas propietarias
+      if (permisosTodos.length > 0) {
+        const empresaPropietariaIds = [...new Set(permisosTodos.map((p) => p.empresa_propietaria_id))]
+        const { data: equiposTodos } = await supabase
+          .from('equipos')
+          .select('id')
+          .in('empresa_contratista_id', empresaPropietariaIds)
+          .is('deleted_at', null)
+        const idsTodos = (equiposTodos ?? []).map((e) => e.id)
+        equipoIds = [...new Set([...equipoIds, ...idsTodos])]
+      }
 
       if (equipoIds.length === 0) {
         return { equipos: [], personasDentro: 0, incidentesPendientes: 0 }
       }
 
-      // 2. Cargar equipos autorizados
+      // 3. Cargar equipos autorizados
       const { data: equiposData } = await supabase
         .from('equipos')
         .select('id, nombre_equipo, estado, locacion:locaciones(codigo)')
         .in('id', equipoIds)
         .is('deleted_at', null)
 
-      // 3. Personas dentro en esos equipos
+      // 4. Personas dentro en esos equipos
       const { count: personasDentro } = await supabase
         .from('registros_acceso')
         .select('*', { count: 'exact', head: true })
         .in('equipo_id', equipoIds)
         .eq('estado', 'dentro')
+        .is('deleted_at', null)
 
-      // 4. Incidentes pendientes (solo si tiene permiso)
+      // 5. Incidentes pendientes (solo si tiene permiso)
       let incidentesPendientes = 0
       if (puedeVerIncidentes) {
         const { count } = await supabase
