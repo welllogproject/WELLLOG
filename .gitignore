@@ -7,3 +7,6 @@ dist
 *.log
 
 users_test.txt
+
+# Supabase CLI temp files
+supabase/.temp/
