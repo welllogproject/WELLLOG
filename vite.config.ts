@@ -37,6 +37,8 @@ export default defineConfig({
         clientsClaim: true,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
+        // Limpiar cachés viejas al activar nuevo SW
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             // Supabase API — NetworkFirst (intenta red, si falla usa caché)
