@@ -25,21 +25,64 @@ export default defineConfig({
         ],
       },
 
-      // Service Worker deshabilitado temporalmente.
-      // El SW con CacheFirst estaba sirviendo toda la app desde caché
-      // después del F5, bloqueando las requests a Supabase (solo 1 request
-      // visible en la pestaña Red = todo viene del caché).
-      // Se reactiva cuando tengamos dominio propio y podamos testear
-      // el comportamiento offline en campo con la tablet real.
+      // PWA con Service Worker habilitado:
+      // - Precache: HTML, CSS, JS (la app carga sin internet)
+      // - Runtime: NetworkFirst para Supabase API (intenta red, fallback caché)
+      //           CacheFirst para tiles de mapa (500 tiles, 30 días)
+      // - autoUpdate: cuando se deploya nueva versión, el SW se actualiza solo
+      //   El usuario NO necesita reinstalar la PWA — Chrome actualiza automáticamente
       workbox: {
-        globPatterns: [],
-        runtimeCaching: [],
-        skipWaiting: false,
-        clientsClaim: false,
-        navigateFallback: undefined,
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          {
+            // Supabase API — NetworkFirst (intenta red, si falla usa caché)
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-api',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60, // 1 hora máximo en caché
+              },
+              networkTimeoutSeconds: 5, // Si no responde en 5s, usar caché
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Tiles de OpenStreetMap — CacheFirst (se guardan para offline)
+            urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'osm-tiles',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            // Google Fonts — CacheFirst
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 año
+              },
+            },
+          },
+        ],
       },
-      // No registrar el SW en el cliente
-      injectRegister: null,
     }),
   ],
 

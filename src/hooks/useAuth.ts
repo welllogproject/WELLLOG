@@ -12,9 +12,16 @@ export function useAuth() {
   const { usuario, isLoading, equipoId, setUsuario, setLoading, logout: storeLogout } = useAuthStore()
 
   const logout = async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      // signOut puede fallar si no hay sesión — no importa
+      console.warn('[logout] signOut error:', e)
+    }
     storeLogout()
     queryClient.clear()
+    // Forzar navegación al login — el guard puede no dispararse si el router no re-renderiza
+    window.location.href = '/login'
   }
 
   const tienePermiso = (permiso: keyof typeof PERMISOS[Rol]) => {

@@ -6,26 +6,13 @@ import { initTheme } from './hooks/useTheme'
 
 initTheme()
 
-// Desregistrar cualquier Service Worker existente.
-// El SW anterior con CacheFirst estaba bloqueando todas las requests
-// a Supabase después del F5 (servía todo desde caché con tokens vencidos).
-// Una vez que tengamos dominio propio y testemos offline en campo,
-// se puede reactivar con una estrategia correcta.
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister()
-      console.log('[WELL LOG] Service Worker desregistrado:', registration.scope)
-    }
-  })
-  // Limpiar todos los cachés del SW
-  caches.keys().then((keys) => {
-    keys.forEach((key) => {
-      caches.delete(key)
-      console.log('[WELL LOG] Caché eliminado:', key)
-    })
-  })
-}
+// PWA: Service Worker se registra automáticamente via vite-plugin-pwa (registerType: 'autoUpdate')
+// Cuando se deploya una nueva versión:
+// 1. El SW detecta nuevos assets
+// 2. Descarga en background
+// 3. skipWaiting + clientsClaim → se activa inmediatamente
+// 4. El usuario NO necesita reinstalar la PWA ni recargar manualmente
+// La app funciona offline después de la primera carga (NetworkFirst para API, CacheFirst para assets)
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
