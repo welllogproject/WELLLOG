@@ -46,6 +46,7 @@ const SoportePlataforma = lazy(() => import('@/views/superadmin/SoportePlataform
 const LogsGlobales = lazy(() => import('@/views/superadmin/LogsGlobales').then(m => ({ default: m.LogsGlobales })))
 const InventarioTablets = lazy(() => import('@/views/superadmin/InventarioTablets').then(m => ({ default: m.InventarioTablets })))
 const SesionesLog = lazy(() => import('@/views/superadmin/SesionesLog').then(m => ({ default: m.SesionesLog })))
+const MapaDispositivos = lazy(() => import('@/views/superadmin/MapaDispositivos').then(m => ({ default: m.MapaDispositivos })))
 
 // ── Suspense fallback ───────────────────────────────────
 
@@ -159,6 +160,7 @@ export const router = createBrowserRouter([
       { path: 'logs', element: <LogsGlobales /> },
       { path: 'tablets', element: <InventarioTablets /> },
       { path: 'sesiones', element: <SesionesLog /> },
+      { path: 'dispositivos', element: <MapaDispositivos /> },
     ],
   },
 

@@ -39,10 +39,11 @@ const SUPERADMIN_GROUPS: NavGroup[] = [
   {
     label: 'Sistema',
     items: [
+      { to: '/superadmin/dispositivos', label: 'Mapa Tablets',     icon: <Globe size={16} /> },
+      { to: '/superadmin/tablets',    label: 'Inventario',         icon: <Settings size={16} /> },
+      { to: '/superadmin/sesiones',   label: 'Sesiones',           icon: <Lock size={16} /> },
       { to: '/superadmin/config',     label: 'Configuración',      icon: <Settings size={16} /> },
       { to: '/superadmin/soporte',    label: 'Soporte',            icon: <HelpCircle size={16} /> },
-      { to: '/superadmin/tablets',    label: 'Tablets',            icon: <Globe size={16} /> },
-      { to: '/superadmin/sesiones',   label: 'Sesiones',           icon: <Lock size={16} /> },
       { to: '/superadmin/logs',       label: 'Logs Globales',      icon: <BookOpen size={16} /> },
     ],
   },
