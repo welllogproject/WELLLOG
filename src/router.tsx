@@ -44,6 +44,8 @@ const MetricasPlataforma = lazy(() => import('@/views/superadmin/MetricasPlatafo
 const ConfiguracionPlataforma = lazy(() => import('@/views/superadmin/ConfiguracionPlataforma').then(m => ({ default: m.ConfiguracionPlataforma })))
 const SoportePlataforma = lazy(() => import('@/views/superadmin/SoportePlataforma').then(m => ({ default: m.SoportePlataforma })))
 const LogsGlobales = lazy(() => import('@/views/superadmin/LogsGlobales').then(m => ({ default: m.LogsGlobales })))
+const InventarioTablets = lazy(() => import('@/views/superadmin/InventarioTablets').then(m => ({ default: m.InventarioTablets })))
+const SesionesLog = lazy(() => import('@/views/superadmin/SesionesLog').then(m => ({ default: m.SesionesLog })))
 
 // ── Suspense fallback ───────────────────────────────────
 
@@ -155,6 +157,8 @@ export const router = createBrowserRouter([
       { path: 'config', element: <ConfiguracionPlataforma /> },
       { path: 'soporte', element: <SoportePlataforma /> },
       { path: 'logs', element: <LogsGlobales /> },
+      { path: 'tablets', element: <InventarioTablets /> },
+      { path: 'sesiones', element: <SesionesLog /> },
     ],
   },
 

@@ -1,9 +1,9 @@
-// src/hooks/useAuth.ts
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { queryClient } from '@/lib/queryClient'
+import { registrarLogout } from '@/hooks/useHeartbeat'
 import type { Usuario } from '@/types/models'
 import type { Rol } from '@/types/roles'
 import { PERMISOS } from '@/types/roles'
@@ -12,15 +12,17 @@ export function useAuth() {
   const { usuario, isLoading, equipoId, setUsuario, setLoading, logout: storeLogout } = useAuthStore()
 
   const logout = async () => {
+    // Registrar el logout antes de limpiar la sesión
+    if (usuario?.id) {
+      await registrarLogout(usuario.id)
+    }
     try {
       await supabase.auth.signOut()
     } catch (e) {
-      // signOut puede fallar si no hay sesión — no importa
       console.warn('[logout] signOut error:', e)
     }
     storeLogout()
     queryClient.clear()
-    // Forzar navegación al login — el guard puede no dispararse si el router no re-renderiza
     window.location.href = '/login'
   }
 
