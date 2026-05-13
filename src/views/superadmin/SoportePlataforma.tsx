@@ -369,6 +369,16 @@ export function SoportePlataforma() {
                     {!d.online && (
                       <p className="text-[10px] text-[#BA7517] mt-0.5">Offline</p>
                     )}
+                    {d.latitud && d.longitud && (
+                      <a
+                        href={`https://www.google.com/maps?q=${d.latitud},${d.longitud}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1D9E75] hover:underline mt-0.5 block"
+                      >
+                        📍 Ver ubicación
+                      </a>
+                    )}
                   </div>
                 </div>
               )

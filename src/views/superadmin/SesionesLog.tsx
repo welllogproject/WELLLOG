@@ -152,9 +152,16 @@ export function SesionesLog() {
                               {parseUserAgent(s.user_agent)}
                             </span>
                             {s.latitud && s.longitud && (
-                              <span className="text-[10px] text-[#1D9E75] flex items-center gap-0.5" title={`${s.latitud.toFixed(4)}, ${s.longitud.toFixed(4)}`}>
-                                <MapPin size={9} /> GPS
-                              </span>
+                              <a
+                                href={`https://www.google.com/maps?q=${s.latitud},${s.longitud}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] text-[#1D9E75] flex items-center gap-0.5 hover:underline"
+                                title={`${s.latitud.toFixed(4)}, ${s.longitud.toFixed(4)}`}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MapPin size={9} /> Ver mapa
+                              </a>
                             )}
                           </div>
                         </div>
