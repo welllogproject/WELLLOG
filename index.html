@@ -6,55 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#7F77DD" />
     <meta name="description" content="WELL LOG — Control de acceso digital para yacimientos petroleros e instalaciones industriales." />
+    <meta name="robots" content="noindex, nofollow" />
     <title>WELL LOG — Control de Acceso</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Desregistrar Service Workers y limpiar cachés viejos.
-         También fuerza recarga si hay una nueva versión deployada. -->
+    <!-- Versión del deploy — limpia caché de queries si cambió -->
     <script>
       (function() {
-        // Versión actual del deploy — se actualiza con cada build de Vite
-        // (el hash del chunk JS cambia en cada deploy)
-        var APP_VERSION = '2026.05.10';
-
-        // 1. Desregistrar Service Workers
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for (var i = 0; i < registrations.length; i++) {
-              registrations[i].unregister();
-            }
-          });
-        }
-
-        // 2. Limpiar cachés de Workbox
-        if ('caches' in window) {
-          caches.keys().then(function(keys) {
-            keys.forEach(function(key) { caches.delete(key); });
-          });
-        }
-
-        // 3. Verificar versión — si cambió, limpiar datos obsoletos
+        var APP_VERSION = '2026.05.14';
         var storedVersion = localStorage.getItem('welllog_app_version');
         if (storedVersion && storedVersion !== APP_VERSION) {
-          // Nueva versión deployada — limpiar caché de queries
-          // NO limpiar la sesión de auth ni el equipoId
+          // Nueva versión — limpiar caché de queries pero mantener auth
           var authData = localStorage.getItem('fieldpass-auth');
           var supabaseAuth = null;
-          // Buscar la key de Supabase auth (empieza con sb-)
           for (var i = 0; i < localStorage.length; i++) {
             var key = localStorage.key(i);
             if (key && key.startsWith('sb-')) {
               supabaseAuth = { key: key, value: localStorage.getItem(key) };
             }
           }
-
-          // Limpiar todo excepto auth
           localStorage.clear();
-
-          // Restaurar auth
           if (authData) localStorage.setItem('fieldpass-auth', authData);
           if (supabaseAuth) localStorage.setItem(supabaseAuth.key, supabaseAuth.value);
         }

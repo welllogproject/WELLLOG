@@ -82,12 +82,12 @@ export function useTieneIngresoActivo(dni: string, equipoId: string | null) {
 }
 
 // Tabla de registros para admin con filtros
-export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaHasta?: string) {
+export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaHasta?: string, page = 0, pageSize = 50) {
   const { usuario } = useAuthStore()
   return useQuery({
-    queryKey: [QUERY_KEY, 'admin', usuario?.empresa_id, usuario?.rol, equipoId, fechaDesde, fechaHasta],
+    queryKey: [QUERY_KEY, 'admin', usuario?.empresa_id, usuario?.rol, equipoId, fechaDesde, fechaHasta, page, pageSize],
     queryFn: async () => {
-      if (!usuario) return []
+      if (!usuario) return { registros: [], total: 0 }
 
       // Superadmin: ve todos los registros
       // Admin/supervisor: solo registros de equipos de su empresa
@@ -102,22 +102,20 @@ export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaH
 
         if (eqErr) throw eqErr
         equipoIds = (equipos ?? []).map((e) => e.id)
-        // Si no hay equipos, no hay registros
-        if (equipoIds.length === 0) return []
+        if (equipoIds.length === 0) return { registros: [], total: 0 }
       }
 
       let query = supabase
         .from('registros_acceso')
-        .select('*')
+        .select('*', { count: 'exact' })
         .is('deleted_at', null)
         .order('fecha_ingreso', { ascending: false })
-        .limit(500)
+        .range(page * pageSize, (page + 1) * pageSize - 1)
 
       // Filtrar por equipos de la empresa (si no es superadmin)
       if (equipoIds !== null) {
-        // Si se especificó un equipo concreto, verificar que pertenece a la empresa
         if (equipoId) {
-          if (!equipoIds.includes(equipoId)) return []
+          if (!equipoIds.includes(equipoId)) return { registros: [], total: 0 }
           query = query.eq('equipo_id', equipoId)
         } else {
           query = query.in('equipo_id', equipoIds)
@@ -129,9 +127,9 @@ export function useRegistrosAdmin(equipoId?: string, fechaDesde?: string, fechaH
       if (fechaDesde) query = query.gte('fecha_ingreso', fechaDesde)
       if (fechaHasta) query = query.lte('fecha_ingreso', fechaHasta)
 
-      const { data, error } = await query
+      const { data, error, count } = await query
       if (error) throw error
-      return (data ?? []) as RegistroAcceso[]
+      return { registros: (data ?? []) as RegistroAcceso[], total: count ?? 0 }
     },
     enabled: !!usuario,
   })

@@ -184,10 +184,9 @@ export function SoportePlataforma() {
   const handleImpersonar = () => {
     if (!empresaSeleccionada) return
     const empresa = empresas.find(e => e.id === empresaSeleccionada)
-    toast(`Función de impersonación requiere Edge Function con service role. Empresa: ${empresa?.nombre}`, {
-      icon: 'ℹ️',
-      duration: 5000,
-    })
+    // Abrir el debug panel con la empresa seleccionada para ver sus datos
+    window.open(`/admin?debug=1&empresa=${empresaSeleccionada}`, '_blank')
+    toast.success(`Abriendo vista de ${empresa?.nombre} en nueva pestaña`)
     setImpersonarModal(false)
   }
 

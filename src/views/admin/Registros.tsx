@@ -22,15 +22,23 @@ export function Registros() {
   const [fechaHasta, setFechaHasta] = useState(new Date().toISOString().split('T')[0])
   const [search, setSearch] = useState('')
   const [registroSeleccionado, setRegistroSeleccionado] = useState<RegistroAcceso | null>(null)
+  const [page, setPage] = useState(0)
+  const pageSize = 50
 
   const { data: equipos } = useEquipos()
-  const { data: registros, isLoading } = useRegistrosAdmin(
+  const { data, isLoading } = useRegistrosAdmin(
     equipoId || undefined,
     fechaDesde ? `${fechaDesde}T00:00:00` : undefined,
-    fechaHasta ? `${fechaHasta}T23:59:59` : undefined
+    fechaHasta ? `${fechaHasta}T23:59:59` : undefined,
+    page,
+    pageSize
   )
 
-  const registrosFiltrados = (registros ?? []).filter((r) =>
+  const registros = data?.registros ?? []
+  const total = data?.total ?? 0
+  const totalPages = Math.ceil(total / pageSize)
+
+  const registrosFiltrados = registros.filter((r) =>
     !search ||
     r.nombre_completo.toLowerCase().includes(search.toLowerCase()) ||
     r.dni.includes(search) ||
@@ -60,7 +68,7 @@ export function Registros() {
   return (
     <PageLayout
       title="Registros de Acceso"
-      subtitle={`${registrosFiltrados.length} registro${registrosFiltrados.length !== 1 ? 's' : ''}`}
+      subtitle={`${total} registro${total !== 1 ? 's' : ''} — página ${page + 1} de ${totalPages || 1}`}
       actions={
         <Button variant="secondary" size="sm" icon={<Download size={15} />} onClick={exportarExcel}>
           Exportar
@@ -85,7 +93,7 @@ export function Registros() {
           {/* Equipo */}
           <select
             value={equipoId}
-            onChange={(e) => setEquipoId(e.target.value)}
+            onChange={(e) => { setEquipoId(e.target.value); setPage(0) }}
             className="w-full py-2.5 px-4 text-sm bg-[var(--input-bg)] border border-[var(--border-strong)] rounded-clay-sm outline-none focus:border-[#7F77DD] transition-colors appearance-none"
           >
             <option value="">Todos los equipos</option>
@@ -204,6 +212,34 @@ export function Registros() {
           </table>
         </div>
       </Card>
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-xs text-[var(--text-muted)]">
+            Mostrando {page * pageSize + 1}–{Math.min((page + 1) * pageSize, total)} de {total}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0}
+              className="px-3 py-1.5 text-sm rounded-lg bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              ← Anterior
+            </button>
+            <span className="text-sm text-[var(--text-secondary)] tabular-nums">
+              {page + 1} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1}
+              className="px-3 py-1.5 text-sm rounded-lg bg-[var(--card-bg)] border border-[var(--border-strong)] text-[var(--text-secondary)] hover:bg-[var(--hover-bg)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Drawer de detalle */}
       <RegistroDetalle
