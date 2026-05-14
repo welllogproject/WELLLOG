@@ -1,6 +1,6 @@
-# CLAUDE.md — FieldPass
+# CLAUDE.md — WELL LOG
 
-> Última actualización: Mayo 2026 — Kiro
+> Última actualización: 14 Mayo 2026 — Kiro (sesión 3c)
 > Leer este archivo completo antes de tocar cualquier código.
 
 ---
@@ -51,12 +51,15 @@
 
 **Superadmin (plataforma completa)**
 - `SuperadminDashboard` — KPIs globales + empresas recientes
-- `GestionEmpresas` — CRUD contratistas y operadoras con plan
-- `GestionUsuarios` — todos los usuarios con filtros por empresa/rol
+- `GestionEmpresas` — CRUD contratistas y operadoras
+- `GestionUsuarios` — todos los usuarios con filtros por empresa/rol + eliminar
 - `PermisosAcceso` — modelo multi-tenant: qué contratista comparte con qué operadora
 - `MetricasPlataforma` — gráficos globales: registros/día, incidentes/mes, distribuciones
 - `ConfiguracionPlataforma` — ver env vars, feature flags, estado de Supabase
-- `SoportePlataforma` — health check DB/Auth/Realtime, actividad por empresa
+- `SoportePlataforma` — health check DB/Auth/Realtime, actividad por empresa, estado de dispositivos
+- `MapaDispositivos` — mapa en vivo con ubicación de todas las tablets (GPS, estado, última actividad)
+- `InventarioTablets` — CRUD tablets (marca, modelo, S/N, empresa, equipo, estado)
+- `SesionesLog` — historial de login/logout con geolocalización y link a Google Maps
 - `LogsGlobales` — logs de toda la plataforma con filtros y exportar CSV
 
 **Componentes compartidos**
@@ -79,12 +82,10 @@
 
 ### ⚠️ Pendiente
 
-- **Email de invitación** — funciona pero llega desde `onboarding@resend.dev`. Para que llegue desde dominio propio: verificar dominio en Resend → actualizar sender en Edge Function → redeploy
+- **Email de invitación** — funciona pero llega desde `onboarding@resend.dev` (modo sandbox de Resend). Para producción: comprar dominio → verificar en Resend → actualizar sender en Edge Function. Sin dominio, el link de activación se copia al portapapeles del admin para enviar manualmente.
+- **Verificar emails de Resend** — en modo sandbox solo envía a emails verificados en la cuenta de Resend. Con dominio propio verificado funciona con cualquier email.
 - **Geofence** — feature flag `VITE_FEATURE_GEOFENCE=false`. Hook `useGeofence.ts` no implementado
-- **EmergencyPanel** — feature flag `VITE_FEATURE_EMERGENCIA=true`. Componente no implementado
-- **Impersonar empresa** — UI lista en SoportePlataforma, Edge Function pendiente
 - **Paginación en Registros** — límite actual 500 filas
-- **`@react-pdf/renderer`** — instalado, `RegistroPDF.tsx` creado, pero no testeado en build de Vercel (puede requerir ajustes de SSR)
 
 ### 👥 Usuarios de prueba (Mayo 2026)
 
@@ -162,7 +163,63 @@
 - Resuelve nombres via query a tabla `usuarios`
 
 **Realtime health check**
-- `SoportePlataforma`: test real de conexión Realtime (crea canal temporal en vez de solo verificar `isConnected`)
+- `SoportePlataforma`: test real de conexión Realtime (canal efímero con timeout de 4s)
+
+### ✨ Mejoras (Mayo 2026 — sesión 3c, Kiro)
+
+**Logout funcional + Operador UI**
+- `useAuth.ts`: logout fuerza `window.location.href = '/login'` (antes el router no re-renderizaba)
+- `TabletLayout`: menú hamburguesa con nombre de usuario, ThemeToggle y botón "Salir"
+- Modo claro/oscuro disponible para el operador
+
+**PWA / Offline re-habilitado**
+- Service Worker con estrategia correcta: precache assets, NetworkFirst para API (timeout 5s), CacheFirst para tiles OSM
+- `cleanupOutdatedCaches: true` — limpia chunks viejos al activar nuevo SW
+- `main.tsx`: auto-recovery si chunks viejos no cargan (limpia caché + recarga una vez)
+- El usuario NO necesita reinstalar la PWA al actualizar — se actualiza solo
+
+**Monitoreo de dispositivos (superadmin)**
+- `useHeartbeat`: envía estado cada 60s (usuario, equipo, online/offline, GPS cada 10min)
+- `sesiones_log`: tabla que registra login/logout con geolocalización
+- `dispositivos_estado`: tabla con última actividad, coordenadas, user_agent
+- `inventario_tablets`: CRUD completo (marca, modelo, S/N, empresa, equipo, estado)
+- `/superadmin/dispositivos`: mapa en vivo con ubicación de todas las tablets
+- `/superadmin/sesiones`: historial de login/logout con link a Google Maps
+- `/superadmin/tablets`: inventario con editar/eliminar y asignación empresa→equipo
+- `SoportePlataforma`: panel "Estado de dispositivos" con indicador verde/amarillo/gris
+
+**Flujo autoservicio de auditores (admin)**
+- El admin de Venver puede hacer TODO sin depender del superadmin:
+  - Crear empresa operadora nueva si no existe (ej: "YPF")
+  - Invitar usuario auditor con email (recibe invitación)
+  - Asignar permisos (equipo, tipo acceso, datos visibles)
+  - Revocar acceso en cualquier momento
+- Edge Function `invite-user` actualizada: admin puede crear auditores en empresas operadoras
+- RLS: policy `admin_insert_operadoras` permite al admin crear empresas tipo operadora
+
+**Pantalla de activación de cuenta (`/activate`)**
+- El usuario invitado recibe link → `/activate` → elige su contraseña (mín 8 chars)
+- Detecta tokens de Supabase en la URL automáticamente
+- Muestra error si link expirado/inválido
+- Redirige al login después de activar
+
+**Eliminar usuarios**
+- Edge Function `invite-user` soporta DELETE: elimina de `auth.users` + tabla `usuarios`
+- Admin puede eliminar usuarios de su empresa y auditores de operadoras
+- Botón papelera en `/admin/usuarios` con confirmación
+
+**RLS fixes**
+- Eliminadas policies recursivas en `equipos`, `registros_acceso`, `incidentes` que causaban "infinite recursion detected"
+- Reemplazadas por policies simples basadas en rol (filtrado por permisos se hace en el código)
+- `useEquipos`: superadmin ahora ve TODOS los equipos (antes filtraba por empresa_id inexistente)
+
+**Realtime habilitado en Supabase**
+- Tablas con Realtime: `registros_acceso`, `incidentes`, `equipos`
+- Habilitado via `ALTER PUBLICATION supabase_realtime ADD TABLE`
+
+**Documentación**
+- `PRESENTACION_WELLLOG.md` — presentación comercial con costos (uso interno)
+- `PRESENTACION_WELLLOG_CLIENTE.md` — presentación para el cliente sin costos
 
 ### 🐛 Bugs corregidos (Mayo 2026 — sesión 1)
 
