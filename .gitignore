@@ -10,3 +10,7 @@ users_test.txt
 
 # Supabase CLI temp files
 supabase/.temp/
+
+# Playwright
+test-results/
+playwright-report/
