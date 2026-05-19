@@ -82,10 +82,16 @@
 
 ### ⚠️ Pendiente
 
-- **Email de invitación** — funciona pero llega desde `onboarding@resend.dev` (modo sandbox de Resend). Para producción: comprar dominio → verificar en Resend → actualizar sender en Edge Function. Sin dominio, el link de activación se copia al portapapeles del admin para enviar manualmente.
-- **Verificar emails de Resend** — en modo sandbox solo envía a emails verificados en la cuenta de Resend. Con dominio propio verificado funciona con cualquier email.
-- **Geofence** — feature flag `VITE_FEATURE_GEOFENCE=false`. Hook `useGeofence.ts` no implementado
-- **Paginación en Registros** — límite actual 500 filas
+- **Dominio propio** — comprar dominio → verificar en Resend → emails llegan desde `no-reply@tudominio.com` en vez de `onboarding@resend.dev`. Sin dominio, los links de activación se copian al portapapeles del admin para enviar manualmente.
+- **Limpiar datos de prueba** — cuando se arranque con datos reales de producción, eliminar empresas/usuarios/registros de demo.
+- **Geofence** — hook implementado (`useGeofence.ts`), se activa con `VITE_FEATURE_GEOFENCE=true` en .env. Alerta si la tablet está a más de 2km del equipo.
+
+### 🧪 Tests E2E
+
+- **14/14 tests pasan** en ~15 segundos contra producción
+- Correr: `npm run test:e2e`
+- Cubren: login/logout de 4 roles, dashboard, registros, mapa, HSE, auditores, operador
+- Playwright + Chromium headless
 
 ### 👥 Usuarios de prueba (Mayo 2026)
 
@@ -261,7 +267,7 @@
 
 ## ¿Qué es este proyecto?
 
-**FieldPass** es un SaaS B2B multi-tenant para control de acceso en yacimientos petroleros e instalaciones industriales. Digitaliza las planillas físicas de ingreso/egreso de personal (como el "Registro de Visita al Equipo" de Venver), permitiendo monitoreo en tiempo real, trazabilidad geoespacial, métricas HSE y auditoría legal.
+**WELL LOG** es un SaaS B2B multi-tenant para control de acceso en yacimientos petroleros e instalaciones industriales. Digitaliza las planillas físicas de ingreso/egreso de personal (como el "Registro de Visita al Equipo" de Venver), permitiendo monitoreo en tiempo real, trazabilidad geoespacial, métricas HSE y auditoría legal.
 
 ### Actores del sistema
 
@@ -302,7 +308,7 @@ El formulario base se tomó del **"Registro de Visita al Equipo"** de Venver (pl
 ## Estructura de Carpetas
 
 ```
-fieldpass/
+WELL LOG/
 ├── CLAUDE.md                        ← Este archivo. Leerlo siempre primero.
 ├── .env.local                       ← Variables de entorno (NUNCA commitear)
 ├── .env.example                     ← Plantilla pública sin valores reales
@@ -465,8 +471,8 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 # VITE_MAPBOX_TOKEN=pk.eyJ1...  ← Descomentar cuando se migre a Mapbox
 
 # App
-VITE_APP_NAME=FieldPass
-VITE_APP_URL=https://fieldpass.vercel.app
+VITE_APP_NAME=WELL LOG
+VITE_APP_URL=https://WELL LOG.vercel.app
 VITE_OFFLINE_SYNC_INTERVAL_MS=30000
 VITE_MAX_OFFLINE_QUEUE=200
 VITE_GEOFENCE_WARN_DISTANCE_KM=2
@@ -1115,7 +1121,7 @@ El pad de firma acepta cualquier trazo de al menos 1 segundo de duración. No va
 
 ### Tablet bloqueada a su equipo
 
-1. El `equipo_id` se configura **una sola vez** por el admin desde el panel web y se persiste en `localStorage` + `IndexedDB` con la clave `fieldpass_equipo_id`.
+1. El `equipo_id` se configura **una sola vez** por el admin desde el panel web y se persiste en `localStorage` + `IndexedDB` con la clave `WELL LOG_equipo_id`.
 2. La vista del operador arranca directamente en su equipo asignado. **Nunca muestra selector de equipo.**
 3. Reasignar una tablet a otro equipo solo lo puede hacer un `admin` desde el panel web. No existe esa opción en la interfaz del operador.
 4. Si al iniciar la app no hay `equipo_id` persistido → mostrar pantalla de espera: "Esta tablet no está configurada. Contactá al administrador." con un código de dispositivo para vinculación remota.
